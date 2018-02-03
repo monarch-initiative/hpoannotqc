@@ -20,13 +20,13 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
 
 
 /**
- * The HPO asnotations are currently distribued acorss roughly 7000 "small files", which were created between 2009 and 2017.
- * We want to unify and extend the format for these files. Thiu class represents a single "old" small file. THe app will
- * transform these objects into {@link V2SmallFile} objects. Note that the "logic" for transformung small files has been
- * coded in the {@link OldSmallFileEntry} class, and this class basically just identifies the column indices and splits up the
- * lines into corresponding fields. THere is some variability in the nameing of columns (e.g., Sex and SexID), and this
+ * The HPO annotations are currently distribued across roughly 7000 "small files", which were created between 2009 and 2017.
+ * We want to unify and extend the format for these files. This class represents a single "old" small file. The app will
+ * transform these objects into {@link V2SmallFile} objects. Note that the "logic" for transforming small files has been
+ * coded in the {@link OldSmallFileEntry} class, and {@link OldSmallFile} basically just identifies the column indices and splits up the
+ * lines into corresponding fields. There is some variability in the naming of columns (e.g., Sex and SexID), and this
  * class tries to figure that out.
- * @author Peter Robinson
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
 public class OldSmallFile {
@@ -140,6 +140,7 @@ public class OldSmallFile {
 
     private void processContentLine(String line) throws HPOException {
         String F[]=line.split("\t");
+        System.out.println(line);
         if (F.length != n_fields) {
             throw new HPOException("We were expecting " + n_fields + " fields but got only " + F.length + "for line:\n"+line);
         }

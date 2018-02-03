@@ -108,11 +108,10 @@ public class HpoAnnotQc {
     }
 
     public void run() {
-        System.out.println("RUN!  hpoPath="+hpOboPath + " annoation path="+annotationPath);
+        logger.trace("hpoPath="+hpOboPath + " annoation path="+annotationPath);
         initOntology();
         List<String> files=getListOfSmallFiles();
         logger.trace("We found " + files.size() + " small files at " + annotationPath);
-
             for (String path : files) {
                 OldSmallFile osf = new OldSmallFile(path);
                 this.n_alt_id += osf.getN_alt_id();
@@ -148,7 +147,8 @@ public class HpoAnnotQc {
 
 
     /** Parse the hp.obo file. Set the static ontology variables in OldSmallFileEntry that we will
-     * use to check the entries.
+     * use to check the entries. We use the ontology objects in {@link OldSmallFileEntry} so we
+     * set them using a static setter
      */
     private void initOntology() {
         TermPrefix pref = new ImmutableTermPrefix("HP");
@@ -161,6 +161,11 @@ public class HpoAnnotQc {
         } catch (Exception e) {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
             System.exit(1); // we cannot recover from this
+        }
+        OldSmallFileEntry.setOntology(ontology, inheritanceSubontology, abnormalPhenoSubOntology);
+        if (this.ontology==null) {
+            logger.error("We could not parse the HPO ontology. Terminating ...");
+            System.exit(1);// not a recoverable error
         }
     }
 }
