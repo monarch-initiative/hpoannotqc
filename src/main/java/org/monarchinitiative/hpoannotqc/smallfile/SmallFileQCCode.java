@@ -7,6 +7,7 @@ public enum SmallFileQCCode {
     UPDATING_HPO_LABEL("Updated label to current label"),
     CREATED_MODIFER("Created modifier term"),
     UPDATED_DATE_FORMAT("Updated created-by date to canonical date format"),
+    NO_DATE_CREATED("No data created found"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 
     private final String name;

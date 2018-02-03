@@ -102,6 +102,11 @@ public class SmallFileBuilder {
         return this;
     }
 
+    public SmallFileBuilder dateCreated(String dc) {
+        this.dateCreated=dc;
+        return this;
+    }
+
     public String build() {
         List<String> entry = new ArrayList<>();
         for (String f : headerFields) {

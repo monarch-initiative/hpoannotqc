@@ -21,7 +21,7 @@ import java.util.Map;
  * (see <a href="http://human-phenotype-ontology.github.io/">HPO Homepage</a>).
  * @author Peter Robinson
  * @author Vida Ravanmehr
- * @version 0.1.2 (2017-11-15)
+ * @version 0.1.5 (2018-02-02)
  */
 public class HpoOntologyParser {
     /** Path to the {@code hp.obo} file. */

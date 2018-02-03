@@ -13,6 +13,8 @@ import org.monarchinitiative.hpoannotqc.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -637,6 +639,13 @@ public class OldSmallFileEntry {
      * Returns the date created, and transforms the date format to YYYY-MM-DD, e.g., 2009-03-23.
      */
     public String getDateCreated() {
+        if (dateCreated==null || dateCreated.isEmpty()) {
+            QCissues.add(NO_DATE_CREATED);
+            // replace with today's date
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = new Date();
+            return dateFormat.format(date);
+        }
         return convertToCanonicalDateFormat(dateCreated);
     }
 

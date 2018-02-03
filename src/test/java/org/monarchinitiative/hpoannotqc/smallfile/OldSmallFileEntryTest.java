@@ -12,10 +12,16 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.ResourceUtils;
 
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -34,8 +40,11 @@ public class OldSmallFileEntryTest {
      */
     @BeforeClass
     public static void init() {
-        ClassLoader classLoader = OldSmallFileEntryTest.class.getClassLoader();
-        String hpOboPath = classLoader.getResource("hp.obo").getFile();
+        //ClassLoader classLoader = OldSmallFileEntryTest.class.getClassLoader();
+        //String hpOboPath = classLoader.getResource("hp.obo").getFile();
+        //File file = ResourceUtils.getFile(OldSmallFileEntryTest.getResource("/some_file.txt"));
+        Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
+        String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         try {
             HpoOntologyParser parser = new HpoOntologyParser(hpOboPath);
             HpoOntology ontology = parser.getOntology();
@@ -101,27 +110,35 @@ public class OldSmallFileEntryTest {
     }
 
 
-    /* This is the modification field. In this case, we want to add the HPO Modifier "Episodic" (HP:0025303).
-    MODIFIER:EPISODIC;OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC
-    This comes from the line
-    OMIM-104290.tab:OMIM:104290	#104290 ALTERNATING HEMIPLEGIA OF CHILDHOOD 1; AHC1					HP:0002445	Tetraplegia			IEA	IEA						MODIFIER:EPISODIC;OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC	OMIM:104290	HPO:skoehler	06.06.2013
 
-    */
-    @Test
-    public void testModification() throws IOException {
+    private OldSmallFile makeOldSmallFile(String filename,
+                                          SmallFileBuilder builder) throws IOException {
         File tempFile = testFolder.newFile("tempfile2.tab");
         List<String> annots = new ArrayList<>();
         annots.add(SmallFileBuilder.getHeader());
+        String oldSmallFileLine = builder.build();
+        annots.add(oldSmallFileLine);
+        writeTmpFile(annots, tempFile);
+        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        return osm;
+    }
+
+
+    /* This is the modification field. In this case, we want to add the HPO Modifier "Episodic" (HP:0025303).
+    MODIFIER:EPISODIC;OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC
+    This comes from the line
+    OMIM-104290.tab:OMIM:104290	#104290 ALTERNATING HEMIPLEGIA OF CHILDHOOD 1; AHC1					HP:0002445	Tetraplegia			IEA	IEA
+    MODIFIER:EPISODIC;OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC	OMIM:104290	HPO:skoehler	06.06.2013
+    */
+    @Test
+    public void testModification() throws IOException {
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:104290").
                 diseaseName("#104290 ALTERNATING HEMIPLEGIA OF CHILDHOOD 1; AHC1").
                 hpoId("HP:0002445").
                 hpoName("Tetraplegia").
                 description("MODIFIER:EPISODIC;OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile2.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
@@ -142,20 +159,14 @@ public class OldSmallFileEntryTest {
     */
     @Test
     public void testModification2() throws IOException {
-        File tempFile = testFolder.newFile("tempfile2.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:614255").
                 diseaseName("#614255 MENTAL RETARDATION, AUTOSOMAL DOMINANT 9; MRD9").
                 hpoId("HP:0006855").
                 hpoName("Cerebellar vermis atrophy").
                 description("Mild");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
-        List<OldSmallFileEntry> entries = osm.getEntrylist();
+        OldSmallFile osf = makeOldSmallFile("tempfile2.tab",builder);
+        List<OldSmallFileEntry> entries = osf.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
@@ -176,19 +187,13 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void testModification3() throws IOException {
-        File tempFile = testFolder.newFile("tempfile3.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
                 hpoId("HP:0000938").
                 hpoName("Osteopenia").
                 description("MODIFIER:PROGRESSIVE;OMIM-CS:SKELETAL > PROGRESSIVE OSTEOPENIA");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile3.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
@@ -209,9 +214,6 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void testModification4() throws IOException {
-        File tempFile = testFolder.newFile("tempfile4.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
@@ -220,10 +222,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (RARE)");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile4.tab",builder);;
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
@@ -249,9 +248,6 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void testModification5() throws IOException {
-        File tempFile = testFolder.newFile("tempfile5.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
@@ -260,10 +256,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (IN SOME PATIENTS)");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile5.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
@@ -285,9 +278,6 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void testModification6() throws IOException {
-        File tempFile = testFolder.newFile("tempfile6.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
@@ -296,10 +286,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:SKELETAL_SPINE > SCOLIOSIS, MILD (RARE)");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile6.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
@@ -323,9 +310,6 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void updateAltIdAnnotation1() throws IOException {
-        File tempFile = testFolder.newFile("tempfile6.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
@@ -334,10 +318,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:SKELETAL_SPINE > SCOLIOSIS, MILD (RARE)");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile6.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
@@ -358,9 +339,6 @@ public class OldSmallFileEntryTest {
      */
     @Test
     public void updateAltIdAnnotation2() throws IOException {
-        File tempFile = testFolder.newFile("tempfile6.tab");
-        List<String> annots = new ArrayList<>();
-        annots.add(SmallFileBuilder.getHeader());
         SmallFileBuilder builder = new SmallFileBuilder().
                 diseaseId("OMIM:608154").
                 diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
@@ -369,10 +347,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:SKELETAL_SPINE > SCOLIOSIS, MILD (RARE)");
-        String oldSmallFileLine = builder.build();
-        annots.add(oldSmallFileLine);
-        writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
+        OldSmallFile osm = makeOldSmallFile("tempfile6.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
@@ -384,5 +359,35 @@ public class OldSmallFileEntryTest {
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0006316");
         assertEquals(primaryId,entry.getPhenotypeId());
     }
+
+
+    /** Check that a missing date entry gets replaced with today's date */
+    @Test
+    public void testMissingDate() throws IOException {
+        SmallFileBuilder builder = new SmallFileBuilder().
+                diseaseId("OMIM:608154").
+                diseaseName("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES").
+                hpoId("HP:0009081"). // out of date alt_id, should be replaced with the primary id.
+                hpoName("Irregularly spaced teeth").
+                evidence("IEA").
+                pub("OMIM:608154").
+                description("OMIM-CS:SKELETAL_SPINE > SCOLIOSIS, MILD (RARE)").
+                dateCreated("");
+        OldSmallFile osm = makeOldSmallFile("tempfile9.tab",builder);
+        List<OldSmallFileEntry> entries = osm.getEntrylist();
+        assertEquals(1, entries.size());
+        OldSmallFileEntry entry = entries.get(0);
+        // The date should be replaced with today's date. Note--theoretically, this test could fail if run JUST at midnight, so beware :-0!
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String expectedDate= dateFormat.format(date);
+        assertEquals(expectedDate,entry.getDateCreated());
+
+    }
+
+
+
+
 
 }

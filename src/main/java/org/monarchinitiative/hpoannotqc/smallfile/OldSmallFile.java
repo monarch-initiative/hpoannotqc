@@ -32,6 +32,9 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
 public class OldSmallFile {
     private static final Logger LOGGER = LoggerFactory.getLogger(OldSmallFile.class);
     private static final int UNINITIALIZED=-42;
+    /** The number of fields is usually 21, but we parse according to the header and there is some variability. The
+     * number of fields is not a requirement for our old-file format
+     */
     private int n_fields;
     private int DISEASE_ID_INDEX=UNINITIALIZED;
     private int DISEASE_NAME_INDEX=UNINITIALIZED;
@@ -72,7 +75,22 @@ public class OldSmallFile {
     /** A list of {@link OldSmallFileEntry} objects, each of which corresponds
      * to a line in the old small file (except for the header). */
     private List<OldSmallFileEntry> entrylist=new ArrayList<>();
+    /** Path to an old small file, e.g., OMIM-600321.tab */
     private final String pathToOldSmallFile;
+
+    private boolean hasQCissue=false;
+
+    private int n_corrected_date=0;
+    private int n_no_evidence=0;
+    private int n_gene_data=0;
+    private int n_alt_id=0;
+    private int n_update_label=0;
+    private int n_created_modifier=0;
+    private int n_EQ_item=0;
+    /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
+     * In practice this seems to be related to entries that are missing a "Date created" field.
+     */
+    private int n_less_than_expected_number_of_lines=0;
 
     public OldSmallFile(String path) {
         pathToOldSmallFile=path;
@@ -97,7 +115,7 @@ public class OldSmallFile {
                     processContentLine(line);
                 } catch (HPOException e) {
                     LOGGER.error(e.getMessage() + "\nOffending line:\n"+line);
-                    //System.exit(1);
+                    System.exit(1);
                 }
             }
         } catch (IOException e) {
@@ -138,16 +156,24 @@ public class OldSmallFile {
         return n_EQ_item;
     }
 
+    public int getN_less_than_expected_number_of_lines() { return n_less_than_expected_number_of_lines; }
+
     private void processContentLine(String line) throws HPOException {
         String F[]=line.split("\t");
         System.out.println(line);
         if (F.length != n_fields) {
-            throw new HPOException("We were expecting " + n_fields + " fields but got only " + F.length + "for line:\n"+line);
+            LOGGER.trace("We were expecting " + n_fields + " fields but got only " + F.length + "for line:\n"+line);
+            n_less_than_expected_number_of_lines++;
         }
         OldSmallFileEntry entry = new OldSmallFileEntry();
         //System.out.print(line);
         for (int i=0;i<F.length;i++) {
             FieldType typ = this.fields2index.inverse().get(i);
+            if (typ==null) {
+                LOGGER.error(String.format("Could not retrieve typ for i=%d",i ));
+                LOGGER.error("Offending line: \""+line+"\"");
+                System.exit(1);
+            }
            // LOGGER.trace("findingh typ="+typ.toString());
             switch (typ) {
                 case DISEASE_ID:
@@ -238,7 +264,6 @@ public class OldSmallFile {
                     entry.setAbnormalId(F[i]);
                     break;
                 case ABNORMAL_NAME:
-
                     entry.setAbnormalName(F[i]);
                     break;
                 case SEX:
@@ -267,15 +292,7 @@ public class OldSmallFile {
     }
 
 
-    private boolean hasQCissue=false;
 
-    private int n_corrected_date=0;
-    private int n_no_evidence=0;
-    private int n_gene_data=0;
-    private int n_alt_id=0;
-    private int n_update_label=0;
-    private int n_created_modifier=0;
-    private int n_EQ_item=0;
 
 
     public boolean hasQCissue() {
