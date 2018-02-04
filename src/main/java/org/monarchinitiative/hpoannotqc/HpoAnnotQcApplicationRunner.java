@@ -23,9 +23,28 @@ public class HpoAnnotQcApplicationRunner implements ApplicationRunner {
 
         if (appArgs.containsOption("help") || appArgs.containsOption("h")) {
             System.out.println("HELP! Help write this help!");
+        } else if (!appArgs.containsOption("hpo")) {
+            usage("[ERROR] need to pass the --hpo <path> option");
+        } else if (!appArgs.containsOption("annotations")) {
+            usage("[ERROR] need to pass the --annotations <path> option");
         } else {
             hpoAnnotQc.run();
         }
 
+    }
+
+
+
+
+
+    private static void usage(String msg) {
+        System.out.println();
+        System.out.println(msg);
+        System.out.println();
+        System.out.println("Usage: java -jar HpoAnnotQc.jar --hpo=<path> --annotations=<path>");
+        System.out.println("where the paths are to the hp.obo file and to the " +
+                "hpo-annotation-data/rare-diseases/annotated directories");
+        System.out.println();
+        System.exit(1);
     }
 }

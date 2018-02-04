@@ -3,7 +3,8 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 
-import org.monarchinitiative.hpoannotqc.Exception.HPOException;
+
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class OldSmallFile {
     }
 
 
-
+    /** Ingest one "old" small file. */
     private void parse() {
         try {
             BufferedReader br = new BufferedReader(new FileReader(pathToOldSmallFile));
@@ -160,13 +161,12 @@ public class OldSmallFile {
 
     private void processContentLine(String line) throws HPOException {
         String F[]=line.split("\t");
-        System.out.println(line);
+        //System.out.println(line);
         if (F.length != n_fields) {
             LOGGER.trace("We were expecting " + n_fields + " fields but got only " + F.length + "for line:\n"+line);
             n_less_than_expected_number_of_lines++;
         }
         OldSmallFileEntry entry = new OldSmallFileEntry();
-        //System.out.print(line);
         for (int i=0;i<F.length;i++) {
             FieldType typ = this.fields2index.inverse().get(i);
             if (typ==null) {
@@ -174,7 +174,6 @@ public class OldSmallFile {
                 LOGGER.error("Offending line: \""+line+"\"");
                 System.exit(1);
             }
-           // LOGGER.trace("findingh typ="+typ.toString());
             switch (typ) {
                 case DISEASE_ID:
                     entry.addDiseaseId(F[i]);
@@ -269,8 +268,11 @@ public class OldSmallFile {
                 case SEX:
                     entry.setSex(F[i]);
                     break;
+                case ORTHOLOGS:
+                    entry.setOrthologs(F[i]);
+                    break;
                 default:
-                    System.err.println("Need to add for id="+typ);
+                    LOGGER.error("Need to add switch-case for id="+typ);
                     System.exit(1);
             }
         }
@@ -286,7 +288,6 @@ public class OldSmallFile {
             // Note that the actual output of the new lines is done by thbe V2SmallFile class and not here.
             V2SmallFileEntry v2entry = new V2SmallFileEntry(entry);
             LOGGER.trace("V2 entry: " + v2entry.getRow());
-
         }
         entrylist.add(entry);
     }

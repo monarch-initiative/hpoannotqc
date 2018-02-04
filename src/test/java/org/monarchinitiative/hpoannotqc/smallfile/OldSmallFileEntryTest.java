@@ -10,9 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ResourceUtils;
+
 
 
 import java.io.*;
@@ -25,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.monarchinitiative.hpoannotqc.util.DateUtil.convertToCanonicalDateFormat;
+import static org.monarchinitiative.hpoannotqc.smallfile.DateUtil.convertToCanonicalDateFormat;
 
 
 public class OldSmallFileEntryTest {
@@ -57,19 +55,6 @@ public class OldSmallFileEntryTest {
     }
 
 
-    @Test
-    public void testDateCorrection1() {
-        String olddate = "2012.04.11";
-        String expected = "2012-04-11";
-        assertEquals(expected, convertToCanonicalDateFormat(olddate));
-    }
-
-    @Test
-    public void testDateCorrection3() {
-        String olddate = "2009.02.17";
-        String expected = "2009-02-17";
-        assertEquals(expected, convertToCanonicalDateFormat(olddate));
-    }
 
     private void writeTmpFile(List<String> annotations, File f) throws IOException {
         BufferedWriter bw = new BufferedWriter(new FileWriter(f));
@@ -119,8 +104,7 @@ public class OldSmallFileEntryTest {
         String oldSmallFileLine = builder.build();
         annots.add(oldSmallFileLine);
         writeTmpFile(annots, tempFile);
-        OldSmallFile osm = new OldSmallFile(tempFile.getAbsolutePath());
-        return osm;
+        return new OldSmallFile(tempFile.getAbsolutePath());
     }
 
 
@@ -222,7 +206,7 @@ public class OldSmallFileEntryTest {
                 evidence("IEA").
                 pub("OMIM:608154").
                 description("OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (RARE)");
-        OldSmallFile osm = makeOldSmallFile("tempfile4.tab",builder);;
+        OldSmallFile osm = makeOldSmallFile("tempfile4.tab",builder);
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());

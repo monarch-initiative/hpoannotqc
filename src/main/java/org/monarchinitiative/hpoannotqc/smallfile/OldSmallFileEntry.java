@@ -7,9 +7,7 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.graph.data.Edge;
 import com.github.phenomics.ontolib.ontology.data.*;
 
-
-import org.monarchinitiative.hpoannotqc.Exception.HPOException;
-import org.monarchinitiative.hpoannotqc.util.DateUtil;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +16,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.monarchinitiative.hpoannotqc.smallfile.DateUtil.convertToCanonicalDateFormat;
 import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.DECIPHER;
 import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.OMIM;
 import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.ORPHANET;
 import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
-import static org.monarchinitiative.hpoannotqc.util.DateUtil.convertToCanonicalDateFormat;
 
 
 /**
@@ -350,7 +348,6 @@ public class OldSmallFileEntry {
         }
 
         return QCissues;
-
     }
 
 
@@ -398,10 +395,14 @@ public class OldSmallFileEntry {
         if (id == null || id.length() == 0) return;//oik, not required
         if (id.equalsIgnoreCase("MALE"))
             sexID = MALE_CODE;
+        else if (id.equals("M"))
+            sexID = MALE_CODE;
         else if (id.equalsIgnoreCase("FEMALE"))
             sexID = FEMALE_CODE;
+        else if (id.equals("F"))
+            sexID = FEMALE_CODE;
         else
-            throw new HPOException("Did not recognize Sex ID: " + id);
+            throw new HPOException("Did not recognize Sex ID: \"" + id + "\"");
     }
 
     public void setSexName(String name) throws HPOException {
@@ -426,6 +427,11 @@ public class OldSmallFileEntry {
         if (name.equalsIgnoreCase("NOT")) {
             negationID = "NOT";
         } else throw new HPOException("Malformed negation Name: \"" + name + "\"");
+    }
+    /** This is an obsolete field type that will be discarded in the V2 version. Parse it here for completeness sake. */
+    public void setOrthologs(String orth) {
+        if (orth==null || orth.isEmpty()) return;
+        this.othologs=orth;
     }
 
 
@@ -545,10 +551,10 @@ public class OldSmallFileEntry {
     }
 
     public void setSex(String s) throws HPOException {
-        if (s == null) return;
+        if (s == null || s.isEmpty()) return;
         if (s.equalsIgnoreCase("MALE")) this.sex = MALE_CODE;
         else if (s.equalsIgnoreCase("FEMALE")) this.sex = FEMALE_CODE;
-        else throw new HPOException("Did not recognize sex code " + s);
+        else throw new HPOException("Did not recognize sex code \"" + s + "\"");
     }
 
     public DiseaseDatabase getDatabase() {

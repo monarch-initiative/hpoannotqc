@@ -5,7 +5,6 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
 import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
-import org.monarchinitiative.hpoannotqc.Exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFileEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
@@ -57,7 +56,7 @@ public class HpoAnnotQc {
 
 
     private void convertToNewSmallFiles() {
-        osfList.stream().forEach(old -> {
+        osfList.forEach(old -> {
             V2SmallFile v2 = new V2SmallFile(old);
             v2sfList.add(v2);
         });
@@ -131,7 +130,7 @@ public class HpoAnnotQc {
 
 
 
-    public List<String> getListOfSmallFiles() {
+    private List<String> getListOfSmallFiles() {
         List<String> fileNames = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(annotationPath)) {
             for (Path path : directoryStream) {
@@ -141,6 +140,9 @@ public class HpoAnnotQc {
                 // fileNames.add(path.toString());
             }
         } catch (IOException ex) {
+            ex.printStackTrace();
+            logger.error("Could not get list of small files. Terminating...");
+            System.exit(1);
         }
         return fileNames;
     }

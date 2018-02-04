@@ -6,7 +6,7 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
 import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
-import org.monarchinitiative.hpoannotqc.Exception.HPOException;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 
 
 import java.io.File;
@@ -28,8 +28,8 @@ public class HpoOntologyParser {
     private String hpoOntologyPath=null;
 
     private HpoOntology ontology=null;
-    Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
-    Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology=null;
+    private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
+    private Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology=null;
     /** Map of all of the Phenotypic abnormality terms (i.e., not the inheritance terms). */
     private Map<TermId,HpoTerm> termmap=null;
 
@@ -41,9 +41,9 @@ public class HpoOntologyParser {
     /**
      * Parse the HP ontology file and place the data in {@link #abnormalPhenoSubOntology} and
      * {@link #inheritanceSubontology}.
-     * @throws IOException
+     * @throws IOException if we cannot parse the hp.obo file
      */
-    public void parseOntology() throws HPOException {
+    private void parseOntology() throws HPOException {
         TermPrefix pref = new ImmutableTermPrefix("HP");
         TermId inheritId = new ImmutableTermId(pref,"0000005");
         try {

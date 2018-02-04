@@ -49,7 +49,7 @@ public class V2SmallFileEntry {
 
 
 
-    public V2SmallFileEntry(OldSmallFileEntry oldEntry) {
+    V2SmallFileEntry(OldSmallFileEntry oldEntry) {
         diseaseID=oldEntry.getDiseaseID();
         diseaseName=oldEntry.getDiseaseName();
         phenotypeId=oldEntry.getPhenotypeId();
@@ -81,7 +81,7 @@ public class V2SmallFileEntry {
         publication=oldEntry.getPub();
         assignedBy=oldEntry.getAssignedBy();
         dateCreated=oldEntry.getDateCreated();
-        System.out.println(getRow());
+       // System.out.println(getRow());
     }
 
 
