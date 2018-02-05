@@ -1,0 +1,69 @@
+HPO Annotation Small Files
+==========================
+
+We are currently in the process of updating the ontologuy
+
+
+Converting old "small files" to new format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See Google doc that was sent around the phenotype list for background.
+The HPO project is updating the rare disease annotation files to add some new features. This document is intended
+to explain the process, but we note it is intended for internal use and will be deleted after the conversion has been
+carried out.
+
+
+Running HPO Workbench to perform the conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To run the demo program, enter the following command. ::
+
+    $ java -jar HPOworkbench.jar convert -h <path to hp.obo> -d <path to rare-diseases/annotated>
+
+Here, <path to rare-diseases/annotated> is the path to the ``annotated`` directory containing the original small files.
+
+
+The current output format for the new small files is as follows. The (proposed new format is on the annotationFormat page.
+
+
+
+
++--------+-----------------+--------------------------------+
+| Column |    Item         | Comment                        |
++========+=================+================================+
+| 1      | diseaseID       | OMIM, ORPHA, DECIPHER          |
++--------+-----------------+--------------------------------+
+| 2      | diseaseName     | e.g., Neurofibromatosis type 1 |
++--------+-----------------+--------------------------------+
+| 3      | phenotypeId     | e.g., HP:0000123               |
++--------+-----------------+--------------------------------+
+| 4      | phenotypeName   | e.g., Scoliosis                |
++--------+-----------------+--------------------------------+
+| 5      | ageOfOnsetId    | e.g., HP:0003581               |
++--------+-----------------+--------------------------------+
+| 6      | ageOfOnsetName  | e.g., Adult onset              |
++--------+-----------------+--------------------------------+
+| 7      | frequencyId     | e.g., HP:0040280               |
++--------+-----------------+--------------------------------+
+| 8      | frequencyString | e.g., 5/13                     |
++--------+-----------------+--------------------------------+
+| 9      | sex             | Male, Female                   |
++--------+-----------------+--------------------------------+
+| 10     | negation        | NOT or not                     |
++--------+-----------------+--------------------------------+
+| 11     | modifier        | semicolon sep list HPO terms   |
++--------+-----------------+--------------------------------+
+| 12     | description     | free text                      |
++--------+-----------------+--------------------------------+
+| 13     | publication     | e.g., PMID:123321              |
++--------+-----------------+--------------------------------+
+| 14     | assignedBy      | ORCID or HPO etc               |
++--------+-----------------+--------------------------------+
+| 15     | dateCreated     | e.g., 2017-01-15               |
++--------+-----------------+--------------------------------+
+
+
+
+
+Decisions as to what to do with incomplete/inaccurate data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. missing evidence codes. For instance, OMIM:145680. Decision -- add IEA as evidence code.

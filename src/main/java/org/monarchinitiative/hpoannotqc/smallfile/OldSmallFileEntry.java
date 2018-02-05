@@ -83,6 +83,10 @@ public class OldSmallFileEntry {
     private static final TermId OCCASIONAL = HpoFrequency.OCCASIONAL.toTermId();
     private static final TermId EXCLUDED = HpoFrequency.EXCLUDED.toTermId();
     private static final TermId VERY_RARE = HpoFrequency.VERY_RARE.toTermId();
+    /** Assign IEA if we cannot find an evidence code in the original data */
+    private static final String DEFAULT_EVIDENCE_CODE="IEA";
+
+
     /**
      * If present, a limitation to MALE or FEMALE.
      */
@@ -340,7 +344,10 @@ public class OldSmallFileEntry {
         if (!evidenceOK && evidence!=null) {
             if (evidenceCodeWellFormed(evidence)) {evidenceOK=true; }
         }
-        if (!evidenceOK) { QCissues.add(DID_NOT_FIND_EVIDENCE_CODE);}
+        if (!evidenceOK) {
+            QCissues.add(DID_NOT_FIND_EVIDENCE_CODE);
+            this.evidenceID=DEFAULT_EVIDENCE_CODE;
+        }
         // check whether the primary label needs to be updated.
         if (! this.phenotypeName.equals(ontology.getTermMap().get(this.phenotypeId).getName())) {
             this.QCissues.add(UPDATING_HPO_LABEL);

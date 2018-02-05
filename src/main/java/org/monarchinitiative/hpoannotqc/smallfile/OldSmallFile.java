@@ -161,7 +161,6 @@ public class OldSmallFile {
 
     private void processContentLine(String line) throws HPOException {
         String F[]=line.split("\t");
-        //System.out.println(line);
         if (F.length != n_fields) {
             LOGGER.trace("We were expecting " + n_fields + " fields but got only " + F.length + "for line:\n"+line);
             n_less_than_expected_number_of_lines++;
@@ -311,7 +310,7 @@ public class OldSmallFile {
                     break;// do not output log entry about date format
                 case DID_NOT_FIND_EVIDENCE_CODE:
                    n_no_evidence++;
-                    LOGGER.error(String.format("%s:%s",DID_NOT_FIND_EVIDENCE_CODE.name(),line));
+                    LOGGER.trace(String.format("%s:%s",DID_NOT_FIND_EVIDENCE_CODE.name(),line));
                     break;
                 case GOT_GENE_DATA:
                     n_gene_data++;
@@ -335,143 +334,6 @@ public class OldSmallFile {
                     break;
             }
         }
-
-
-    }
-
-
-
-
-    public int getN_fields() {
-        return n_fields;
-    }
-
-    public int getDISEASE_ID_INDEX() {
-        return DISEASE_ID_INDEX;
-    }
-
-    public int getDISEASE_NAME_INDEX() {
-        return DISEASE_NAME_INDEX;
-    }
-
-    public int getGENE_ID_INDEX() {
-        return GENE_ID_INDEX;
-    }
-
-    public int getGENE_NAME_INDEX() {
-        return GENE_NAME_INDEX;
-    }
-
-    public int getGENOTYPE_INDEX() {
-        return GENOTYPE_INDEX;
-    }
-
-    public int getGENE_SYMBOL_INDEX() {
-        return GENE_SYMBOL_INDEX;
-    }
-
-    public int getPHENOTYPE_ID_INDEX() {
-        return PHENOTYPE_ID_INDEX;
-    }
-
-    public int getPHENOTYPE_NAME_INDEX() {
-        return PHENOTYPE_NAME_INDEX;
-    }
-
-    public int getAGE_OF_ONSET_ID_INDEX() {
-        return AGE_OF_ONSET_ID_INDEX;
-    }
-
-    public int getAGE_OF_ONSET_NAME_INDEX() {
-        return AGE_OF_ONSET_NAME_INDEX;
-    }
-
-    public int getEVIDENCE_ID_INDEX() {
-        return EVIDENCE_ID_INDEX;
-    }
-
-    public int getEVIDENCE_NAME_INDEX() {
-        return EVIDENCE_NAME_INDEX;
-    }
-
-    public int getFREQUENCY_INDEX() {
-        return FREQUENCY_INDEX;
-    }
-
-    public int getSEX_ID_INDEX() {
-        return SEX_ID_INDEX;
-    }
-
-    public int getSEX_NAME_INDEX() {
-        return SEX_NAME_INDEX;
-    }
-
-    public int getNEGATION_ID_INDEX() {
-        return NEGATION_ID_INDEX;
-    }
-
-    public int getNEGATION_NAME_INDEX() {
-        return NEGATION_NAME_INDEX;
-    }
-
-    public int getDESCRIPTION_INDEX() {
-        return DESCRIPTION_INDEX;
-    }
-
-    public int getPUB_INDEX() {
-        return PUB_INDEX;
-    }
-
-    public int getASSIGNED_BY_INDEX() {
-        return ASSIGNED_BY_INDEX;
-    }
-
-    public int getDATE_CREATED_INDEX() {
-        return DATE_CREATED_INDEX;
-    }
-
-    public int getSEX_INDEX() {
-        return SEX_INDEX;
-    }
-
-    public int getENTITY_ID_INDEX() {
-        return ENTITY_ID_INDEX;
-    }
-
-    public int getENTITY_NAME_IDX() {
-        return ENTITY_NAME_IDX;
-    }
-
-    public int getEVIDENCE_INDEX() {
-        return EVIDENCE_INDEX;
-    }
-
-    public int getQUALITY_ID_INDEX() {
-        return QUALITY_ID_INDEX;
-    }
-
-    public int getQUALITY_NAME_INDEX() {
-        return QUALITY_NAME_INDEX;
-    }
-
-    public int getADDL_ENTITY_ID_INDEX() {
-        return ADDL_ENTITY_ID_INDEX;
-    }
-
-    public int getADDL_ENTITY_NAME_INDEX() {
-        return ADDL_ENTITY_NAME_INDEX;
-    }
-
-    public int getABNORMAL_ID_INDEX() {
-        return ABNORMAL_ID_INDEX;
-    }
-
-    public int getABNORMAL_NAME_INDEX() {
-        return ABNORMAL_NAME_INDEX;
-    }
-
-    public int getORTHOLOGS_INDEX() {
-        return ORTHOLOGS_INDEX;
     }
 
 
@@ -556,7 +418,5 @@ public class OldSmallFile {
             this.fields2index=builder.build();
         }
     }
-
-
 
 }

@@ -1,8 +1,8 @@
 package org.monarchinitiative.hpoannotqc;
 
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.monarchinitiative.hpoannotqc.cmd.Command;
+import org.monarchinitiative.hpoannotqc.io.Commandline;
 
 /**
  * This application will perform Q/C on the HPO rare disease "small file" annotation files, will transform the
@@ -10,9 +10,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * @version 0.1.3 (2018-01-02)
  */
-@SpringBootApplication
+
 public class Main {
+
     public static void main(String[] args) {
-        SpringApplication.run(Main.class, args);
+        Commandline clp = new Commandline(args);
+        Command command = clp.getCommand();
+        command.execute();
     }
 }

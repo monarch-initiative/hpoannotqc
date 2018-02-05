@@ -1,4 +1,5 @@
-package org.monarchinitiative.hpoannotqc;
+package org.monarchinitiative.hpoannotqc.cmd;
+
 
 import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
 import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
@@ -23,11 +24,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HpoAnnotQc {
-    private static final Logger logger = LoggerFactory.getLogger(HpoAnnotQc.class);
+public class OldSmallFileConvertCommand implements Command {
+    private static final Logger logger = LoggerFactory.getLogger(OldSmallFileConvertCommand.class);
 
-    private final Path hpOboPath;
-    private final Path annotationPath;
+    private final String hpOboPath;
+    private final String oldSmallFileAnnotationDirectory;
 
     private HpoOntology ontology=null;
     private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
@@ -36,8 +37,8 @@ public class HpoAnnotQc {
     private List<OldSmallFile> osfList=new ArrayList<>();
 
     private List<V2SmallFile> v2sfList = new ArrayList<>();
-
-    private final String pathToSmallFileDir="v2files";
+    /** Default path for writing the new V2 small files. */
+    private final String DEFAULT_OUTPUT_DIRECTORY ="v2files";
 
     private int n_corrected_date=0;
     private int n_no_evidence=0;
@@ -46,12 +47,12 @@ public class HpoAnnotQc {
     private int n_update_label=0;
     private int n_created_modifier=0;
     private int n_EQ_item=0;
+    private int n_less_than_expected_number_of_lines=0;
 
 
-
-    public HpoAnnotQc(Path hpPath, Path annotPath) {
+    public OldSmallFileConvertCommand(String hpPath, String annotPath) {
         hpOboPath=hpPath;
-        annotationPath=annotPath;
+        oldSmallFileAnnotationDirectory =annotPath;
     }
 
 
@@ -70,6 +71,32 @@ public class HpoAnnotQc {
         }
     }
 
+
+    @Override
+    public void execute() {
+        logger.trace("hpoPath="+hpOboPath + " annotation path="+ oldSmallFileAnnotationDirectory);
+        initOntology();
+        List<String> files=getListOfSmallFiles();
+        logger.trace("We found " + files.size() + " small files at " + oldSmallFileAnnotationDirectory);
+        for (String path : files) {
+            OldSmallFile osf = new OldSmallFile(path);
+            this.n_alt_id += osf.getN_alt_id();
+            this.n_corrected_date += osf.getN_corrected_date();
+            n_no_evidence += osf.getN_no_evidence();
+            n_gene_data += osf.getN_gene_data();
+            n_update_label += osf.getN_update_label();
+            n_created_modifier += osf.getN_created_modifier();
+            n_EQ_item += osf.getN_EQ_item();
+            n_less_than_expected_number_of_lines += osf.getN_less_than_expected_number_of_lines();
+
+            osfList.add(osf);
+        }
+
+        convertToNewSmallFiles();
+        dumpQCtoShell();
+    }
+
+
     private void dumpQCtoShell() {
         System.out.println("\n\n################################################\n\n");
         System.out.println(String.format("We converted %d \"old\" small files into %d new (V2) small files",
@@ -83,6 +110,7 @@ public class HpoAnnotQc {
         System.out.println("\tNumber of lines with labels updated to current labels: " + n_update_label);
         System.out.println("\tNumber of lines for which no Evidence code was found: "+ n_no_evidence);
         System.out.println("\tNumber of lines for which a Clinical modifer was extracted: "+n_created_modifier);
+        System.out.println("\tNumber of lines with less than expected number of fields (given number of fields in header): "+n_less_than_expected_number_of_lines);
         System.out.println();
         System.out.println("Lines that were Q/C'd or updated have been written to the log (before/after)");
         System.out.println();
@@ -90,7 +118,7 @@ public class HpoAnnotQc {
 
 
     private void outputV2file(V2SmallFile v2) throws IOException {
-        String outdir="v2files";
+        String outdir= DEFAULT_OUTPUT_DIRECTORY;
         if (! new File(outdir).exists()) {
             new File(outdir).mkdir();
         }
@@ -106,33 +134,12 @@ public class HpoAnnotQc {
 
     }
 
-    public void run() {
-        logger.trace("hpoPath="+hpOboPath + " annoation path="+annotationPath);
-        initOntology();
-        List<String> files=getListOfSmallFiles();
-        logger.trace("We found " + files.size() + " small files at " + annotationPath);
-            for (String path : files) {
-                OldSmallFile osf = new OldSmallFile(path);
-                this.n_alt_id += osf.getN_alt_id();
-                this.n_corrected_date += osf.getN_corrected_date();
-                n_no_evidence += osf.getN_no_evidence();
-                n_gene_data += osf.getN_gene_data();
-                n_update_label += osf.getN_update_label();
-                n_created_modifier += osf.getN_created_modifier();
-                n_EQ_item += osf.getN_EQ_item();
-
-                osfList.add(osf);
-            }
-
-        convertToNewSmallFiles();
-        dumpQCtoShell();
-    }
 
 
 
     private List<String> getListOfSmallFiles() {
         List<String> fileNames = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(annotationPath)) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(oldSmallFileAnnotationDirectory))) {
             for (Path path : directoryStream) {
                 if (path.toString().endsWith(".tab")) {
                     fileNames.add(path.toString());
@@ -156,7 +163,7 @@ public class HpoAnnotQc {
         TermPrefix pref = new ImmutableTermPrefix("HP");
         TermId inheritId = new ImmutableTermId(pref,"0000005");
         try {
-            HpoOboParser hpoOboParser = new HpoOboParser(hpOboPath.toFile());
+            HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
             this.ontology = hpoOboParser.parse();
             this.abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
             this.inheritanceSubontology = ontology.subOntology(inheritId);

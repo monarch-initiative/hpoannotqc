@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This class represents one disease-entity annotation  consisting usually of multiple annotations lines, and using
+ * the new format introduced in 2018.
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
 public class V2SmallFile {
