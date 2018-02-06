@@ -6,19 +6,17 @@ HPO Annotation Q/C
 HPO Workbench
 ===============================
 .. toctree::
-:maxdepth: 2
-       :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-       installation
-       Browsing HPO Terms and Annotated Diseases <browsing>
-       Suggest additions and corrections as GitHub issues <github>
-       Exporting HPO data as an Excel file <excel>
-       Using the very latest HPO version <latest>
-       HPO Workbench from the command line <command>
+    installation
+    smallfile
+    annotationFormat
 
 
 
-This application is designed to perform Q/C of the HPO annotation data.
+This application is designed to perform Q/C of the HPO annotation data. It will also transform the "old" small files into
+the new small file format.
 
 
 
