@@ -6,12 +6,13 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
 import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFileEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OldSmallFileConvertCommand implements Command {
-    private static final Logger logger = LoggerFactory.getLogger(OldSmallFileConvertCommand.class);
+    private static final Logger logger = LogManager.getLogger();
 
     private final String hpOboPath;
     private final String oldSmallFileAnnotationDirectory;
@@ -88,7 +89,6 @@ public class OldSmallFileConvertCommand implements Command {
             n_created_modifier += osf.getN_created_modifier();
             n_EQ_item += osf.getN_EQ_item();
             n_less_than_expected_number_of_lines += osf.getN_less_than_expected_number_of_lines();
-
             osfList.add(osf);
         }
 

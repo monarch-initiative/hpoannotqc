@@ -1,8 +1,12 @@
 package org.monarchinitiative.hpoannotqc;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.cmd.Command;
 import org.monarchinitiative.hpoannotqc.io.Commandline;
+
+
 
 /**
  * This application will perform Q/C on the HPO rare disease "small file" annotation files, will transform the
@@ -12,8 +16,9 @@ import org.monarchinitiative.hpoannotqc.io.Commandline;
  */
 
 public class Main {
-
+    private static final Logger logger = LogManager.getLogger();
     public static void main(String[] args) {
+        logger.error("starting");
         Commandline clp = new Commandline(args);
         Command command = clp.getCommand();
         command.execute();

@@ -1,8 +1,7 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
 import com.github.phenomics.ontolib.ontology.data.TermId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 
 
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
  * Created by peter on 1/20/2018.
  */
 public class V2SmallFileEntry {
-    private static Logger logger = LoggerFactory.getLogger(V2SmallFileEntry.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
     /** Field #1 */
     private final String diseaseID;
     /** Field #2 */
@@ -47,7 +46,133 @@ public class V2SmallFileEntry {
     /** Field #16 */
     private final String dateCreated;
 
+    public static class Builder {
+        /** Field #1 */
+        private  final String diseaseID;
+        /** Field #2 */
+        private  final String diseaseName;
+        /** Field #3 */
+        private  final TermId phenotypeId;
+        /** Field #4 */
+        private  final String phenotypeName;
+        /** Field #5 */
+        private  TermId ageOfOnsetId=null;
+        /** Field #6 */
+        private  String ageOfOnsetName=null;
+        /** Field #7 */
+        private  final String evidenceCode;
+        /** Field #8 */
+        private  TermId frequencyId=null;
+        /** Field #9 */
+        private  String frequencyString=null;
+        /** Field #10 */
+        private  String sex=null;
+        /** Field #11 */
+        private  String negation=null;
+        /** Field #12 */
+        private  String modifier=null;
+        /** Field #13 */
+        private  String description=null;
+        /** Field #14 */
+        private  final String publication;
+        /** Field #15 */
+        private  final String assignedBy;
+        /** Field #16 */
+        private  final String dateCreated;
+        public Builder(String diseaseId, String diseasename, TermId phenoId, String phenoName,String evidence,String pub, String ab,String date) {
+            this.diseaseID=diseaseId;
+            this.diseaseName=diseasename;
+            this.phenotypeId=phenoId;
+            this.phenotypeName=phenoName;
+            this.evidenceCode=evidence;
+            this.publication=pub;
+            this.assignedBy=ab;
+            this.dateCreated=date;
+        }
 
+        public Builder frequencyId(TermId f) {
+            this.frequencyId=f;
+            return this;
+        }
+
+        public Builder frequencyString(String f) {
+            this.frequencyString = f;
+            return this;
+        }
+
+        public Builder ageOfOnsetId(TermId t) {
+            this.ageOfOnsetId=t;
+            return this;
+        }
+
+        public Builder ageOfOnsetName(String n) {
+            this.ageOfOnsetName=n;
+            return this;
+        }
+
+        public Builder sex(String s) { sex=s; return this; }
+
+        public Builder negation(String n) { this.negation=n; return this; }
+
+        public Builder modifier(String n) { this.modifier=n; return this; }
+
+        public Builder description(String d) { this.description=d; return this;}
+
+        public V2SmallFileEntry build() {
+            V2SmallFileEntry entry=new V2SmallFileEntry(diseaseID,
+                     diseaseName,
+                     phenotypeId,
+                     phenotypeName,
+                     ageOfOnsetId,
+                     ageOfOnsetName,
+                     evidenceCode,
+                     frequencyId,
+                     frequencyString,
+                     sex,
+                     negation,
+                     modifier,
+                     description,
+                     publication,
+                     assignedBy,
+                     dateCreated);
+            return entry;
+        }
+    }
+
+    private V2SmallFileEntry(String disID,
+            String diseaseName,
+            TermId phenotypeId,
+            String phenotypeName,
+            TermId ageOfOnsetId,
+            String ageOfOnsetName,
+            String evidenceCode,
+            TermId frequencyId,
+            String frequencyString,
+            String sex,
+            String negation,
+            String modifier,
+            String description,
+            String publication,
+            String assignedBy,
+            String dateCreated) {
+        this.diseaseID=disID;
+        this.diseaseName=diseaseName;
+        this.phenotypeId=phenotypeId;
+        this.phenotypeName=phenotypeName;
+        this.ageOfOnsetId=ageOfOnsetId;
+        this.ageOfOnsetName=ageOfOnsetName;
+        this.evidenceCode=evidenceCode;
+        this.frequencyId=frequencyId;
+        this.frequencyString=frequencyString;
+        this.sex=sex;
+        this.negation=negation;
+        this.modifier=modifier;
+        this.description=description;
+        this.publication=publication;
+        this.assignedBy=assignedBy;
+        this.dateCreated=dateCreated;
+
+    }
 
     V2SmallFileEntry(OldSmallFileEntry oldEntry) {
         diseaseID=oldEntry.getDiseaseID();

@@ -2,15 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
+    <version>0.1.6</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.7.RELEASE</version>
-    </parent>
 
     <description>HPO Annotation Q/C</description>
 
@@ -32,6 +29,9 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
+
+
+
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>

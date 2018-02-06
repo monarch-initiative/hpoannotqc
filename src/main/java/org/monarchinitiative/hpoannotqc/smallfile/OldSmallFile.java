@@ -4,9 +4,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 
 
+import org.apache.logging.log4j.LogManager;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 import java.io.BufferedReader;
@@ -31,7 +30,7 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
  * Created by peter on 1/20/2018.
  */
 public class OldSmallFile {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OldSmallFile.class);
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
     private static final int UNINITIALIZED=-42;
     /** The number of fields is usually 21, but we parse according to the header and there is some variability. The
      * number of fields is not a requirement for our old-file format

@@ -20,9 +20,8 @@ package org.monarchinitiative.hpoannotqc.smallfile;
  * #L%
  */
 
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -36,7 +35,7 @@ import java.util.Map;
  * Created by robinp on 5/25/17.
  */
 class DateUtil {
-    private static Logger logger = LoggerFactory.getLogger(DateUtil.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
     private static final Map<String, String> DATE_FORMAT_REGEXPS = new HashMap<String, String>() {{
         put("^\\d{8}$", "yyyyMMdd");
         put("^\\d{1,2}-\\d{1,2}-\\d{4}$", "dd-MM-yyyy");

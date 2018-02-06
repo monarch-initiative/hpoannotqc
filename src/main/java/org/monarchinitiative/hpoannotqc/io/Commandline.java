@@ -3,6 +3,9 @@ package org.monarchinitiative.hpoannotqc.io;
 
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
 import org.monarchinitiative.hpoannotqc.cmd.Command;
 
 import org.apache.commons.cli.CommandLineParser;
@@ -24,7 +27,7 @@ import java.util.stream.Collectors;
  * @version 0.0.2 (2018-01-05)
  */
 public class Commandline {
-
+    private static final Logger logger = LogManager.getLogger();
     private Command command = null;
     /**
      * The default name of the file that is produced by the {@code digest} command.
@@ -42,6 +45,11 @@ public class Commandline {
 
     private final static String DEFAULT_OUTPUT_BAM_NAME = "diachromatic-processed";
 
+    private final static String DEFAULT_V2_SMALL_FILE_DIRECTORY="v2files";
+
+
+
+
     private String downloadDirectory;
     private String hpoOboPath = null;
     private String oldSmallFileAnnotationPath = null;
@@ -55,7 +63,7 @@ public class Commandline {
 
     public Commandline(String args[]) {
         final CommandLineParser cmdLineGnuParser = new DefaultParser();
-
+        logger.error("CL");
         final Options gnuOptions = constructGnuOptions();
         org.apache.commons.cli.CommandLine commandLine;
 
@@ -63,18 +71,22 @@ public class Commandline {
         String clstring = "";
         if (args != null && args.length > 0) {
             clstring = Arrays.stream(args).collect(Collectors.joining(" "));
+            logger.trace("Starting with command "+clstring);
         }
         try {
             commandLine = cmdLineGnuParser.parse(gnuOptions, args);
             String category[] = commandLine.getArgs();
             if (category.length < 1) {
+                logger.trace("mycommand is NOT ");
                 printUsage("command missing");
             } else {
                 mycommand = category[0];
-
+                logger.trace("mycommand is " + mycommand);
             }
+
             if (commandLine.getArgs().length < 1) {
                 printUsage("no arguments passed");
+                logger.error("no arguments pas");
                 return;
             }
             if (commandLine.hasOption("d")) {
@@ -98,12 +110,15 @@ public class Commandline {
         } catch (ParseException parseException)  // checked exception
         {
             String msg = String.format("Could not parse options %s [%s]", clstring, parseException.toString());
+            logger.error(msg);
             printUsage(msg);
         }
         if (mycommand.equals("download")) {
             this.command = new DownloadCommand(this.downloadDirectory);
         } else if (mycommand.equals("convert")) {
             this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
+        } else if (mycommand.equals("big-file")) {
+            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY);
         } else {
             printUsage(String.format("Did not recognize command: %s", mycommand));
         }
@@ -125,7 +140,7 @@ public class Commandline {
         options.addOption("o", "out", true, "name/path of output file/directory")
                 .addOption("d", "download", true, "directory to download HPO data (default \"data\")")
                 .addOption("t", "term", true, "HPO id (e.g., HP:0000123)")
-                .addOption("a", "annot", true, "path to HPO annotation file")
+                .addOption("a", "annot", true, "path to HPO annotation directory (old small files")
                 .addOption("h", "hpo", true, "path to hp.obo");
 //                .addOption("b", "bad", false, "output bad (rejected) reads to separated file")
 //                .addOption(Option.builder("f1").longOpt("file1").desc("path to fastq file 1").hasArg(true).argName("file1").build())

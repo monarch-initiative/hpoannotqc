@@ -29,7 +29,23 @@ public class V2SmallFile {
         }
     }
 
+    public V2SmallFile(String name, List<V2SmallFileEntry> entries) {
+        basename=name;
+        entryList=entries;
+    }
+
+
+
     public List<V2SmallFileEntry> getEntryList() {
         return entryList;
     }
+
+
+
+
+
+
+
+
+
 }

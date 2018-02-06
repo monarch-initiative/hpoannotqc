@@ -7,9 +7,9 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.graph.data.Edge;
 import com.github.phenomics.ontolib.ontology.data.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -45,7 +45,7 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
  * @author Peter Robinson
  */
 public class OldSmallFileEntry {
-    private static Logger LOGGER = LoggerFactory.getLogger(OldSmallFileEntry.class);
+    private static final Logger LOGGER = LogManager.getLogger();
     private DiseaseDatabase database = null;
     private String diseaseID = null;
     private String diseaseName = null;
