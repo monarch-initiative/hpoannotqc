@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
+import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.ImmutableTermId;
 import com.github.phenomics.ontolib.ontology.data.ImmutableTermPrefix;
@@ -13,16 +14,17 @@ import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFileEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.github.phenomics.ontolib.ontology.algo.OntologyAlgorithm.existsPath;
 
 public class BigFileCommand implements Command {
     private static final Logger logger = LogManager.getLogger();
@@ -30,8 +32,11 @@ public class BigFileCommand implements Command {
     private final String hpOboPath;
     private List<V2SmallFile> v2filelist=new ArrayList<>();
 
+    private HpoOntology ontology;
+
     private String bigFileOutputName="phenotype_annotation2.tab";
 
+    private TermId phenotypeRoot,frequencyRoot,onsetRoot,modiferRoot,inheritanceRoot,mortalityRoot;
 
 
     public BigFileCommand(String hpopath, String dir) {
@@ -53,25 +58,74 @@ public class BigFileCommand implements Command {
         }
 
         logger.trace("We got " + v2filelist.size() + " V2 small files");
-
+        outputBigFile();
     }
 
 
 
 
     private void outputBigFile() {
+        int n=0;
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(bigFileOutputName));
             for (V2SmallFile v2 : v2filelist ) {
-
+                List<V2SmallFileEntry> entryList = v2.getEntryList();
+                for (V2SmallFileEntry entry : entryList) {
+                   String bigfileLine = transformEntry2BigFileLine(entry);
+                   writer.write(bigfileLine + "\n");
+                   n++;
+                }
             }
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger.trace("We output a total of " + n + " big file lines");
+    }
+
+    private String getFrequencyString(V2SmallFileEntry entry) {
+        if (entry.getFrequencyString()!=null) return entry.getFrequencyString();
+        else if (entry.getFrequencyId()!=null) return entry.getFrequencyId().getIdWithPrefix();
+        else return "";
+    }
+
+    private String getAspect(V2SmallFileEntry entry) {
+        TermId tid = entry.getPhenotypeId();
+        HpoTerm term = ontology.getTermMap().get(tid);
+        if (existsPath(ontology, tid, phenotypeRoot)) {
+            return "O"; // organ/phenotype abnormality
+        } else if (existsPath(ontology, tid, inheritanceRoot)) {
+            return "I";
+        } else if (existsPath(ontology, tid, onsetRoot)) {
+            return "C";
+        } else if (existsPath(ontology, tid, mortalityRoot)) {
+            return "M";
+        } else {
+            return "?";
+        }
+    }
 
 
+    private String transformEntry2BigFileLine(V2SmallFileEntry entry) {
 
+        String [] elems = {
+                entry.getDB(),
+                entry.getDB_Object_ID(),
+                entry.getDiseaseName(),
+                entry.getNegation(),
+                entry.getPhenotypeId().getIdWithPrefix(),
+                entry.getPhenotypeName(),
+                entry.getPublication(),
+                entry.getEvidenceCode(),
+                entry.getAgeOfOnsetId()==null?"":entry.getAgeOfOnsetId().getIdWithPrefix(),
+                getFrequencyString(entry),
+                "", /* with*/
+                getAspect(entry),
+                "", /* synonym */
+                entry.getDateCreated(),
+                entry.getAssignedBy()
+        };
+        return Arrays.stream(elems).collect(Collectors.joining("\t"));
     }
 
 
@@ -105,12 +159,18 @@ public class BigFileCommand implements Command {
         TermId inheritId = new ImmutableTermId(pref,"0000005");
         try {
             HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
-            HpoOntology ontology = hpoOboParser.parse();
+            this.ontology = hpoOboParser.parse();
             if (ontology==null) {
                 logger.error("We could not parse the HPO ontology. Terminating ...");
                 System.exit(1);// not a recoverable error
             }
             V2SmallFileParser.setOntology(ontology);
+            phenotypeRoot=ImmutableTermId.constructWithPrefix("HP:0000118");
+            frequencyRoot=ImmutableTermId.constructWithPrefix("HP:0040279");
+            onsetRoot=ImmutableTermId.constructWithPrefix("HP:0003674");
+            modiferRoot=ImmutableTermId.constructWithPrefix("HP:0012823");
+            inheritanceRoot=ImmutableTermId.constructWithPrefix("HP:0000005");
+            mortalityRoot=ImmutableTermId.constructWithPrefix("HP:0040006");
         } catch (Exception e) {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
             System.exit(1); // we cannot recover from this

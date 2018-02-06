@@ -13,13 +13,33 @@ to explain the process, but we note it is intended for internal use and will be 
 carried out.
 
 
-Running HPO Workbench to perform the conversion
+Running HPO Annot QC to perform the conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To run the demo program, enter the following command. ::
 
-    $ java -jar HPOworkbench.jar convert -h <path to hp.obo> -d <path to rare-diseases/annotated>
+    $ java -jar target/HpoAnnotQc.jar convert -h <path to hp.obo> -d <path to /hpo-annotation-data/rare-diseases/annotated>
 
-Here, <path to rare-diseases/annotated> is the path to the ``annotated`` directory containing the original small files.
+Here, <path to /hpo-annotation-datrare-diseases/annotated> is the path to the ``annotated`` directory containing the original small files.
+
+This command will create a new directory called "v2files" and write one "new" small file for each "old" small file.
+
+To turn this into a "big" file, run the following command. ::
+
+    $ java -jar target/HpoAnnotQc.jar big-file -h <path to hp.obo>
+
+This will create a new file called ``phenotype_annotation2.tab``.
+
+
+Note that if you first run the command to download the latest hp.obo file, the file will be placed in the default location
+``data/hp.obo`` and does not need to be passed via the command line. ::
+
+    $ java -jar target/HpoAnnotQc.jar download
+
+
+
+Current small file format
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 The current output format for the new small files is as follows. The (proposed new format is on the annotationFormat page.

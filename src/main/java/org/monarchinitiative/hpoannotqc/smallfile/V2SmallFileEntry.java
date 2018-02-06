@@ -46,6 +46,83 @@ public class V2SmallFileEntry {
     /** Field #16 */
     private final String dateCreated;
 
+    public String getDiseaseID() {
+        return diseaseID;
+    }
+
+    public String getDB() {
+        String[]A=diseaseID.split(":");
+        return A[0];
+    }
+
+    public String getDB_Object_ID() {
+        String[]A=diseaseID.split(":");
+        if (A.length>1) return A[1];
+        else return diseaseID;
+    }
+
+
+
+    public String getDiseaseName() {
+        return diseaseName;
+    }
+
+    public TermId getPhenotypeId() {
+        return phenotypeId;
+    }
+
+    public String getPhenotypeName() {
+        return phenotypeName;
+    }
+
+    public TermId getAgeOfOnsetId() {
+        return ageOfOnsetId;
+    }
+
+    public String getAgeOfOnsetName() {
+        return ageOfOnsetName;
+    }
+
+    public String getEvidenceCode() {
+        return evidenceCode;
+    }
+
+    public TermId getFrequencyId() {
+        return frequencyId;
+    }
+
+    public String getFrequencyString() {
+        return frequencyString;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public String getNegation() {
+        return negation;
+    }
+
+    public String getModifier() {
+        return modifier;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPublication() {
+        return publication;
+    }
+
+    public String getAssignedBy() {
+        return assignedBy;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
     public static class Builder {
         /** Field #1 */
         private  final String diseaseID;

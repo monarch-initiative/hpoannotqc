@@ -18,7 +18,6 @@ import org.monarchinitiative.hpoannotqc.io.Commandline;
 public class Main {
     private static final Logger logger = LogManager.getLogger();
     public static void main(String[] args) {
-        logger.error("starting");
         Commandline clp = new Commandline(args);
         Command command = clp.getCommand();
         command.execute();

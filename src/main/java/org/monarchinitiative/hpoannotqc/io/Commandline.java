@@ -68,10 +68,13 @@ public class Commandline {
         org.apache.commons.cli.CommandLine commandLine;
 
         String mycommand = null;
-        String clstring = "";
+        String clstring = Arrays.stream(args).collect(Collectors.joining(" "));;
         if (args != null && args.length > 0) {
-            clstring = Arrays.stream(args).collect(Collectors.joining(" "));
             logger.trace("Starting with command "+clstring);
+        } else {
+            String msg = String.format("need to pass command. You passed %s",clstring);
+            logger.trace(msg);
+            printUsage("Failed to pass a command");
         }
         try {
             commandLine = cmdLineGnuParser.parse(gnuOptions, args);
@@ -149,10 +152,10 @@ public class Commandline {
     }
 
     public static String getVersion() {
-        String version = "0.0.0";// default, should be overwritten by the following.
+        String version = "0.1.7";// default, should be overwritten by the following.
         try {
             Package p = Commandline.class.getPackage();
-            version = p.getImplementationVersion();
+            version= p.getImplementationVersion();
         } catch (Exception e) {
             // do nothing
         }
@@ -166,40 +169,28 @@ public class Commandline {
 
 
         String version = getVersion();
-        final PrintWriter writer = new PrintWriter(System.out);
-        // final HelpFormatter usageFormatter = new HelpFormatter();
-        // final String applicationName="java -jar diachromatic.jar command";
-        // final Options options=constructGnuOptions();
-        writer.println(message);
-        writer.println();
-        //usageFormatter.printUsage(writer, 120, applicationName, options);
-        writer.println("Program: HPO Annotation QC");
-        writer.println("Version: " + version);
-        writer.println();
-        writer.println("Usage: java -jar HpoAnnotatQc.jar <command> [options]");
-        writer.println();
-        writer.println("Available commands:");
-        writer.println();
-        writer.println("download:");
-        writer.println("\tjava -jar HPOWorkbench.jar download  [-d <directory>]");
-        writer.println("\t<directory>: name of directory to which HPO data will be downloaded (default:\"data\")");
-        writer.println();
-        writer.println("transform:");
-        writer.println("\tjava -jar HPOWorkbench.jar countfreq [-h <hpo.obo>] [-a <pheno_annot.tab>] -t <term id> \\");
-        writer.println("\t<hp.obo>: path to hp.obo file (default: \"data/hp.obo\")");
-        writer.println("\t<pheno_annot.tab>: path to annotation file (default \"data/phenotype_annotation.tab\")");
-        writer.println("\t<term>: HPO term id (e.g., HP:0000123)");
-        writer.println();
-        writer.println("csv:");
-        writer.println("\tjava -jar HPOWorkbench.jar csv -h <hpo> \\");
-        writer.println("\t<hpo>: path to hp.obo file");
-        writer.println();
-        writer.println("convert:");
-        writer.println("\tjava -jar HPOWorkbench.jar convert -h <hpo> -d <directory> \\");
-        writer.println("\t<hpo>: path to hp.obo file");
-        writer.println("\t<directory>: path to directory with RD annotation files");
-        writer.println(String.format("\t<outfile>: optional name of output file (Default: \"%s.bam\")", DEFAULT_OUTPUT_BAM_NAME));
-        writer.println();
+        System.out.println(message);
+        System.out.println();
+        System.out.println("Program: HPO Annotation QC");
+        System.out.println("Version: " + version);
+        System.out.println();
+        System.out.println("Usage: java -jar HpoAnnotatQc.jar <command> [options]");
+        System.out.println();
+        System.out.println("Available commands:");
+        System.out.println();
+        System.out.println("download:");
+        System.out.println("\tjava -jar HPOWorkbench.jar download  [-d <directory>]");
+        System.out.println("\t<directory>: name of directory to which HPO data will be downloaded (default:\"data\")");
+        System.out.println();
+        System.out.println("convert:");
+        System.out.println("\tjava -jar HPOWorkbench.jar convert -h <hpo> -d <directory> ");
+        System.out.println("\t<hpo>: path to hp.obo file");
+        System.out.println("\t<directory>: path to directory with RD annotation files");
+        System.out.println(String.format("\t<outfile>: optional name of output file (Default: \"%s.bam\")", DEFAULT_OUTPUT_BAM_NAME));
+        System.out.println();
+        System.out.println("big-file:");
+        System.out.println("\tjava -jar HPOWorkbench.jar big-file ");
+        System.out.println();
 
         System.exit(0);
     }
