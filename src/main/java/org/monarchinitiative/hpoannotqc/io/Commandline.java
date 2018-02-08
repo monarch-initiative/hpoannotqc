@@ -104,8 +104,6 @@ public class Commandline {
             }
             if (commandLine.hasOption("a")) {
                 oldSmallFileAnnotationPath = commandLine.getOptionValue("a");
-            } else {
-                oldSmallFileAnnotationPath =  DEFAULT_ANNOTATION_OBOPATH;
             }
             if (commandLine.hasOption("t")) {
                 this.termid = commandLine.getOptionValue("t");
@@ -119,6 +117,9 @@ public class Commandline {
         if (mycommand.equals("download")) {
             this.command = new DownloadCommand(this.downloadDirectory);
         } else if (mycommand.equals("convert")) {
+            if (oldSmallFileAnnotationPath==null) {
+                printUsage("[ERROR] Need to pass path to old small files as -a /path-to/.../hpo-annotation-data");
+            }
             this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
         } else if (mycommand.equals("big-file")) {
             this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY);

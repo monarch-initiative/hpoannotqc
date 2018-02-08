@@ -212,16 +212,28 @@ public class OldSmallFileEntry {
         }
     }
 
-
+    /**
+     * Note that a few entries had an OMIM id in the gene_id column; this was the gene entry that went along
+     * with the phenotype entry. For instance,
+     * <pre>
+     *     OMIM:615134	MELANOMA, CUTANEOUS MALIGNANT, SUSCEPTIBILITY TO, 9; CMM9	OMIM:187270	TELOMERASE REVERSE TRANSCRIPTASE; TERT
+     * </pre>
+     * This is not an error in the parsing (I checked this by hand), but was a biocuration practice that we simply
+     * abandoned years ago because it was not useful. We are discarding the gene id/name/symbol information anyway.
+     * Therefore, we write this to the log for completeness sake, but do not need to worry.
+     * @param id
+     */
     public void addGeneId(String id) {
-        if (id == null) return;
+        if (id == null || id.isEmpty()) return;
         LOGGER.trace("Adding gene id: " + id);
+        if (id.startsWith("OMIM")) { LOGGER.error("We found an OMIM Id in the gene column: " + id);}
         this.QCissues.add(GOT_GENE_DATA);
         geneID = id;
     }
     /** Record that we are adding gene data because we will be discarding it. */
-    public void setGeneName(String name) {
+    public void setGeneName(String name){
         if (name==null || name.isEmpty()) return;
+        if (name.startsWith("OMIM")) {LOGGER.error("We found an OMIM name in the gene column: " + name); }
         this.QCissues.add(GOT_GENE_DATA);
         geneName = name;
     }
@@ -234,6 +246,7 @@ public class OldSmallFileEntry {
 
     public void setGenesymbol(String gs) {
         if (gs==null || gs.isEmpty()) return;
+        if (gs.startsWith("OMIM")) { LOGGER.error("We found an OMIM name in the gene symbol: " + gs);}
         this.QCissues.add(GOT_GENE_DATA);
         genesymbol = gs;
     }

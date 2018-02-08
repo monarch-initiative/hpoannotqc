@@ -311,10 +311,13 @@ public class OldSmallFile {
                    n_no_evidence++;
                     LOGGER.trace(String.format("%s:%s",DID_NOT_FIND_EVIDENCE_CODE.name(),line));
                     break;
+                    /* We just discard the gene information so there is no point in outputting these lines.
+                    Uncomment if desired.
                 case GOT_GENE_DATA:
                     n_gene_data++;
                     LOGGER.trace(String.format("%s:%s",GOT_GENE_DATA.name(),line));
                     break;
+                    */
                 case UPDATING_ALT_ID:
                     n_alt_id++;
                     LOGGER.trace(String.format("%s:%s",UPDATING_ALT_ID.name(),line));
@@ -345,70 +348,100 @@ public class OldSmallFile {
             builder.put(fieldtype,i);
             switch (A[i]) {
                 case "Disease ID":
-                    DISEASE_ID_INDEX=i; break;
+                    DISEASE_ID_INDEX=i;
+                    break;
                 case "Disease Name":
-                    DISEASE_NAME_INDEX=i;break;
+                    DISEASE_NAME_INDEX=i;
+                    break;
                 case "Gene ID":
                     GENE_ID_INDEX=i;
                     break;
                 case "Gene Name":
-                    GENE_NAME_INDEX=i;break;
+                    GENE_NAME_INDEX=i;
+                    break;
                 case "Genotype":
-                    GENOTYPE_INDEX=i;break;
+                    GENOTYPE_INDEX=i;
+                    break;
                 case "Gene Symbol(s)":
-                    GENE_SYMBOL_INDEX=i;break;
+                    GENE_SYMBOL_INDEX=i;
+                    break;
                 case "Phenotype ID":
-                    PHENOTYPE_ID_INDEX=i;break;
+                    PHENOTYPE_ID_INDEX=i;
+                    break;
                 case "Phenotype Name":
-                    PHENOTYPE_NAME_INDEX=i;break;
+                    PHENOTYPE_NAME_INDEX=i;
+                    break;
                 case "Age of Onset ID":
-                    AGE_OF_ONSET_ID_INDEX=i;break;
+                    AGE_OF_ONSET_ID_INDEX=i;
+                    break;
                 case "Age of Onset Name":
-                    AGE_OF_ONSET_NAME_INDEX=i; break;
+                    AGE_OF_ONSET_NAME_INDEX=i;
+                    break;
                 case "Evidence ID":
-                    EVIDENCE_ID_INDEX=i;break;
+                    EVIDENCE_ID_INDEX=i;
+                    break;
                 case "Evidence Name":
-                    EVIDENCE_NAME_INDEX=i;break;
+                    EVIDENCE_NAME_INDEX=i;
+                    break;
                 case "Frequency":
                     FREQUENCY_INDEX=i;
                 case "Sex ID":
-                    SEX_ID_INDEX=i;break;
+                    SEX_ID_INDEX=i;
+                    break;
                 case "Sex Name":
-                    SEX_NAME_INDEX=i;break;
+                    SEX_NAME_INDEX=i;
+                    break;
                 case "Negation ID":
-                    NEGATION_ID_INDEX=i;break;
+                    NEGATION_ID_INDEX=i;
+                    break;
                 case "Negation Name":
-                    NEGATION_NAME_INDEX=i;break;
+                    NEGATION_NAME_INDEX=i;
+                    break;
                 case "Description":
-                    DESCRIPTION_INDEX=i;break;
+                    DESCRIPTION_INDEX=i;
+                    break;
                 case "Pub":
-                    PUB_INDEX=i;break;
+                    PUB_INDEX=i;
+                    break;
                 case "Assigned by":
-                    ASSIGNED_BY_INDEX=i;break;
+                    ASSIGNED_BY_INDEX=i;
+                    break;
                 case "Date Created":
-                    DATE_CREATED_INDEX=i;break;
+                    DATE_CREATED_INDEX=i;
+                    break;
                 case "Entity ID":
-                    ENTITY_ID_INDEX=i;break;
+                    ENTITY_ID_INDEX=i;
+                    break;
                 case "Entity Name":
-                    ENTITY_NAME_IDX=i;break;
+                    ENTITY_NAME_IDX=i;
+                    break;
                 case "Add'l Entity ID":
-                    ADDL_ENTITY_ID_INDEX=i;break;
+                    ADDL_ENTITY_ID_INDEX=i;
+                    break;
                 case "Add'l Entity Name":
-                    ADDL_ENTITY_NAME_INDEX=i;break;
+                    ADDL_ENTITY_NAME_INDEX=i;
+                    break;
                 case "Quality ID":
-                    QUALITY_ID_INDEX=i;break;
+                    QUALITY_ID_INDEX=i;
+                    break;
                 case "Quality Name":
-                    QUALITY_NAME_INDEX=i;break;
+                    QUALITY_NAME_INDEX=i;
+                    break;
                 case "Evidence":
-                    EVIDENCE_INDEX=i;break;
+                    EVIDENCE_INDEX=i;
+                    break;
                 case "Abnormal ID":
-                    ABNORMAL_ID_INDEX=i;break;
+                    ABNORMAL_ID_INDEX=i;
+                    break;
                 case "Abnormal Name":
-                    ABNORMAL_NAME_INDEX=i;break;
+                    ABNORMAL_NAME_INDEX=i;
+                    break;
                 case "Sex":
-                    SEX_INDEX=i;break;
+                    SEX_INDEX=i;
+                    break;
                 case "Orthologs":
-                    ORTHOLOGS_INDEX=i;break;
+                    ORTHOLOGS_INDEX=i;
+                    break;
                 default:
                     LOGGER.error("Did not recognize header field \""+A[i]+"\"");
                     LOGGER.error("Terminating, please check OldSmallFile");

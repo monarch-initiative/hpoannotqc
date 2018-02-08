@@ -53,7 +53,17 @@ public class OldSmallFileConvertCommand implements Command {
 
     public OldSmallFileConvertCommand(String hpPath, String annotPath) {
         hpOboPath=hpPath;
-        oldSmallFileAnnotationDirectory =annotPath;
+        if (! annotPath.contains("hpo-annotation-data")) {
+            logger.error("Malformed path to old small files. Was expecting /pth/..../hpo-annotation-data");
+            oldSmallFileAnnotationDirectory=null;
+            System.exit(1);
+        } else if (annotPath.contains("rare-diseases/annotated")) {
+            oldSmallFileAnnotationDirectory=annotPath;
+        } else {
+            if (annotPath.endsWith(File.separator)) annotPath=annotPath.substring(0,annotPath.length()-1);
+            oldSmallFileAnnotationDirectory = String.format("%s%s/rare-diseases/annotated",annotPath,File.separator);
+        }
+        logger.trace("We will convert the \"old\" small files in " + oldSmallFileAnnotationDirectory);
     }
 
 
