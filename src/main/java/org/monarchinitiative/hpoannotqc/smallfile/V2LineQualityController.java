@@ -53,7 +53,9 @@ public class V2LineQualityController {
     private int n_good_evidence=0;
     private int n_bad_evidence=0;
     private String qcEvidence() { return String.format("%d good and %d bad evidence entries",n_good_evidence,n_bad_evidence);}
-
+    private int n_good_aspect=0;
+    private int n_bad_aspect=0;
+    private String qcAspect() { return String.format("%d good and %d bad aspect entries",n_good_aspect,n_bad_aspect);}
 
 
     public V2LineQualityController(HpoOntology onto) {
@@ -237,8 +239,10 @@ public class V2LineQualityController {
                 evi.equals("PCS") ||
                 evi.equals("ICE") ||
                 evi.equals("TAS")) {
+            n_good_evidence++;
             return true;
         } else {
+            n_bad_evidence++;
             return false;
         }
     }
@@ -275,7 +279,9 @@ public class V2LineQualityController {
         if (! checkEvidence(entry.getEvidenceCode())) {
             errors.add(String.format("Bad evidence code: %s",entry.toString()));
         }
+        // TODO ASPECT
     }
+
 
 
 
@@ -300,8 +306,7 @@ public class V2LineQualityController {
 
         /**
 
-         entry.getEvidenceCode(),
-         entry.getAgeOfOnsetId()==null?"":entry.getAgeOfOnsetId().getIdWithPrefix(),
+
          getFrequencyString(entry),
          "",
         getAspect(entry),

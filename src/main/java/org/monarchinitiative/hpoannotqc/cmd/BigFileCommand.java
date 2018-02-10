@@ -2,11 +2,9 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
 import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
+import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
-import com.github.phenomics.ontolib.ontology.data.ImmutableTermId;
-import com.github.phenomics.ontolib.ontology.data.ImmutableTermPrefix;
-import com.github.phenomics.ontolib.ontology.data.TermId;
-import com.github.phenomics.ontolib.ontology.data.TermPrefix;
+import com.github.phenomics.ontolib.ontology.data.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.V2SmallFileParser;
@@ -34,6 +32,16 @@ public class BigFileCommand implements Command {
     private List<V2SmallFile> v2filelist=new ArrayList<>();
 
     private HpoOntology ontology;
+    /*
+    one of O (Phenotypic abnormality), I (inheritance), C (onset and clinical course) or M (Mortality/Aging). This field is mandatory; cardinality 1
+
+     */
+//    private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> mortalitySubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> phenotypeSubontology;
+
+    private int n_bad_aspect=0;
 
     private String bigFileOutputName="phenotype_annotation2.tab";
 
@@ -43,6 +51,14 @@ public class BigFileCommand implements Command {
     public BigFileCommand(String hpopath, String dir) {
         hpOboPath=hpopath;
         v2smallFileDirectory =dir;
+//        TermPrefix pref = new ImmutableTermPrefix("HP");
+//        TermId inheritId = new ImmutableTermId(pref,"0000005");
+//        inheritanceSubontology = this.ontology.subOntology(inheritId);
+//        TermId onsetId = new ImmutableTermId(pref,"0003674");
+//        onsetSubontology = this.ontology.subOntology(onsetId);
+//        TermId mortalityId = new ImmutableTermId(pref,"0040006");
+//        mortalitySubontology = ontology.subOntology(mortalityId);
+//        phenotypeSubontology = ontology.getPhenotypicAbnormalitySubOntology();
     }
 
 
@@ -74,6 +90,7 @@ public class BigFileCommand implements Command {
                 List<V2SmallFileEntry> entryList = v2.getEntryList();
                 for (V2SmallFileEntry entry : entryList) {
                     v2qc.checkV2entry(entry);
+
                    String bigfileLine = transformEntry2BigFileLine(entry);
                    writer.write(bigfileLine + "\n");
                    n++;
@@ -85,6 +102,7 @@ public class BigFileCommand implements Command {
         }
         logger.trace("We output a total of " + n + " big file lines");
         v2qc.dumpQCtoShell();
+        System.out.println("Number of lines with bad aspect: " + n_bad_aspect);
     }
 
     private String getFrequencyString(V2SmallFileEntry entry) {
@@ -105,6 +123,7 @@ public class BigFileCommand implements Command {
         } else if (existsPath(ontology, tid, mortalityRoot)) {
             return "M";
         } else {
+            n_bad_aspect++;
             return "?";
         }
     }
@@ -118,7 +137,6 @@ public class BigFileCommand implements Command {
 
 
     private String transformEntry2BigFileLine(V2SmallFileEntry entry) {
-
         String [] elems = {
                 entry.getDB(),
                 entry.getDB_Object_ID(),

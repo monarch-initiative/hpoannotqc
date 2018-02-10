@@ -312,6 +312,15 @@ public class V2SmallFileEntry {
 
     @Override public String toString() { return getRow();}
 
+    /**
+     * The aspect is one of O,C,M, and I depending on the subontology the primary term belongs to.
+     * @return
+     */
+    public String getAspect() {
+        return null;
+    }
+
+
 
     public String getRow() {
         return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
