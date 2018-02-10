@@ -524,8 +524,17 @@ public class OldSmallFileEntry {
         if (p==null || p.isEmpty()) {
             return; // we will try to fix this in the doQCcheck function/
         }
+        p=p.trim(); // remove extraneous white space
         int index=p.indexOf(":");
         if (index <= 0) {
+            if (p.startsWith("OMIM")) {
+                // somebody forgot the ":"
+                p=p.replaceAll("OMIM","OMIM:");
+                QCissues.add(ADDED_FORGOTTEN_COLON);
+            } else if (p.startsWith("MIM")) {
+                p=p.replaceAll("MIM","OMIM:");
+                QCissues.add(ADDED_FORGOTTEN_COLON);
+            }
             pub = p;
             return;
         }
@@ -542,6 +551,9 @@ public class OldSmallFileEntry {
         if (prefix.equals("MIM")) {
             this.QCissues.add(CHANGED_MIM_TO_OMIM);
             prefix = "OMIM";
+        } else if (prefix.equals("PUBMED")) {
+            this.QCissues.add(CHANGED_PUBMED_TO_PMID);
+            prefix = "PMID";
         }
         this.pub = prefix + p.substring(index);
     }

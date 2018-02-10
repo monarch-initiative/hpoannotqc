@@ -92,6 +92,8 @@ public class OldSmallFile {
     private int n_corrected_publication_with_database_but_no_id=0;
     private int n_no_date_created=0;
     private int n_changed_MIM_to_OMIM=0;
+    private int n_changed_PUBMED_to_PMID=0;
+    private int n_added_forgotten_colon=0;
 
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
@@ -324,6 +326,14 @@ public class OldSmallFile {
         return n_changed_MIM_to_OMIM;
     }
 
+    public int getN_changed_PUBMED_to_PMID() {
+        return n_changed_PUBMED_to_PMID;
+    }
+
+    public int getN_added_forgotten_colon() {
+        return n_added_forgotten_colon;
+    }
+
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
         if (qcitems.size()==0)return;
         for (SmallFileQCCode qcode : qcitems) {
@@ -353,6 +363,9 @@ public class OldSmallFile {
                 case CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID:
                     n_corrected_publication_with_database_but_no_id++;
                     break;
+                case ADDED_FORGOTTEN_COLON:
+                    n_added_forgotten_colon++;
+                    break;
                 case NO_DATE_CREATED:
                     n_no_date_created++;
                     break;
@@ -367,7 +380,9 @@ public class OldSmallFile {
                 case CHANGED_MIM_TO_OMIM:
                     n_changed_MIM_to_OMIM++;
                     break;
-
+                case CHANGED_PUBMED_TO_PMID:
+                    n_changed_PUBMED_to_PMID++;
+                    break;
                 case CREATED_MODIFER:
                     n_created_modifier++;
                     LOGGER.trace(String.format("%s:%s",CREATED_MODIFER.name(),line));

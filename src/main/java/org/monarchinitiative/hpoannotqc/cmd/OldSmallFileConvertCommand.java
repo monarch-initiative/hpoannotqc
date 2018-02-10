@@ -54,6 +54,8 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_replaced_empty_publication_string=0;
     private int n_corrected_publication_with_database_but_no_id=0;
     private int n_changed_MIM_to_OMIM=0;
+    private int n_changed_PUBMED_to_PMID=0;
+    private int n_added_forgotten_colon=0;
 
 
 
@@ -112,6 +114,8 @@ public class OldSmallFileConvertCommand implements Command {
             n_replaced_empty_publication_string+=osf.getN_replaced_empty_publication_string();
             n_corrected_publication_with_database_but_no_id+=osf.getN_corrected_publication_with_database_but_no_id();
             n_changed_MIM_to_OMIM += osf.getN_changed_MIM_to_OMIM();
+            n_changed_PUBMED_to_PMID += osf.getN_changed_PUBMED_to_PMID();
+            n_added_forgotten_colon += osf.getN_added_forgotten_colon();
             osfList.add(osf);
         }
 
@@ -142,6 +146,8 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines with a publication field with a database but no id (replaced by databaseID): "
                 +n_corrected_publication_with_database_but_no_id);
         System.out.println("\tLines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
+        System.out.println("\tLines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
+        System.out.println("\tLines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
         System.out.println();
         System.out.println("Lines that were Q/C'd or updated have been written to the log (before/after)");
 

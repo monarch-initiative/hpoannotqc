@@ -17,6 +17,8 @@ public enum SmallFileQCCode {
     REPLACED_EMPTY_PUBLICATION_STRING("replaced empty publication string with disease ID"),
     CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID("corrected publication entry with database name but no id"),
     CHANGED_MIM_TO_OMIM("changed mim prefix to omim"),
+    CHANGED_PUBMED_TO_PMID("changed prefix PUBMED to PMID"),
+    ADDED_FORGOTTEN_COLON("Adding a \":\" forgotten from a publication string"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 
     private final String name;

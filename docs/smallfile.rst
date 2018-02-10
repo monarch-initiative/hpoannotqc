@@ -141,13 +141,24 @@ alt_id). This field can be left empty, in which case, the ageOfOnsetName field m
 6. **ageOfOnsetName**. The label corresponding to the ageOfOnsetId.
 This field can be left empty, in which case, the ageOfOnsetId field must also be empty.
 
+7. **frequency**. This column can be one of three formats: A valid HPO term from the frequency subontology, a fractional
+expression m/n (e.g., 4/7 meaning that 4 of 7 individuals in the cited study had the disease and the feature in question,
+while the feature was ruled out in the remaining 3 of 7 individuals); or a percentage value such as 47%. This column may be empty.
+
+8. **sex**. This column may be empty or may contain the strings "MALE" or "FEMALE".
+
 
 
 
 
 
 12. **publication**. The publication reference for the annotation assertion. Must be present and must be one of
-PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted.
+PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes are allowed:
+- PMID
+- OMIM
+- http
+- ISBN
+- DECIPHER
 
 
 

@@ -1,10 +1,14 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
 import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.ontology.data.TermId;
+import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
+import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
+import com.github.phenomics.ontolib.ontology.data.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The purpose of this class is to check each V2 small file line from the version 2 (V2) small files that represent
@@ -17,6 +21,7 @@ public class V2LineQualityController {
 
 
     private final HpoOntology ontology;
+    private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
 
     private List<String> errors=new ArrayList<>();
 
@@ -38,11 +43,24 @@ public class V2LineQualityController {
     private int n_good_publication=0;
     private int n_bad_publication=0;
     private String qcPublication() { return String.format("%d good and %d bad publication entries",n_good_publication,n_bad_publication);}
+    private int n_good_ageOfOnset_ID=0;
+    private int n_bad_ageOfOnset_ID=0;
+    private String qcAgeOfOnsetID() { return String.format("%d good and %d age of onset ID entries",n_good_ageOfOnset_ID,n_bad_ageOfOnset_ID);}
+    private int n_good_ageOfOnsetLabel=0;
+    private int n_bad_ageOfOnsetLabel=0;
+    private String qcAgeOfOnsetLabel() { return String.format("%d good and %d age of onset label entries",
+            n_good_ageOfOnsetLabel,n_bad_ageOfOnsetLabel);}
+    private int n_good_evidence=0;
+    private int n_bad_evidence=0;
+    private String qcEvidence() { return String.format("%d good and %d bad evidence entries",n_good_evidence,n_bad_evidence);}
 
 
 
     public V2LineQualityController(HpoOntology onto) {
         ontology=onto;
+        TermPrefix pref = new ImmutableTermPrefix("HP");
+        TermId inheritId = new ImmutableTermId(pref,"0000005");
+        inheritanceSubontology = this.ontology.subOntology(inheritId);
     }
 
 
@@ -141,8 +159,15 @@ public class V2LineQualityController {
             n_bad_publication++;
             return false;
         }
+        if (pub.contains("::")) { // should only be one colon separating prefix and id
+            n_bad_publication++;
+            return false;
+        }
         if (pub.startsWith("PMID") ||
-                pub.startsWith("OMIM")) {
+                pub.startsWith("OMIM") ||
+                pub.startsWith("http") ||
+                pub.startsWith("DECIPHER") ||
+                pub.startsWith("ISBN")) {
             n_good_publication++;
             return true;
         } else {
@@ -151,6 +176,75 @@ public class V2LineQualityController {
         n_bad_publication++;
         return false;
     }
+
+    /**
+     * check the age of onset id. It is allowed to be null, but then the age of onset label also has to be null.
+     * If it is not null, it has to be a valid term in the Onset subhierarchy of the hpo.
+     * @param id
+     * @return
+     */
+    public boolean checkAgeOfOnsetId(TermId id) {
+        if (id==null ) {
+            n_good_ageOfOnset_ID++;
+            return true;
+        }
+        int n = inheritanceSubontology.getTermMap().size();
+        if (n>1000) {
+            System.err.println("Inhertiance sie = + n");
+            System.exit(1);
+        }
+        if (inheritanceSubontology.getTermMap().containsKey(id)) {
+            n_good_ageOfOnset_ID++;
+            return true;
+        } else {
+            n_bad_ageOfOnset_ID++;
+            errors.add("Malformed age of onset ID: \""+id.toString()+"\"");
+            return false;
+        }
+    }
+
+
+    /** Check that the label is the current label that matches the term id. */
+    private boolean checkAgeOfOnsetLabel(TermId id, String label) {
+        if (id==null && (label==null||label.isEmpty())){
+            n_good_ageOfOnsetLabel++;
+            return true;
+        }
+        if (label==null || label.isEmpty()) {
+            n_bad_ageOfOnsetLabel++;
+            return false;
+        }
+        String currentLabel = inheritanceSubontology.getTermMap().get(id).getName();
+        if (! currentLabel.equals(label)) {
+            String errmsg = String.format("Found usage of wrong age of onset label %s instead of %s for %s: see following line",
+                    label,
+                    currentLabel,
+                    inheritanceSubontology.getTermMap().get(id).getId().getIdWithPrefix());
+            errors.add(errmsg);
+            n_bad_ageOfOnsetLabel++;
+            return false;
+        } else {
+            n_good_ageOfOnsetLabel++;
+            return true;
+        }
+    }
+
+    private boolean checkEvidence(String evi) {
+        if (evi==null || evi.isEmpty() || evi.equals("null")) {
+            n_bad_publication++;
+            return false;
+        } else if (evi.equals("IEA") ||
+                evi.equals("PCS") ||
+                evi.equals("ICE") ||
+                evi.equals("TAS")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 
 
     public void checkV2entry(V2SmallFileEntry entry) {
@@ -172,6 +266,15 @@ public class V2LineQualityController {
         if (! checkPublication(entry.getPublication())) {
             errors.add(String.format("Bad publication: %s",entry.toString()));
         }
+        if (! checkAgeOfOnsetId(entry.getAgeOfOnsetId())) {
+            errors.add(String.format("Bad age of onset id: %s",entry.toString()));
+        }
+        if (! checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetName())) {
+            errors.add(String.format("Bad age of onset label: %s",entry.toString()));
+        }
+        if (! checkEvidence(entry.getEvidenceCode())) {
+            errors.add(String.format("Bad evidence code: %s",entry.toString()));
+        }
     }
 
 
@@ -184,6 +287,9 @@ public class V2LineQualityController {
         System.out.println(qcPhenotypeID());
         System.out.println(qcPhenotypeLabel());
         System.out.println(qcPublication());
+        System.out.println(qcAgeOfOnsetID());
+        System.out.println(qcAgeOfOnsetLabel());
+        System.out.println(qcEvidence());
 
         for (String err : errors) {
             System.out.println(err);
@@ -193,7 +299,7 @@ public class V2LineQualityController {
 
 
         /**
-         entry.getPublication(),
+
          entry.getEvidenceCode(),
          entry.getAgeOfOnsetId()==null?"":entry.getAgeOfOnsetId().getIdWithPrefix(),
          getFrequencyString(entry),
