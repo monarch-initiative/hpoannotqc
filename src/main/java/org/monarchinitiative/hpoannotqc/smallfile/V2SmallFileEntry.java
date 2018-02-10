@@ -310,6 +310,8 @@ public class V2SmallFileEntry {
         return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
+    @Override public String toString() { return getRow();}
+
 
     public String getRow() {
         return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",

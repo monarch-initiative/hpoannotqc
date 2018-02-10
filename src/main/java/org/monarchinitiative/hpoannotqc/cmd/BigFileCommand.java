@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.V2SmallFileParser;
 import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFileEntry;
+import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 
@@ -66,11 +67,13 @@ public class BigFileCommand implements Command {
 
     private void outputBigFile() {
         int n=0;
+        V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(bigFileOutputName));
             for (V2SmallFile v2 : v2filelist ) {
                 List<V2SmallFileEntry> entryList = v2.getEntryList();
                 for (V2SmallFileEntry entry : entryList) {
+                    v2qc.checkV2entry(entry);
                    String bigfileLine = transformEntry2BigFileLine(entry);
                    writer.write(bigfileLine + "\n");
                    n++;
@@ -81,6 +84,7 @@ public class BigFileCommand implements Command {
             e.printStackTrace();
         }
         logger.trace("We output a total of " + n + " big file lines");
+        v2qc.dumpQCtoShell();
     }
 
     private String getFrequencyString(V2SmallFileEntry entry) {
@@ -104,6 +108,13 @@ public class BigFileCommand implements Command {
             return "?";
         }
     }
+
+
+
+
+
+
+
 
 
     private String transformEntry2BigFileLine(V2SmallFileEntry entry) {
