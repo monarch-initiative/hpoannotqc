@@ -102,7 +102,7 @@ public class BigFileCommand implements Command {
         }
         logger.trace("We output a total of " + n + " big file lines");
         v2qc.dumpQCtoShell();
-        System.out.println("Number of lines with bad aspect: " + n_bad_aspect);
+        System.out.println("--Number of lines with bad aspect: " + n_bad_aspect);
     }
 
     private String getFrequencyString(V2SmallFileEntry entry) {
@@ -123,6 +123,8 @@ public class BigFileCommand implements Command {
         } else if (existsPath(ontology, tid, mortalityRoot)) {
             return "M";
         } else {
+            logger.error("Could not identify aspect for entry with term id " + entry.getPhenotypeId().getIdWithPrefix() + "(+" +
+                    entry.getPhenotypeName()+")");
             n_bad_aspect++;
             return "?";
         }
