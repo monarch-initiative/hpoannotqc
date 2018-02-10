@@ -13,6 +13,9 @@ public enum SmallFileQCCode {
     CREATED_MODIFER("Created modifier term"),
     UPDATED_DATE_FORMAT("Updated created-by date to canonical date format"),
     NO_DATE_CREATED("No data created found"),
+    PUBLICATION_PREFIX_IN_LOWER_CASE("Publication prefix was in lower case"),
+    REPLACED_EMPTY_PUBLICATION_STRING("replaced empty publication string with disease ID"),
+    CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID("corrected publication entry with database name but no id"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 
     private final String name;

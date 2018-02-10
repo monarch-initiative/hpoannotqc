@@ -40,7 +40,7 @@ public class OldSmallFileConvertCommand implements Command {
     private List<V2SmallFile> v2sfList = new ArrayList<>();
     /** Default path for writing the new V2 small files. */
     private final String DEFAULT_OUTPUT_DIRECTORY ="v2files";
-
+    private int n_total_lines=0;
     private int n_corrected_date=0;
     private int n_no_evidence=0;
     private int n_gene_data=0;
@@ -49,6 +49,11 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_created_modifier=0;
     private int n_EQ_item=0;
     private int n_less_than_expected_number_of_lines=0;
+    private int n_no_date_created=0;
+    private int n_publication_prefix_in_lower_case=0;
+    private int n_replaced_empty_publication_string=0;
+    private int n_corrected_publication_with_database_but_no_id=0;
+
 
 
     public OldSmallFileConvertCommand(String hpPath, String annotPath) {
@@ -89,8 +94,10 @@ public class OldSmallFileConvertCommand implements Command {
         initOntology();
         List<String> files=getListOfSmallFiles();
         logger.trace("We found " + files.size() + " small files at " + oldSmallFileAnnotationDirectory);
+
         for (String path : files) {
             OldSmallFile osf = new OldSmallFile(path);
+            n_total_lines += osf.getEntrylist().size();
             this.n_alt_id += osf.getN_alt_id();
             this.n_corrected_date += osf.getN_corrected_date();
             n_no_evidence += osf.getN_no_evidence();
@@ -99,6 +106,10 @@ public class OldSmallFileConvertCommand implements Command {
             n_created_modifier += osf.getN_created_modifier();
             n_EQ_item += osf.getN_EQ_item();
             n_less_than_expected_number_of_lines += osf.getN_less_than_expected_number_of_lines();
+            n_no_date_created +=osf.getN_no_date_created();
+            n_publication_prefix_in_lower_case+=osf.getN_publication_prefix_in_lower_case();
+            n_replaced_empty_publication_string+=osf.getN_replaced_empty_publication_string();
+            n_corrected_publication_with_database_but_no_id+=osf.getN_corrected_publication_with_database_but_no_id();
             osfList.add(osf);
         }
 
@@ -113,6 +124,7 @@ public class OldSmallFileConvertCommand implements Command {
                 osfList.size(),v2sfList.size()));
         System.out.println();
         System.out.println("Summary of Q/C results:");
+        System.out.println("\tNumber of lines in total: "+n_total_lines);
         System.out.println("\tNumber of lines with corrected date formats: " + n_corrected_date);
         System.out.println("\tNumber of lines with \"Gene\" data that was discarded for the V2 files: " + n_gene_data);
         System.out.println("\tNumber of lines with \"E/Q\" data that was discarded for the V2 files: " + n_EQ_item);
@@ -121,6 +133,12 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines for which no Evidence code was found: "+ n_no_evidence);
         System.out.println("\tNumber of lines for which a Clinical modifer was extracted: "+n_created_modifier);
         System.out.println("\tNumber of lines with less than expected number of fields (given number of fields in header): "+n_less_than_expected_number_of_lines);
+        System.out.println("\tNumber of lines with no DATE_CREATED: "+ n_no_date_created);
+        System.out.println("\tNumber of lines with publication prefix in lower case (e.g., pmid): "+n_publication_prefix_in_lower_case);
+        System.out.println("\tNumber of lines with an empty publication field that was replaced by the databaseID field: " +
+                        n_replaced_empty_publication_string);
+        System.out.println("\tNumber of lines with a publication field with a database but no id (replaced by databaseID): "
+                +n_corrected_publication_with_database_but_no_id);
         System.out.println();
         System.out.println("Lines that were Q/C'd or updated have been written to the log (before/after)");
         System.out.println();

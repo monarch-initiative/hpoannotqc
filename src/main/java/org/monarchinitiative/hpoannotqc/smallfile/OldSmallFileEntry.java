@@ -168,7 +168,7 @@ public class OldSmallFileEntry {
             TermId parent = stack.pop();
             descendents.add(parent);
             Set<TermId> kids = getChildren(parent);
-            kids.forEach(k -> stack.push(k));
+            kids.forEach(k ->   stack.push(k));
         }
         for (TermId tid : descendents) {
             String label = ontology.getTermMap().get(tid).getName().toLowerCase();
@@ -343,7 +343,7 @@ public class OldSmallFileEntry {
      * This method is called after all of the data have been entered. We return a List of error codes so that
      * we can list up what we had to do to convert the filesd and do targeted manual checking.
      */
-    public Set<SmallFileQCCode> doQCcheck() {
+    public Set<SmallFileQCCode> doQCcheck() throws HPOException{
 
         // check the vidence codes. At least one of the three fields
         // has to have one of the correct codes, in order for the V2small file  entry to be ok
@@ -365,6 +365,13 @@ public class OldSmallFileEntry {
         if (! this.phenotypeName.equals(ontology.getTermMap().get(this.phenotypeId).getName())) {
             this.QCissues.add(UPDATING_HPO_LABEL);
             this.phenotypeName=ontology.getTermMap().get(this.phenotypeId).getName();
+        }
+        if (this.pub==null && this.diseaseID != null )  {
+            this.pub = diseaseID;
+            this.QCissues.add(REPLACED_EMPTY_PUBLICATION_STRING);
+        } else if (pub.equals("OMIM")&& this.diseaseID != null && diseaseID.startsWith("OMIM") )  {
+            this.pub = diseaseID;
+            this.QCissues.add(CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID);
         }
 
         return QCissues;
@@ -507,9 +514,29 @@ public class OldSmallFileEntry {
         description = descriptionList.stream().collect(Collectors.joining(";"));
     }
 
+    /** Set the publication id. Note that we enforce that the prefix is written in all upper case, i.e.,
+     * pmid:123 is changed to PMID:123. We also enforce that the string is not null and that there is
+     * a prefix:id structure. This code does not try to correct anything except a lower case prefix such
+     * as pmid.
+     * @param p
+     */
+    public void setPub(String p) throws HPOException {
+        if (p==null || p.isEmpty()) {
+            return; // we will try to fix this in the doQCcheck function/
+        }
+        int index=p.indexOf(":");
+        if (index>0) {
+            String prefix = p.substring(index);
+            String ucPrefix = prefix.toUpperCase();
+            if (!prefix.equals(ucPrefix)) {
+                this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
+                pub = ucPrefix + p.substring(index);
+                return;
+            }
 
-    public void setPub(String p) {
-        pub = p;
+        }
+       pub = p;
+
     }
 
     public void setAssignedBy(String ab) {

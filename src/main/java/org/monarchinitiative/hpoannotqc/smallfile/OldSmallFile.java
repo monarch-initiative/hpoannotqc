@@ -87,6 +87,11 @@ public class OldSmallFile {
     private int n_update_label=0;
     private int n_created_modifier=0;
     private int n_EQ_item=0;
+    private int n_publication_prefix_in_lower_case=0;
+    private int n_replaced_empty_publication_string=0;
+    private int n_corrected_publication_with_database_but_no_id=0;
+    private int n_no_date_created=0;
+
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
      */
@@ -97,7 +102,7 @@ public class OldSmallFile {
         parse();
     }
 
-    public String getBasename() {
+    String getBasename() {
         return new File(pathToOldSmallFile).getName();
     }
 
@@ -283,7 +288,7 @@ public class OldSmallFile {
             // if there was a QC issue, then the old line will have been output to the LOG together
             // with an indication of the issue. Therefore, we output the corresponding new line to LOG
             // so we can perform checking.
-            // Note that the actual output of the new lines is done by thbe V2SmallFile class and not here.
+            // Note that the actual output of the new lines is done by the V2SmallFile class and not here.
             V2SmallFileEntry v2entry = new V2SmallFileEntry(entry);
             LOGGER.trace("V2 entry: " + v2entry.getRow());
         }
@@ -296,6 +301,22 @@ public class OldSmallFile {
 
     public boolean hasQCissue() {
         return hasQCissue;
+    }
+
+    public int getN_publication_prefix_in_lower_case() {
+        return n_publication_prefix_in_lower_case;
+    }
+
+    public int getN_replaced_empty_publication_string() {
+        return n_replaced_empty_publication_string;
+    }
+
+    public int getN_corrected_publication_with_database_but_no_id() {
+        return n_corrected_publication_with_database_but_no_id;
+    }
+
+    public int getN_no_date_created() {
+        return n_no_date_created;
     }
 
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
@@ -318,6 +339,18 @@ public class OldSmallFile {
                     LOGGER.trace(String.format("%s:%s",GOT_GENE_DATA.name(),line));
                     break;
                     */
+                case PUBLICATION_PREFIX_IN_LOWER_CASE:
+                    n_publication_prefix_in_lower_case++;
+                    break;
+                case REPLACED_EMPTY_PUBLICATION_STRING:
+                    n_replaced_empty_publication_string++;
+                    break;
+                case CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID:
+                    n_corrected_publication_with_database_but_no_id++;
+                    break;
+                case NO_DATE_CREATED:
+                    n_no_date_created++;
+                    break;
                 case UPDATING_ALT_ID:
                     n_alt_id++;
                     LOGGER.trace(String.format("%s:%s",UPDATING_ALT_ID.name(),line));
@@ -342,7 +375,7 @@ public class OldSmallFile {
     private void processHeader(String header) {
         String A[] = header.split("\t");
         n_fields=A.length;
-        ImmutableBiMap.Builder builder = new ImmutableBiMap.Builder();
+        ImmutableBiMap.Builder<FieldType,Integer> builder = new ImmutableBiMap.Builder();
         for (int i=0;i<n_fields;i++) {
             FieldType fieldtype= FieldType.string2fields(A[i]);
             builder.put(fieldtype,i);
