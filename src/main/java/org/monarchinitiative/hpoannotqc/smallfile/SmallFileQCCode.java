@@ -16,6 +16,7 @@ public enum SmallFileQCCode {
     PUBLICATION_PREFIX_IN_LOWER_CASE("Publication prefix was in lower case"),
     REPLACED_EMPTY_PUBLICATION_STRING("replaced empty publication string with disease ID"),
     CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID("corrected publication entry with database name but no id"),
+    CHANGED_MIM_TO_OMIM("changed mim prefix to omim"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 
     private final String name;

@@ -517,7 +517,7 @@ public class OldSmallFileEntry {
     /** Set the publication id. Note that we enforce that the prefix is written in all upper case, i.e.,
      * pmid:123 is changed to PMID:123. We also enforce that the string is not null and that there is
      * a prefix:id structure. This code does not try to correct anything except a lower case prefix such
-     * as pmid.
+     * as pmid. We also change "MIM" to "OMIM"
      * @param p
      */
     public void setPub(String p) throws HPOException {
@@ -525,18 +525,25 @@ public class OldSmallFileEntry {
             return; // we will try to fix this in the doQCcheck function/
         }
         int index=p.indexOf(":");
-        if (index>0) {
-            String prefix = p.substring(index);
-            String ucPrefix = prefix.toUpperCase();
-            if (!prefix.equals(ucPrefix)) {
-                this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
-                pub = ucPrefix + p.substring(index);
-                return;
-            }
-
+        if (index <= 0) {
+            pub = p;
+            return;
         }
-       pub = p;
-
+        if (p.startsWith("http")) { // accept URLs.
+            pub=p;
+            return;
+        }
+        String prefix = p.substring(0,index);
+        String ucPrefix = prefix.toUpperCase();
+        if (!prefix.equals(ucPrefix)) {
+            this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
+            prefix = ucPrefix;
+        }
+        if (prefix.equals("MIM")) {
+            this.QCissues.add(CHANGED_MIM_TO_OMIM);
+            prefix = "OMIM";
+        }
+        this.pub = prefix + p.substring(index);
     }
 
     public void setAssignedBy(String ab) {

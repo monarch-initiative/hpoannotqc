@@ -53,6 +53,7 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_publication_prefix_in_lower_case=0;
     private int n_replaced_empty_publication_string=0;
     private int n_corrected_publication_with_database_but_no_id=0;
+    private int n_changed_MIM_to_OMIM=0;
 
 
 
@@ -110,6 +111,7 @@ public class OldSmallFileConvertCommand implements Command {
             n_publication_prefix_in_lower_case+=osf.getN_publication_prefix_in_lower_case();
             n_replaced_empty_publication_string+=osf.getN_replaced_empty_publication_string();
             n_corrected_publication_with_database_but_no_id+=osf.getN_corrected_publication_with_database_but_no_id();
+            n_changed_MIM_to_OMIM += osf.getN_changed_MIM_to_OMIM();
             osfList.add(osf);
         }
 
@@ -139,8 +141,10 @@ public class OldSmallFileConvertCommand implements Command {
                         n_replaced_empty_publication_string);
         System.out.println("\tNumber of lines with a publication field with a database but no id (replaced by databaseID): "
                 +n_corrected_publication_with_database_but_no_id);
+        System.out.println("\tLines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
         System.out.println();
         System.out.println("Lines that were Q/C'd or updated have been written to the log (before/after)");
+
         System.out.println();
     }
 
