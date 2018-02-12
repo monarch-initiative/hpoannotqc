@@ -94,6 +94,10 @@ public class OldSmallFile {
     private int n_changed_MIM_to_OMIM=0;
     private int n_changed_PUBMED_to_PMID=0;
     private int n_added_forgotten_colon=0;
+    private int n_frequency_with_dash=0;
+    private int n_frequency_with_other_correction;
+    private int n_assigned_by_only_HPO=0;
+    private int n_assigned_by_empty =0;
 
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
@@ -334,6 +338,22 @@ public class OldSmallFile {
         return n_added_forgotten_colon;
     }
 
+    public int getN_frequency_with_dash() {
+        return n_frequency_with_dash;
+    }
+
+    public int getN_frequency_with_other_correction() {
+        return n_frequency_with_other_correction;
+    }
+
+    public int getN_assigned_by_only_HPO() {
+        return n_assigned_by_only_HPO;
+    }
+
+    public int getN_assigned_by_empty() {
+        return n_assigned_by_empty;
+    }
+
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
         if (qcitems.size()==0)return;
         for (SmallFileQCCode qcode : qcitems) {
@@ -390,6 +410,22 @@ public class OldSmallFile {
                 case GOT_EQ_ITEM:
                     n_EQ_item++;
                     LOGGER.trace(String.format("%s:%s",GOT_EQ_ITEM.name(),line));
+                    break;
+                case FREQUENCY_WITH_DASH:
+                    n_frequency_with_dash++;
+                    LOGGER.trace(String.format("%s:%s",FREQUENCY_WITH_DASH.name(),line));
+                    break;
+                case CORRECTED_OTHER_FREQUENCY_FORMAT:
+                    n_frequency_with_other_correction++;
+                    LOGGER.trace(String.format("%s:%s",CORRECTED_OTHER_FREQUENCY_FORMAT.name(),line));
+                    break;
+                case ASSIGNED_BY_EMPTY:
+                    n_assigned_by_empty++;
+                    LOGGER.trace(String.format("%s:%s",ASSIGNED_BY_EMPTY.name(),line));
+                    break;
+                case ASSIGNED_BY_ONLY_HPO:
+                    n_assigned_by_only_HPO++;
+                    LOGGER.trace(String.format("%s:%s",ASSIGNED_BY_ONLY_HPO.name(),line));
                     break;
             }
         }

@@ -37,7 +37,7 @@ public class V2SmallFileParser {
 
     private V2SmallFile v2smallfile=null;
 
-    private static final int NUMBER_OF_FIELDS=16;
+    private static final int NUMBER_OF_FIELDS=15;
 
     public V2SmallFileParser(String path) {
         parse(path);
@@ -80,33 +80,29 @@ public class V2SmallFileParser {
                 TermId ageOfOnsetId;
                 String ageOfOnsetName=A[5];
                 String evidenceCode=A[6];
-                String publication=A[13];
-                String assignedBy=A[14];
-                String dateCreated=A[15];
+                String publication=A[12];
+                String assignedBy=A[13];
+                String dateCreated=A[14];
 
                 V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,assignedBy,dateCreated);
-                if (A[7]!=null && A[7].startsWith("HP:")) {
-                    TermId frequencyId = ImmutableTermId.constructWithPrefix(A[7]);
-                    builder = builder.frequencyId(frequencyId);
-                }
-                String frequencyString=A[8];
+                String frequencyString=A[7];
                 if (frequencyString!=null && ! frequencyString.isEmpty()) {
                     builder=builder.frequencyString(frequencyString);
                 }
-                String sex=A[9];
+                String sex=A[8];
                 if (sex!=null && !sex.isEmpty()) {
                     builder=builder.sex(sex);
                 }
-                String negation=A[10];
+                String negation=A[9];
                 if (negation!=null && !negation.isEmpty()) {
                     builder=builder.negation(negation);
                 }
-                String modifier=A[11];
+                String modifier=A[10];
                 if (modifier!=null && !modifier.isEmpty()) {
                     builder=builder.modifier(modifier);
                 }
                // modifer is discarded here since it was not in the big file -- FOR NOW TODO
-                String description=A[12];
+                String description=A[11];
                 if (description!=null && ! description.isEmpty()) {
                     builder.description(description);
                 }

@@ -85,6 +85,8 @@ public class OldSmallFileEntry {
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
 
+    private static final String DEFAULT_HPO_ASSIGNED_BY="HPO:iea";
+
 
     /**
      * If present, a limitation to MALE or FEMALE.
@@ -563,7 +565,16 @@ public class OldSmallFileEntry {
     }
 
     public void setAssignedBy(String ab) {
-        this.assignedBy = ab;
+        if (ab==null || ab.isEmpty()) {
+            this.assignedBy=DEFAULT_HPO_ASSIGNED_BY;
+            QCissues.add(ASSIGNED_BY_EMPTY);
+        }
+        if (ab.equals("HPO")) {
+            this.assignedBy=DEFAULT_HPO_ASSIGNED_BY;
+            QCissues.add(ASSIGNED_BY_ONLY_HPO);
+        } else {
+            this.assignedBy = ab;
+        }
     }
 
     public void setDateCreated(String dc) {
@@ -740,13 +751,13 @@ public class OldSmallFileEntry {
         }
         Integer N,M;
         try {
-            N = Integer.parseInt(freq.substring(0,i));
+            N = Integer.parseInt(s.substring(0,i));
         } catch (NumberFormatException e) {
-            throw new HPOException(String.format("Could not parse first int in N-of-M expression (could not parse \"%s\")"+freq,freq.substring(0,i)));
+            throw new HPOException(String.format("Could not parse first int in N-of-M expression (could not parse \"%s\")"+freq,s.substring(0,i)));
         }
         int j=i+2; // should be starting place of second number
-        if (j==s.length()-1) {
-            throw new HPOException("Could not find second int in N-of-M expression "+freq);
+        if (j>=s.length()) {
+            throw new HPOException(String.format("Could not find second int in N-of-M expression for %s (could not parse \"%s\")",freq,s.substring(j)));
         }
         try {
             M = Integer.parseInt(s.substring(j));
@@ -770,14 +781,19 @@ public class OldSmallFileEntry {
         // it is ok not to have frequency data
         if (frequencyId == null && frequencyString == null) {
             return "";
+        } else if (frequencyString.isEmpty()) {
+            return "";
         } else if (frequencyString.contains("of")) {
             return convertNofMString(frequencyString);
         } else if (frequencyString.matches("\\d+/\\d+")) {
             return frequencyString;
         } else if (frequencyString.matches("\\d{1,2}-\\d{1,2}\\s?\\%")){
+            QCissues.add(FREQUENCY_WITH_DASH);
             return frequencyString.replaceAll(" ","");
         } else if (frequencyString.matches("\\d{1,2}\\%-\\d{1,2}\\s?\\%")){
             // remove middle percent sign
+            QCissues.add(FREQUENCY_WITH_DASH);
+            QCissues.add(CORRECTED_OTHER_FREQUENCY_FORMAT);
             String f = frequencyString.replaceAll("%","").trim();
             return f+"%";
         }else  if (frequencyString.matches("\\d{1,3}\\s?\\%")) {
@@ -798,7 +814,6 @@ public class OldSmallFileEntry {
             // if we get here, frequencyId was null and frequencyString was not null but was not recognized.
             throw new HPOException(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
         }
-
     }
 
 

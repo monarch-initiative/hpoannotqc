@@ -8,10 +8,7 @@ import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFile;
-import org.monarchinitiative.hpoannotqc.smallfile.OldSmallFileEntry;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.hpoannotqc.smallfile.*;
 
 
 import java.io.BufferedWriter;
@@ -56,6 +53,10 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_changed_MIM_to_OMIM=0;
     private int n_changed_PUBMED_to_PMID=0;
     private int n_added_forgotten_colon=0;
+    private int n_frequency_with_dash=0;
+    private int n_frequency_with_other_correction=0;
+    private int n_assigned_by_only_HPO=0;
+    private int n_assigned_by_empty =0;
 
 
 
@@ -119,6 +120,11 @@ public class OldSmallFileConvertCommand implements Command {
             n_changed_MIM_to_OMIM += osf.getN_changed_MIM_to_OMIM();
             n_changed_PUBMED_to_PMID += osf.getN_changed_PUBMED_to_PMID();
             n_added_forgotten_colon += osf.getN_added_forgotten_colon();
+            n_frequency_with_dash=osf.getN_frequency_with_dash();
+            n_frequency_with_other_correction = osf.getN_frequency_with_other_correction();
+
+            n_assigned_by_only_HPO= osf.getN_assigned_by_only_HPO();
+            n_assigned_by_empty = osf.getN_assigned_by_empty();
             osfList.add(osf);
         }
 
@@ -148,13 +154,18 @@ public class OldSmallFileConvertCommand implements Command {
                         n_replaced_empty_publication_string);
         System.out.println("\tNumber of lines with a publication field with a database but no id (replaced by databaseID): "
                 +n_corrected_publication_with_database_but_no_id);
-        System.out.println("\tLines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
-        System.out.println("\tLines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
-        System.out.println("\tLines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
+        System.out.println("\tNumber of lines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
+        System.out.println("\tNumber of lines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
+        System.out.println("\tNumber of lines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
+        System.out.println("\tNumber of lines with a dash in the frequency data: " +  n_frequency_with_dash);
+        System.out.println("\tNumber of lines with a other frequency correction (e.g., extra %): "+  n_frequency_with_other_correction );
+        System.out.println("\tNumber of lines with a only \"HPO\" in assigned by: " +  n_assigned_by_only_HPO);
+        System.out.println("\tNumber of lines with empty assigned by: "+  n_assigned_by_empty );
         System.out.println();
-        System.out.println("Lines that were Q/C'd or updated have been written to the log (before/after)");
+        System.out.println("Number of lines that were Q/C'd or updated have been written to the log (before/after)");
 
         System.out.println();
+        V2LineQualityController.dumpAssignedByMap();
     }
 
 

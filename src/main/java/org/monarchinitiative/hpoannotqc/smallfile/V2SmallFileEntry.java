@@ -266,6 +266,9 @@ public class V2SmallFileEntry {
            evidenceCode="UNKNOWN";
         } else
             evidenceCode=evi;
+        if (evidenceCode.equals("HPO")) {
+            System.exit(1);
+        }
        // frequencyId=oldEntry.getFrequencyId();
         frequencyModifier =oldEntry.getThreeWayFrequencyString();
         sex=oldEntry.getSex();

@@ -19,6 +19,11 @@ public enum SmallFileQCCode {
     CHANGED_MIM_TO_OMIM("changed mim prefix to omim"),
     CHANGED_PUBMED_TO_PMID("changed prefix PUBMED to PMID"),
     ADDED_FORGOTTEN_COLON("Adding a \":\" forgotten from a publication string"),
+    FREQUENCY_WITH_TOO_MANY_DIGITS("frequency with too many digits of significance"),
+    FREQUENCY_WITH_DASH("frequency with dash and range (e.g., 1-2%)"),
+    CORRECTED_OTHER_FREQUENCY_FORMAT("corrected extra whitespace or percent sign in frequency data"),
+    ASSIGNED_BY_ONLY_HPO("assigned by code has only \"HPO\""),
+    ASSIGNED_BY_EMPTY("assigned by code is empty"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 
     private final String name;

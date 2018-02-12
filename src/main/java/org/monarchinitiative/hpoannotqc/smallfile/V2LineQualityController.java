@@ -26,7 +26,7 @@ public class V2LineQualityController {
 
     private List<String> errors=new ArrayList<>();
 
-    private Map<String,Integer> assignedByMap = new HashMap();
+    private static Map<String,Integer> assignedByMap = new HashMap();
 
     private int n_good_DB=0;
     private int n_bad_DB=0;
@@ -282,7 +282,7 @@ public class V2LineQualityController {
         int index = assignedBy.indexOf(":");
         if (index<=0) {
             n_bad_assignedBy++;
-            errors.add("Bad assigned by string "+assignedBy);
+            errors.add("Bad assigned by string \""+assignedBy +"\"");
             return false;
         } else {
             if (! assignedByMap.containsKey(assignedBy) ) {
@@ -328,13 +328,16 @@ public class V2LineQualityController {
             n_bad_frequency++;
             return false;
         }
-
-
     }
 
 
 
-
+    public static void dumpAssignedByMap() {
+        System.out.println("### Biocurated annotations ###");
+        for (String ab : assignedByMap.keySet()) {
+            System.out.println(ab +": n="+assignedByMap.get(ab));
+        }
+    }
 
 
 
