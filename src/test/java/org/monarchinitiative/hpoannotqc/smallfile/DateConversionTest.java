@@ -34,9 +34,7 @@ public class DateConversionTest {
         try {
             HpoOntologyParser parser = new HpoOntologyParser(hpOboPath);
             HpoOntology ontology = parser.getOntology();
-            Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology = parser.getInheritanceSubontology();
-            Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology = parser.getPhenotypeSubontology();
-            OldSmallFileEntry.setOntology(ontology, inheritanceSubontology, abnormalPhenoSubOntology);
+            OldSmallFileEntry.setOntology(ontology);
         } catch (Exception e) {
             e.printStackTrace();
         }

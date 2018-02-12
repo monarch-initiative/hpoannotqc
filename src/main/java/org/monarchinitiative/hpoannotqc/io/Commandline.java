@@ -63,18 +63,15 @@ public class Commandline {
 
     public Commandline(String args[]) {
         final CommandLineParser cmdLineGnuParser = new DefaultParser();
-        logger.error("CL");
         final Options gnuOptions = constructGnuOptions();
         org.apache.commons.cli.CommandLine commandLine;
 
         String mycommand = null;
         String clstring = Arrays.stream(args).collect(Collectors.joining(" "));;
-        if (args != null && args.length > 0) {
-            logger.trace("Starting with command "+clstring);
-        } else {
-            String msg = String.format("need to pass command. You passed %s",clstring);
+        if (args == null || args.length ==0) {
+            String msg = String.format("You need to pass a command (with optional arguments)");
             logger.trace(msg);
-            printUsage("Failed to pass a command");
+            printUsage("[ERROR] Failed to pass a command");
         }
         try {
             commandLine = cmdLineGnuParser.parse(gnuOptions, args);
@@ -84,7 +81,6 @@ public class Commandline {
                 printUsage("command missing");
             } else {
                 mycommand = category[0];
-                logger.trace("mycommand is " + mycommand);
             }
 
             if (commandLine.getArgs().length < 1) {
@@ -124,7 +120,7 @@ public class Commandline {
         } else if (mycommand.equals("big-file")) {
             this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY);
         } else {
-            printUsage(String.format("Did not recognize command: %s", mycommand));
+            printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
         }
 
     }
@@ -170,6 +166,7 @@ public class Commandline {
 
 
         String version = getVersion();
+        System.out.println();
         System.out.println(message);
         System.out.println();
         System.out.println("Program: HPO Annotation QC");

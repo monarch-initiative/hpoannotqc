@@ -5,8 +5,8 @@ import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
 import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.ontology.data.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +22,11 @@ public class V2LineQualityController {
 
     private final HpoOntology ontology;
     private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
+    private final Ontology<HpoTerm, HpoTermRelation> frequencySubontology;
 
     private List<String> errors=new ArrayList<>();
+
+    private Map<String,Integer> assignedByMap = new HashMap();
 
     private int n_good_DB=0;
     private int n_bad_DB=0;
@@ -56,6 +59,15 @@ public class V2LineQualityController {
     private int n_good_aspect=0;
     private int n_bad_aspect=0;
     private String qcAspect() { return String.format("%d good and %d bad aspect entries",n_good_aspect,n_bad_aspect);}
+    private int n_good_dateCreated=0;
+    private int n_bad_dateCreated=0;
+    private String qcDateCreated() { return String.format("%d good and %d bad data-created entries",n_good_dateCreated,n_bad_dateCreated);}
+    private int n_good_assignedBy=0;
+    private int n_bad_assignedBy=0;
+    private String qcAssignedBy() { return String.format("%d good and %d bad assigned-by entries",n_good_assignedBy,n_bad_assignedBy);}
+    private int n_good_frequency=0;
+    private int n_bad_frequency=0;
+    private String qcFrequency() { return String.format("%d good and %d bad frequency entries",n_good_frequency,n_bad_frequency);}
 
 
     public V2LineQualityController(HpoOntology onto) {
@@ -63,6 +75,9 @@ public class V2LineQualityController {
         TermPrefix pref = new ImmutableTermPrefix("HP");
         TermId inheritId = new ImmutableTermId(pref,"0000005");
         inheritanceSubontology = this.ontology.subOntology(inheritId);
+        TermId frequencyId = new ImmutableTermId(pref,"0040279");
+        frequencySubontology = this.ontology.subOntology(frequencyId);
+
     }
 
 
@@ -249,6 +264,78 @@ public class V2LineQualityController {
 
 
 
+    private boolean checkDateCreated(String date) {
+        boolean OK = date.matches("\\d{4,4}-\\d{2,2}-\\d{2,2}");
+        if (OK) {
+            n_good_dateCreated++;
+            return true;
+        } else {
+            errors.add(String.format("Could not parse date-created \"%s\"",date));
+            n_bad_dateCreated++;
+            return false;
+        }
+    }
+
+
+
+    private boolean checkAssignBy(String assignedBy) {
+        int index = assignedBy.indexOf(":");
+        if (index<=0) {
+            n_bad_assignedBy++;
+            errors.add("Bad assigned by string "+assignedBy);
+            return false;
+        } else {
+            if (! assignedByMap.containsKey(assignedBy) ) {
+                assignedByMap.put(assignedBy,0);
+            }
+            assignedByMap.put(assignedBy,1 + assignedByMap.get(assignedBy)); // increment
+            n_good_assignedBy++;
+            return true;
+        }
+    }
+
+    /** There are 3 correct formats for frequency */
+    private boolean checkFrequency(String freq) {
+        // it is ok not to have frequency data
+        if (freq==null || freq.isEmpty()) {
+            n_good_frequency++;
+            return true;
+        }
+        boolean OK=false;
+        if (freq.matches("\\d+/\\d+")) {
+            n_good_frequency++;
+            return true;
+        } else if (freq.matches("\\d{1,2}\\%")) {
+            n_good_frequency++;
+            return true;
+        } else if (! freq.matches("HP:\\d{7,7}")) {
+            // cannot be a valid frequency term
+            errors.add("Invalid frequency term (see next line): " + freq);
+            n_bad_frequency++;
+            return false;
+        }
+        // if we get here and we can validate that the frequency term comes from the right subontology,
+        // then the item is valid
+        TermId id = ImmutableTermId.constructWithPrefix(freq);
+        OK = frequencySubontology.getTermMap().containsKey(id);
+        if (OK) {
+            n_good_frequency++;
+            return true;
+        }else {
+            errors.add(String.format("Could not find term %s [%s] in frequency subontology (see next line)",
+                    ontology.getTermMap().get(id).getName(),
+                    ontology.getTermMap().get(id).getId().getIdWithPrefix()));
+            n_bad_frequency++;
+            return false;
+        }
+
+
+    }
+
+
+
+
+
 
 
     public void checkV2entry(V2SmallFileEntry entry) {
@@ -279,7 +366,15 @@ public class V2LineQualityController {
         if (! checkEvidence(entry.getEvidenceCode())) {
             errors.add(String.format("Bad evidence code: %s",entry.toString()));
         }
-        // TODO ASPECT
+        if (! checkDateCreated(entry.getDateCreated())) {
+            errors.add(String.format("Bad data created: %s",entry.toString()));
+        }
+        if (! checkAssignBy(entry.getAssignedBy())) {
+            errors.add(String.format("Bad assigned-by: %s",entry.toString()));
+        }
+        if (! checkFrequency(entry.getFrequencyModifier())) {
+            errors.add(String.format("Bad frequency: %s",entry.toString()));
+        }
     }
 
 
@@ -296,6 +391,9 @@ public class V2LineQualityController {
         System.out.println(qcAgeOfOnsetID());
         System.out.println(qcAgeOfOnsetLabel());
         System.out.println(qcEvidence());
+        System.out.println(qcDateCreated());
+        System.out.println(qcAssignedBy());
+        System.out.println(qcFrequency());
 
         for (String err : errors) {
             System.out.println(err);
@@ -307,11 +405,7 @@ public class V2LineQualityController {
         /**
 
 
-         getFrequencyString(entry),
-         "",
-        getAspect(entry),
-                "",
-                entry.getDateCreated(),
+         getFrequencyModifier(entry),
                 entry.getAssignedBy()
 
     }*/

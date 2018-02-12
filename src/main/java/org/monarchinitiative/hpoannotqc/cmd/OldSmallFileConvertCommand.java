@@ -76,6 +76,7 @@ public class OldSmallFileConvertCommand implements Command {
 
 
     private void convertToNewSmallFiles() {
+        int i=0;
         osfList.forEach(old -> {
             V2SmallFile v2 = new V2SmallFile(old);
             v2sfList.add(v2);
@@ -83,11 +84,13 @@ public class OldSmallFileConvertCommand implements Command {
         try {
             for (V2SmallFile v2 : v2sfList) {
                 outputV2file(v2);
+                i++;
             }
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
+        logger.trace(String.format("Wrote %d v2 small files." ,i));
     }
 
 
@@ -161,7 +164,6 @@ public class OldSmallFileConvertCommand implements Command {
             new File(outdir).mkdir();
         }
         String filename = String.format("%s%s%s",outdir,File.separator,v2.getBasename());
-        logger.trace("Writing v2 to file " + filename);
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
         writer.write(V2SmallFileEntry.getHeader()+"\n");
         List<V2SmallFileEntry> entryList = v2.getEntryList();
@@ -169,7 +171,6 @@ public class OldSmallFileConvertCommand implements Command {
             writer.write(v2e.getRow() + "\n");
         }
         writer.close();
-
     }
 
 
@@ -209,7 +210,7 @@ public class OldSmallFileConvertCommand implements Command {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
             System.exit(1); // we cannot recover from this
         }
-        OldSmallFileEntry.setOntology(ontology, inheritanceSubontology, abnormalPhenoSubOntology);
+        OldSmallFileEntry.setOntology(ontology);
         if (this.ontology==null) {
             logger.error("We could not parse the HPO ontology. Terminating ...");
             System.exit(1);// not a recoverable error

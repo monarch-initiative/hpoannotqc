@@ -73,7 +73,6 @@ public class OldSmallFileEntry {
     private String frequencyString = null;
 
     private TermId frequencyId = null;
-
     // Frequency Ids
     private static final TermPrefix HP_PREFIX = new ImmutableTermPrefix("HP");
     private static final TermId FrequencyRoot = new ImmutableTermId(HP_PREFIX, "0040279");
@@ -137,6 +136,7 @@ public class OldSmallFileEntry {
 
     private static HpoOntology ontology = null;
     private static Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology = null;
+    private static Ontology<HpoTerm, HpoTermRelation> frequencySubontology = null;
     private static Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology = null;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
@@ -146,11 +146,15 @@ public class OldSmallFileEntry {
     public OldSmallFileEntry() {
         QCissues = new HashSet<>();
     }
-    /** This is called once by client code before we start parsing. Not pretty design but it woirks fine for thuis one-off app. */
-    public static void setOntology(HpoOntology ont, Ontology<HpoTerm, HpoTermRelation> inh, Ontology<HpoTerm, HpoTermRelation> phe) {
+    /** This is called once by client code before we start parsing. Not pretty design but it works fine for this one-off app. */
+    public static void setOntology(HpoOntology ont) {
         ontology = ont;
-        inheritanceSubontology = inh;
-        abnormalPhenoSubOntology = phe;
+        TermId inheritId = new ImmutableTermId(HP_PREFIX,"0000005");
+        TermId frequencyId = new ImmutableTermId(HP_PREFIX,"0040279");
+
+        inheritanceSubontology = ontology.subOntology(inheritId);
+        frequencySubontology = ontology.subOntology(frequencyId);
+        abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
         findModifierTerms();
     }
 
@@ -720,6 +724,84 @@ public class OldSmallFileEntry {
         }
         return convertToCanonicalDateFormat(dateCreated);
     }
+
+
+    /**
+     * COnvert a string such as 9 of 16 to 9/16
+     * @param freq A string that has been founf to have the word "of" ion it
+     * @return
+     * @throws  if format doen not match 9 of 16
+     */
+    private String convertNofMString(String freq) throws HPOException {
+        String s = freq.replaceAll(" ","");
+        int i = s.indexOf("of");
+        if (i<0) {
+            throw new HPOException("Could not find word \"of\" in N-of-M expression "+freq);
+        }
+        Integer N,M;
+        try {
+            N = Integer.parseInt(freq.substring(0,i));
+        } catch (NumberFormatException e) {
+            throw new HPOException(String.format("Could not parse first int in N-of-M expression (could not parse \"%s\")"+freq,freq.substring(0,i)));
+        }
+        int j=i+2; // should be starting place of second number
+        if (j==s.length()-1) {
+            throw new HPOException("Could not find second int in N-of-M expression "+freq);
+        }
+        try {
+            M = Integer.parseInt(s.substring(j));
+        } catch (NumberFormatException e) {
+            throw new HPOException(String.format("Could not parse second int in N-of-M expression (could not parse \"%s\")"+freq,s.substring(j)));
+        }
+        return String.format("%d/%d",N,M );
+
+    }
+
+
+
+
+    /** There are 3 correct formats for frequency. This function returns
+     * a String representing either a frequency such as 45%, 6/13, or an HPO
+     * term id from the frequency subontology. Note that the emtpy string is also
+     * valid. All other data will cause an error. Note that by assumption (and this will be
+     * true given the formats of the old small files), not more than one type of
+     * frequency data can occur in one old small file entry. */
+    public String getThreeWayFrequencyString() throws HPOException {
+        // it is ok not to have frequency data
+        if (frequencyId == null && frequencyString == null) {
+            return "";
+        } else if (frequencyString.contains("of")) {
+            return convertNofMString(frequencyString);
+        } else if (frequencyString.matches("\\d+/\\d+")) {
+            return frequencyString;
+        } else if (frequencyString.matches("\\d{1,2}-\\d{1,2}\\s?\\%")){
+            return frequencyString.replaceAll(" ","");
+        } else if (frequencyString.matches("\\d{1,2}\\%-\\d{1,2}\\s?\\%")){
+            // remove middle percent sign
+            String f = frequencyString.replaceAll("%","").trim();
+            return f+"%";
+        }else  if (frequencyString.matches("\\d{1,3}\\s?\\%")) {
+            return frequencyString.replaceAll(" ",""); // remove whitepsace
+        } else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\s?\\%")) {
+            return frequencyString.replaceAll(" ","");
+        }
+        else if (frequencyId != null) {
+            if (frequencySubontology.getTermMap().containsKey(frequencyId)) {
+                return frequencyId.getIdWithPrefix();
+            } else {
+                String err = String.format("Attempt to use term %s [%s] as a frequency term",
+                        ontology.getTermMap().get(frequencyId).getName(),
+                        ontology.getTermMap().get(frequencyId).getId().getIdWithPrefix());
+                throw new HPOException(err);
+            }
+        } else {
+            // if we get here, frequencyId was null and frequencyString was not null but was not recognized.
+            throw new HPOException(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
+        }
+
+    }
+
+
 
 
 }

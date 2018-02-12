@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import com.github.phenomics.ontolib.ontology.data.TermId;
 import org.apache.logging.log4j.LogManager;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 
 
 import java.util.Arrays;
@@ -27,10 +28,10 @@ public class V2SmallFileEntry {
     private final String ageOfOnsetName;
     /** Field #7 */
     private final String evidenceCode;
-    /** Field #8 */
-    private final TermId frequencyId;
+//    /** Field #8 */
+//    private final TermId frequencyId;
     /** Field #9 */
-    private final String frequencyString;
+    private final String frequencyModifier;
     /** Field #10 */
     private final String sex;
     /** Field #11 */
@@ -87,12 +88,8 @@ public class V2SmallFileEntry {
         return evidenceCode;
     }
 
-    public TermId getFrequencyId() {
-        return frequencyId;
-    }
-
-    public String getFrequencyString() {
-        return frequencyString;
+    public String getFrequencyModifier() {
+        return frequencyModifier;
     }
 
     public String getSex() {
@@ -138,9 +135,9 @@ public class V2SmallFileEntry {
         private  String ageOfOnsetName=null;
         /** Field #7 */
         private  final String evidenceCode;
-        /** Field #8 */
+        /** Field #8 -- the HPO id for frequency (if available) */
         private  TermId frequencyId=null;
-        /** Field #9 */
+        /** Field #9 -- string representing n/m or x% frequency data*/
         private  String frequencyString=null;
         /** Field #10 */
         private  String sex=null;
@@ -203,7 +200,6 @@ public class V2SmallFileEntry {
                      ageOfOnsetId,
                      ageOfOnsetName,
                      evidenceCode,
-                     frequencyId,
                      frequencyString,
                      sex,
                      negation,
@@ -223,7 +219,7 @@ public class V2SmallFileEntry {
             TermId ageOfOnsetId,
             String ageOfOnsetName,
             String evidenceCode,
-            TermId frequencyId,
+           // TermId frequencyId,
             String frequencyString,
             String sex,
             String negation,
@@ -239,8 +235,8 @@ public class V2SmallFileEntry {
         this.ageOfOnsetId=ageOfOnsetId;
         this.ageOfOnsetName=ageOfOnsetName;
         this.evidenceCode=evidenceCode;
-        this.frequencyId=frequencyId;
-        this.frequencyString=frequencyString;
+        //this.frequencyId=frequencyId;
+        this.frequencyModifier =frequencyString;
         this.sex=sex;
         this.negation=negation;
         this.modifier=modifier;
@@ -251,7 +247,7 @@ public class V2SmallFileEntry {
 
     }
 
-    V2SmallFileEntry(OldSmallFileEntry oldEntry) {
+    V2SmallFileEntry(OldSmallFileEntry oldEntry) throws HPOException {
         diseaseID=oldEntry.getDiseaseID();
         diseaseName=oldEntry.getDiseaseName();
         phenotypeId=oldEntry.getPhenotypeId();
@@ -267,11 +263,11 @@ public class V2SmallFileEntry {
         }
         if (evi==null) {
            logger.error("Could not get valid evidence code");
-           evidenceCode="UNKKNOWN";
+           evidenceCode="UNKNOWN";
         } else
             evidenceCode=evi;
-        frequencyId=oldEntry.getFrequencyId();
-        frequencyString=oldEntry.getFrequencyString();
+       // frequencyId=oldEntry.getFrequencyId();
+        frequencyModifier =oldEntry.getThreeWayFrequencyString();
         sex=oldEntry.getSex();
         negation=oldEntry.getNegation();
         Set<TermId> modifierSet=oldEntry.getModifierSet();
@@ -298,8 +294,7 @@ public class V2SmallFileEntry {
                 "ageOfOnsetId",
                 "ageOfOnsetName",
                 "evidenceCode",
-                "frequencyId",
-                "frequencyString",
+                "frequencyModifier",
                 "sex",
                 "negation",
                 "modifier",
@@ -321,24 +316,27 @@ public class V2SmallFileEntry {
     }
 
 
-
+    /**
+     * Return the row that will be used to write the V2 small files entries to a file. Note that
+     * we are checking for null strings TODO -- catch this upstream.
+     * @return
+     */
     public String getRow() {
-        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
                 diseaseID,
                 diseaseName,
                 phenotypeId.getIdWithPrefix(),
                 phenotypeName,
                 ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix() : "",
                 ageOfOnsetName!=null?ageOfOnsetName:"",
-                evidenceCode,
-                frequencyId!=null?frequencyId.getIdWithPrefix():"",
-                frequencyString!=null?frequencyString:"",
-                sex,
-                negation,
-                modifier,
-                description,
+                evidenceCode!=null?evidenceCode:"",
+                frequencyModifier !=null? frequencyModifier :"",
+                sex!=null?sex:"",
+                negation!=null?negation:"",
+                modifier!=null?modifier:"",
+                description!=null?description:"",
                 publication,
-                assignedBy,
+                assignedBy!=null?assignedBy:"",
                 dateCreated);
     }
 

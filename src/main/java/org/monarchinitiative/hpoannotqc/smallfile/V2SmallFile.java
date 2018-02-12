@@ -1,16 +1,21 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This class represents one disease-entity annotation  consisting usually of multiple annotations lines, and using
- * the new format introduced in 2018.
+ * the new format introduced in 2018. The constructor will need to be adapted to input the new V2 file format
+ * once the dust has settled. TODO
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
 public class V2SmallFile {
-
+    private static final Logger logger = LogManager.getLogger();
     private final String basename;
 
     List<V2SmallFileEntry> entryList=new ArrayList<>();
@@ -24,8 +29,17 @@ public class V2SmallFile {
         basename=osf.getBasename();
 
         for (OldSmallFileEntry oldentry : oldlist) {
-            V2SmallFileEntry v2entry = new V2SmallFileEntry(oldentry);
-            entryList.add(v2entry);
+            try {
+                V2SmallFileEntry v2entry = new V2SmallFileEntry(oldentry);
+                if (v2entry.getRow().contains("\tnull")) {
+                    logger.error("Detected the String \"null\" for " + v2entry.getRow());
+                    System.exit(1);
+                }
+                entryList.add(v2entry);
+            } catch (HPOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 

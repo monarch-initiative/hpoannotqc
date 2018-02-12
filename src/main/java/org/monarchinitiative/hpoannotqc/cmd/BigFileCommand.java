@@ -2,7 +2,6 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
 import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
-import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
 import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
 import org.apache.logging.log4j.LogManager;
@@ -105,9 +104,9 @@ public class BigFileCommand implements Command {
         System.out.println("--Number of lines with bad aspect: " + n_bad_aspect);
     }
 
+    /** Return frequency modifier if available, otherwise null. */
     private String getFrequencyString(V2SmallFileEntry entry) {
-        if (entry.getFrequencyString()!=null) return entry.getFrequencyString();
-        else if (entry.getFrequencyId()!=null) return entry.getFrequencyId().getIdWithPrefix();
+        if (entry.getFrequencyModifier()!=null) return entry.getFrequencyModifier();
         else return "";
     }
 
