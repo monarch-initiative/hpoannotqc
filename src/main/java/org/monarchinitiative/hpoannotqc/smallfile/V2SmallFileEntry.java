@@ -47,6 +47,8 @@ public class V2SmallFileEntry {
     /** Field #16 */
     private final String dateCreated;
 
+    private static final String EMPTY_STRING="";
+
     public String getDiseaseID() {
         return diseaseID;
     }
@@ -132,21 +134,21 @@ public class V2SmallFileEntry {
         /** Field #5 */
         private  TermId ageOfOnsetId=null;
         /** Field #6 */
-        private  String ageOfOnsetName=null;
+        private  String ageOfOnsetName=EMPTY_STRING;
         /** Field #7 */
         private  final String evidenceCode;
         /** Field #8 -- the HPO id for frequency (if available) */
         private  TermId frequencyId=null;
         /** Field #9 -- string representing n/m or x% frequency data*/
-        private  String frequencyString=null;
+        private  String frequencyString=EMPTY_STRING;
         /** Field #10 */
-        private  String sex=null;
+        private  String sex=EMPTY_STRING;
         /** Field #11 */
-        private  String negation=null;
+        private  String negation=EMPTY_STRING;
         /** Field #12 */
-        private  String modifier=null;
+        private  String modifier=EMPTY_STRING;
         /** Field #13 */
-        private  String description=null;
+        private  String description=EMPTY_STRING;
         /** Field #14 */
         private  final String publication;
         /** Field #15 */
@@ -272,7 +274,7 @@ public class V2SmallFileEntry {
        // frequencyId=oldEntry.getFrequencyId();
         frequencyModifier =oldEntry.getThreeWayFrequencyString();
         sex=oldEntry.getSex();
-        negation=oldEntry.getNegation();
+        negation=oldEntry.getNegation().equals("null")?"":oldEntry.getNegation();
         Set<TermId> modifierSet=oldEntry.getModifierSet();
         if (modifierSet==null || modifierSet.isEmpty()) {
             modifier="";
@@ -311,15 +313,6 @@ public class V2SmallFileEntry {
     @Override public String toString() { return getRow();}
 
     /**
-     * The aspect is one of O,C,M, and I depending on the subontology the primary term belongs to.
-     * @return
-     */
-    public String getAspect() {
-        return null;
-    }
-
-
-    /**
      * Return the row that will be used to write the V2 small files entries to a file. Note that
      * we are checking for null strings TODO -- catch this upstream.
      * @return
@@ -330,16 +323,16 @@ public class V2SmallFileEntry {
                 diseaseName,
                 phenotypeId.getIdWithPrefix(),
                 phenotypeName,
-                ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix() : "",
-                ageOfOnsetName!=null?ageOfOnsetName:"",
+                ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
+                ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
                 evidenceCode!=null?evidenceCode:"",
-                frequencyModifier !=null? frequencyModifier :"",
+                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
                 sex!=null?sex:"",
-                negation!=null?negation:"",
-                modifier!=null?modifier:"",
-                description!=null?description:"",
+                negation!=null?negation:EMPTY_STRING,
+                modifier!=null?modifier:EMPTY_STRING,
+                description!=null?description:EMPTY_STRING,
                 publication,
-                assignedBy!=null?assignedBy:"",
+                assignedBy!=null?assignedBy:EMPTY_STRING,
                 dateCreated);
     }
 

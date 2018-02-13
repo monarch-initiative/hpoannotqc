@@ -22,6 +22,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This command performs the conversion of the old small files to the new (V2) small file format.
+ *
+ */
 public class OldSmallFileConvertCommand implements Command {
     private static final Logger logger = LogManager.getLogger();
 
@@ -63,7 +67,7 @@ public class OldSmallFileConvertCommand implements Command {
     public OldSmallFileConvertCommand(String hpPath, String annotPath) {
         hpOboPath=hpPath;
         if (! annotPath.contains("hpo-annotation-data")) {
-            logger.error("Malformed path to old small files. Was expecting /pth/..../hpo-annotation-data");
+            logger.error("Malformed path to old small files. Was expecting /path/..../hpo-annotation-data");
             oldSmallFileAnnotationDirectory=null;
             System.exit(1);
         } else if (annotPath.contains("rare-diseases/annotated")) {
@@ -104,9 +108,11 @@ public class OldSmallFileConvertCommand implements Command {
 
         for (String path : files) {
             OldSmallFile osf = new OldSmallFile(path);
+            // The consructor processes the file and tallies the error in the file. The following lines
+            // increment the corresponding error counters.
             n_total_lines += osf.getEntrylist().size();
-            this.n_alt_id += osf.getN_alt_id();
-            this.n_corrected_date += osf.getN_corrected_date();
+            n_alt_id += osf.getN_alt_id();
+            n_corrected_date += osf.getN_corrected_date();
             n_no_evidence += osf.getN_no_evidence();
             n_gene_data += osf.getN_gene_data();
             n_update_label += osf.getN_update_label();
@@ -132,7 +138,7 @@ public class OldSmallFileConvertCommand implements Command {
         dumpQCtoShell();
     }
 
-
+    /** Dump a Q/C report about the conversion process to shell. */
     private void dumpQCtoShell() {
         System.out.println("\n\n################################################\n\n");
         System.out.println(String.format("We converted %d \"old\" small files into %d new (V2) small files",
@@ -168,7 +174,7 @@ public class OldSmallFileConvertCommand implements Command {
         V2LineQualityController.dumpAssignedByMap();
     }
 
-
+    /** Output the new (v2) small files. Make a new directory if needed. */
     private void outputV2file(V2SmallFile v2) throws IOException {
         String outdir= DEFAULT_OUTPUT_DIRECTORY;
         if (! new File(outdir).exists()) {
@@ -194,7 +200,6 @@ public class OldSmallFileConvertCommand implements Command {
                 if (path.toString().endsWith(".tab")) {
                     fileNames.add(path.toString());
                 }
-                // fileNames.add(path.toString());
             }
         } catch (IOException ex) {
             ex.printStackTrace();

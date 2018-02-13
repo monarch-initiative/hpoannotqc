@@ -361,7 +361,7 @@ public class OldSmallFileEntryTest {
         OldSmallFileEntry entry = entries.get(0);
         // The date should be replaced with today's date. Note--theoretically, this test could fail if run JUST at midnight, so beware :-0!
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
         Date date = new Date();
         String expectedDate= dateFormat.format(date);
         assertEquals(expectedDate,entry.getDateCreated());

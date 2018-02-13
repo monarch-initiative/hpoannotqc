@@ -42,7 +42,7 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
  *     <li>The fields evidenceID, evidenceName, and evidence are reduced to one field "evidence" that is allow to have one
  *     of four codes, IEA, ICE, TAS, PCS only.</li>
  * </ol>
- * @author Peter Robinson
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class OldSmallFileEntry {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -84,8 +84,10 @@ public class OldSmallFileEntry {
     private static final TermId VERY_RARE = HpoFrequency.VERY_RARE.toTermId();
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
-
+    /** Assign this assignedBy string if we do not have more information. */
     private static final String DEFAULT_HPO_ASSIGNED_BY="HPO:iea";
+    /** Return the empty string instead of NULL if we have nothing. Otherwise, we may wind up writing the string "null". */
+    private static final String EMPTY_STRING="";
 
 
     /**
@@ -153,7 +155,6 @@ public class OldSmallFileEntry {
         ontology = ont;
         TermId inheritId = new ImmutableTermId(HP_PREFIX,"0000005");
         TermId frequencyId = new ImmutableTermId(HP_PREFIX,"0040279");
-
         inheritanceSubontology = ontology.subOntology(inheritId);
         frequencySubontology = ontology.subOntology(frequencyId);
         abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
@@ -339,6 +340,10 @@ public class OldSmallFileEntry {
         evidenceCodeWellFormed(evidenceName);
     }
 
+    /** This returns true if our Q/C procedure has identified any issues or things we need to change except for
+     * updating the date format, which is done silently.
+     * @return true if there is at least one reportable Q/C issue
+     */
     public boolean hasQCissues() {
         if (QCissues.size()==0) return false;
         else if (QCissues.size()==1 && QCissues.contains(UPDATED_DATE_FORMAT)) return false;
@@ -350,8 +355,7 @@ public class OldSmallFileEntry {
      * we can list up what we had to do to convert the filesd and do targeted manual checking.
      */
     public Set<SmallFileQCCode> doQCcheck() throws HPOException{
-
-        // check the vidence codes. At least one of the three fields
+        // check the evidence codes. At least one of the three fields
         // has to have one of the correct codes, in order for the V2small file  entry to be ok
         boolean evidenceOK=false;
         if (evidenceID!=null) {
@@ -366,6 +370,10 @@ public class OldSmallFileEntry {
         if (!evidenceOK) {
             QCissues.add(DID_NOT_FIND_EVIDENCE_CODE);
             this.evidenceID=DEFAULT_EVIDENCE_CODE;
+        }
+        if (assignedBy==null || assignedBy.isEmpty()) {
+            QCissues.add(ASSIGNED_BY_EMPTY);
+            this.assignedBy=DEFAULT_HPO_ASSIGNED_BY;
         }
         // check whether the primary label needs to be updated.
         if (! this.phenotypeName.equals(ontology.getTermMap().get(this.phenotypeId).getName())) {
@@ -418,8 +426,8 @@ public class OldSmallFileEntry {
             this.frequencyId = OBLIGATE;
         } else {
             LOGGER.error("BAD FREQ ID \"" + freq + "\"");
-            System.exit(1);
-            //throw new HPOException("Malformed frequencyString: \"" + freq + "\"");
+            System.exit(1); // should never happen, but we want to know about it right away --
+            // therefore dying is the only option.
         }
     }
 
@@ -729,7 +737,7 @@ public class OldSmallFileEntry {
         if (dateCreated==null || dateCreated.isEmpty()) {
             QCissues.add(NO_DATE_CREATED);
             // replace with today's date
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
             Date date = new Date();
             return dateFormat.format(date);
         }
@@ -741,7 +749,7 @@ public class OldSmallFileEntry {
      * COnvert a string such as 9 of 16 to 9/16
      * @param freq A string that has been founf to have the word "of" ion it
      * @return
-     * @throws  if format doen not match 9 of 16
+     * @throws  HPOException if  format does not match 9 of 16
      */
     private String convertNofMString(String freq) throws HPOException {
         String s = freq.replaceAll(" ","");

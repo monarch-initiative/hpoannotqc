@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class V2SmallFile {
     private static final Logger logger = LogManager.getLogger();
+    /** The base name of the V2 file, which is the same as the v1 small file. */
     private final String basename;
-
-    List<V2SmallFileEntry> entryList=new ArrayList<>();
+    private List<V2SmallFileEntry> entryList=new ArrayList<>();
 
     public String getBasename() {
         return basename;
@@ -31,9 +31,10 @@ public class V2SmallFile {
         for (OldSmallFileEntry oldentry : oldlist) {
             try {
                 V2SmallFileEntry v2entry = new V2SmallFileEntry(oldentry);
-                if (v2entry.getRow().contains("\tnull")) {
+                if (v2entry.getRow().contains("null")) {
                     logger.error("Detected the String \"null\" for " + v2entry.getRow());
-                    System.exit(1);
+                    //System.exit(1);
+
                 }
                 entryList.add(v2entry);
             } catch (HPOException e) {

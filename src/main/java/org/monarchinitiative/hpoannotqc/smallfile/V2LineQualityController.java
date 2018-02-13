@@ -15,7 +15,7 @@ import java.util.Map;
  * the standard HPO annotation format from 2018 onwards. The class will tally up the Q/C results and store any V2
  * lines that appear "dodgy", providing a Q/C report. The class is intended to be used while the files are being converted
  * and to look at each V2 line in turn.
- *
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class V2LineQualityController {
 
@@ -70,6 +70,7 @@ public class V2LineQualityController {
     private String qcFrequency() { return String.format("%d good and %d bad frequency entries",n_good_frequency,n_bad_frequency);}
 
 
+
     public V2LineQualityController(HpoOntology onto) {
         ontology=onto;
         TermPrefix pref = new ImmutableTermPrefix("HP");
@@ -106,8 +107,8 @@ public class V2LineQualityController {
 
     /**
      * The negation string can be null or empty but if it is present it must be "NOT"
-     * @param negation
-     * @return
+     * @param negation Must be either the empty/null String or "NOT"
+     * @return true if the input is valid
      */
     private boolean checkNegation(String negation) {
         if (negation==null ||  negation.isEmpty() || negation.equals("NOT")) {
@@ -119,9 +120,12 @@ public class V2LineQualityController {
         }
     }
 
+    public void incrementGoodAspect() { n_good_aspect++;}
+    public void incrementBadAspect() { n_bad_aspect++; }
+
     /**
      * Check that the id is not an alt_id
-     * @param id
+     * @param id the {@link TermId} for a phenotype HPO term
      * @return
      */
     private boolean checkPhenotypeId(TermId id) {
@@ -200,7 +204,7 @@ public class V2LineQualityController {
      * @param id
      * @return
      */
-    public boolean checkAgeOfOnsetId(TermId id) {
+    private boolean checkAgeOfOnsetId(TermId id) {
         if (id==null ) {
             n_good_ageOfOnset_ID++;
             return true;
@@ -301,7 +305,6 @@ public class V2LineQualityController {
             n_good_frequency++;
             return true;
         }
-        boolean OK=false;
         if (freq.matches("\\d+/\\d+")) {
             n_good_frequency++;
             return true;
@@ -317,7 +320,7 @@ public class V2LineQualityController {
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
         TermId id = ImmutableTermId.constructWithPrefix(freq);
-        OK = frequencySubontology.getTermMap().containsKey(id);
+        boolean OK = frequencySubontology.getTermMap().containsKey(id);
         if (OK) {
             n_good_frequency++;
             return true;
@@ -397,24 +400,11 @@ public class V2LineQualityController {
         System.out.println(qcDateCreated());
         System.out.println(qcAssignedBy());
         System.out.println(qcFrequency());
+        System.out.println(qcAspect());
 
         for (String err : errors) {
             System.out.println(err);
         }
     }
-
-
-
-        /**
-
-
-         getFrequencyModifier(entry),
-                entry.getAssignedBy()
-
-    }*/
-
-
-
-
 
 }
