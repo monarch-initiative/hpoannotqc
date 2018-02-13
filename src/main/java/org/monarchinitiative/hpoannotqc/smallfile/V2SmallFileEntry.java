@@ -28,23 +28,21 @@ public class V2SmallFileEntry {
     private final String ageOfOnsetName;
     /** Field #7 */
     private final String evidenceCode;
-//    /** Field #8 */
-//    private final TermId frequencyId;
-    /** Field #9 */
+    /** Field #8 can be one of N/M, X% or a valid frequency term Id */
     private final String frequencyModifier;
-    /** Field #10 */
+    /** Field #9 */
     private final String sex;
-    /** Field #11 */
+    /** Field #10 */
     private final String negation;
-    /** Field #12 */
+    /** Field #11 */
     private final String modifier;
-    /** Field #13 */
+    /** Field #12 */
     private final String description;
-    /** Field #14 */
+    /** Field #13 */
     private final String publication;
-    /** Field #15 */
+    /** Field #14 */
     private final String assignedBy;
-    /** Field #16 */
+    /** Field #15 */
     private final String dateCreated;
 
     private static final String EMPTY_STRING="";
@@ -53,18 +51,21 @@ public class V2SmallFileEntry {
         return diseaseID;
     }
 
+    /** The disease ID has two parts, the database (before the :) and the id (after the :).
+     * @return the database part of the diseaseID
+     */
     public String getDB() {
         String[]A=diseaseID.split(":");
         return A[0];
     }
-
+    /** The disease ID has two parts, the database (before the :) and the id (after the :).
+     * @return the object_ID part of the diseaseID
+     */
     public String getDB_Object_ID() {
         String[]A=diseaseID.split(":");
         if (A.length>1) return A[1];
         else return diseaseID;
     }
-
-
 
     public String getDiseaseName() {
         return diseaseName;
@@ -155,7 +156,14 @@ public class V2SmallFileEntry {
         private  final String assignedBy;
         /** Field #16 */
         private  final String dateCreated;
-        public Builder(String diseaseId, String diseasename, TermId phenoId, String phenoName,String evidence,String pub, String ab,String date) {
+        public Builder(String diseaseId,
+                       String diseasename,
+                       TermId phenoId,
+                       String phenoName,
+                       String evidence,
+                       String pub,
+                       String ab,
+                       String date) {
             this.diseaseID=diseaseId;
             this.diseaseName=diseasename;
             this.phenotypeId=phenoId;
@@ -221,7 +229,6 @@ public class V2SmallFileEntry {
             TermId ageOfOnsetId,
             String ageOfOnsetName,
             String evidenceCode,
-           // TermId frequencyId,
             String frequencyString,
             String sex,
             String negation,
@@ -237,7 +244,6 @@ public class V2SmallFileEntry {
         this.ageOfOnsetId=ageOfOnsetId;
         this.ageOfOnsetName=ageOfOnsetName;
         this.evidenceCode=evidenceCode;
-        //this.frequencyId=frequencyId;
         this.frequencyModifier =frequencyString;
         this.sex=sex;
         this.negation=negation;
@@ -269,22 +275,20 @@ public class V2SmallFileEntry {
         } else
             evidenceCode=evi;
         if (evidenceCode.equals("HPO")) {
-            System.exit(1);
+            System.exit(1); // should never happen--sanity check
         }
-       // frequencyId=oldEntry.getFrequencyId();
         frequencyModifier =oldEntry.getThreeWayFrequencyString();
         sex=oldEntry.getSex();
-        negation=oldEntry.getNegation().equals("null")?"":oldEntry.getNegation();
+        negation=oldEntry.getNegation().equals("null")?EMPTY_STRING:oldEntry.getNegation();
         Set<TermId> modifierSet=oldEntry.getModifierSet();
         if (modifierSet==null || modifierSet.isEmpty()) {
-            modifier="";
+            modifier=EMPTY_STRING;
         } else {
             modifier=modifierSet.stream().map(TermId::getIdWithPrefix).collect(Collectors.joining(";")); }
         description=oldEntry.getDescription();
         publication=oldEntry.getPub();
         assignedBy=oldEntry.getAssignedBy();
         dateCreated=oldEntry.getDateCreated();
-       // System.out.println(getRow());
     }
 
 
@@ -310,11 +314,13 @@ public class V2SmallFileEntry {
         return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
+    /** @return the row that will be written to the V2 file for this entry. */
     @Override public String toString() { return getRow();}
 
     /**
      * Return the row that will be used to write the V2 small files entries to a file. Note that
-     * we are checking for null strings TODO -- catch this upstream.
+     * we replace null strings (which are a signal for no data available) with the empty string
+     * to avoid the string "null" being written.
      * @return
      */
     public String getRow() {

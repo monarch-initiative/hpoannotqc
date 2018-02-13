@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%5p [%t] (%F:%L) - %m%n"/>
+        </Console>
+
+        <File name="MyFile" fileName="hpoannotQC.log" append="false">
+            <PatternLayout pattern="%5p [%t] (%F:%L) - %m%n"/>
+        </File>
+    </appenders>
+
+    <loggers>
+        <Logger name="org.apache.log4j.xml" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <root level="trace">
+           <!-- <appender-ref ref="Console" level="trace"/> -->
+            <appender-ref ref="MyFile" level="trace"/>
+        </root>
+    </loggers>
+</configuration>

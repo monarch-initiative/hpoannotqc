@@ -82,6 +82,9 @@ public class OldSmallFileEntry {
     private static final TermId OCCASIONAL = HpoFrequency.OCCASIONAL.toTermId();
     private static final TermId EXCLUDED = HpoFrequency.EXCLUDED.toTermId();
     private static final TermId VERY_RARE = HpoFrequency.VERY_RARE.toTermId();
+
+    /// Modifier term that is used for Recurrent
+    private static final TermId EPISODIC = new ImmutableTermId(HP_PREFIX,"0025303");
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
     /** Assign this assignedBy string if we do not have more information. */
@@ -495,10 +498,10 @@ public class OldSmallFileEntry {
                 if (a.startsWith("MODIFIER:")) {
                     String candidateModifier = a.substring(9).toLowerCase();
                     if (candidateModifier.contains("recurrent")) {
-                        LOGGER.warn("NEED TO IMPLEMENT RECURRENT");
-                        continue;
-                    }
-                    if (modifier2TermId.containsKey(candidateModifier)) {
+                        LOGGER.trace("Adding Modifier term \"Episodic\" for recurrent");
+                        modifierset.add(EPISODIC);
+                        this.QCissues.add(CREATED_MODIFER);
+                    } else if (modifier2TermId.containsKey(candidateModifier)) {
                         modifierset.add(modifier2TermId.get(candidateModifier));
                     } else {
                         LOGGER.error("Could not identify modifer for " + candidateModifier + ", in description "+d+", terminating program....");

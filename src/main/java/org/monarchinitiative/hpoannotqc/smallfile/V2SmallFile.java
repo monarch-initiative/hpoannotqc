@@ -31,10 +31,12 @@ public class V2SmallFile {
         for (OldSmallFileEntry oldentry : oldlist) {
             try {
                 V2SmallFileEntry v2entry = new V2SmallFileEntry(oldentry);
-                if (v2entry.getRow().contains("null")) {
-                    logger.error("Detected the String \"null\" for " + v2entry.getRow());
-                    //System.exit(1);
-
+                if (v2entry.getRow().contains("null") && ! v2entry.getRow().contains("Rhnull")) {
+                    // note "Rhnull" is a part of a valid disease name -- it is OK!
+                    logger.error("Detected the String \"null\" for {}", v2entry.getRow());
+                    logger.error("Fix this error upstream before continuing!");
+                    System.exit(1); // if we wrote the string "null" to file, something is wrong and we
+                    // need to fix it before we go on!
                 }
                 entryList.add(v2entry);
             } catch (HPOException e) {
