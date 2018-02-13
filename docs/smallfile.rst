@@ -147,10 +147,12 @@ while the feature was ruled out in the remaining 3 of 7 individuals); or a perce
 
 8. **sex**. This column may be empty or may contain the strings "MALE" or "FEMALE".
 
+9. **negation**. This column may be empty or may contain the string "NOT"
 
+10. **modifier**. This column may be empty of contain HPO term ids for one or more terms from the
+Clinical Modifier subontology. Multiple terms are to be separated by semicolons.
 
-
-
+11. **description**. Free text. This column must not be used to store modifiers.
 
 12. **publication**. The publication reference for the annotation assertion. Must be present and must be one of
 PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes are allowed:
@@ -159,6 +161,12 @@ PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes 
 - http
 - ISBN
 - DECIPHER
+
+13. **assignedBy**. This field must be filled with a valid reference of the form prefix:id. This can be
+ORCID:0000-0000-0000-0123 or a database id followed by a name (usually first initial-lastname) HPO:mmustermann.
+
+14. **dateCreated**. This field contains the date when the term was first created and must have the form yyyy-mm-dd, e.g.,
+2016-07-22.
 
 
 
