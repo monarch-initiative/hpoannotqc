@@ -98,6 +98,7 @@ public class OldSmallFile {
     private int n_frequency_with_other_correction;
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
+    private int n_converted_n_of_m=0;
 
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
@@ -354,6 +355,10 @@ public class OldSmallFile {
         return n_assigned_by_empty;
     }
 
+    public int getN_converted_n_of_m() {
+        return n_converted_n_of_m;
+    }
+
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
         if (qcitems.size()==0)return;
         for (SmallFileQCCode qcode : qcitems) {
@@ -427,6 +432,11 @@ public class OldSmallFile {
                     n_assigned_by_only_HPO++;
                     LOGGER.trace(String.format("%s:%s",ASSIGNED_BY_ONLY_HPO.name(),line));
                     break;
+                case CONVERTED_N_OF_M:
+                    n_converted_n_of_m++;
+                    LOGGER.trace(String.format("%s:%s",CONVERTED_N_OF_M.name(),line));
+                    break;
+
             }
         }
     }

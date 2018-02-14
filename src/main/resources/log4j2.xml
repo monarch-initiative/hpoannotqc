@@ -4,7 +4,6 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%5p [%t] (%F:%L) - %m%n"/>
         </Console>
-
         <File name="MyFile" fileName="hpoannotQC.log" append="false">
             <PatternLayout pattern="%5p [%t] (%F:%L) - %m%n"/>
         </File>
@@ -14,6 +13,8 @@
         <Logger name="org.apache.log4j.xml" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
+        <Logger name="com.github.phenomics.ontolib.io.obo.OboParser" level="OFF"/>
+
         <root level="trace">
            <!-- <appender-ref ref="Console" level="trace"/> -->
             <appender-ref ref="MyFile" level="trace"/>

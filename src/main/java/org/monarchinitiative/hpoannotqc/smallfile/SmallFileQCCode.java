@@ -20,6 +20,7 @@ public enum SmallFileQCCode {
     CHANGED_PUBMED_TO_PMID("changed prefix PUBMED to PMID"),
     ADDED_FORGOTTEN_COLON("Adding a \":\" forgotten from a publication string"),
     FREQUENCY_WITH_TOO_MANY_DIGITS("frequency with too many digits of significance"),
+    CONVERTED_N_OF_M("converted n of m to n/m"),
     FREQUENCY_WITH_DASH("frequency with dash and range (e.g., 1-2%)"),
     CORRECTED_OTHER_FREQUENCY_FORMAT("corrected extra whitespace or percent sign in frequency data"),
     ASSIGNED_BY_ONLY_HPO("assigned by code has only \"HPO\""),

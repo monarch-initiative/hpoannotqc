@@ -61,6 +61,7 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_frequency_with_other_correction=0;
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
+    private int n_converted_n_of_m=0;
 
 
 
@@ -110,27 +111,28 @@ public class OldSmallFileConvertCommand implements Command {
             OldSmallFile osf = new OldSmallFile(path);
             // The consructor processes the file and tallies the error in the file. The following lines
             // increment the corresponding error counters.
-            n_total_lines += osf.getEntrylist().size();
-            n_alt_id += osf.getN_alt_id();
-            n_corrected_date += osf.getN_corrected_date();
-            n_no_evidence += osf.getN_no_evidence();
-            n_gene_data += osf.getN_gene_data();
-            n_update_label += osf.getN_update_label();
-            n_created_modifier += osf.getN_created_modifier();
-            n_EQ_item += osf.getN_EQ_item();
-            n_less_than_expected_number_of_lines += osf.getN_less_than_expected_number_of_lines();
-            n_no_date_created +=osf.getN_no_date_created();
-            n_publication_prefix_in_lower_case+=osf.getN_publication_prefix_in_lower_case();
-            n_replaced_empty_publication_string+=osf.getN_replaced_empty_publication_string();
-            n_corrected_publication_with_database_but_no_id+=osf.getN_corrected_publication_with_database_but_no_id();
-            n_changed_MIM_to_OMIM += osf.getN_changed_MIM_to_OMIM();
+            n_total_lines            += osf.getEntrylist().size();
+            n_alt_id                 += osf.getN_alt_id();
+            n_corrected_date         += osf.getN_corrected_date();
+            n_no_evidence            += osf.getN_no_evidence();
+            n_gene_data              += osf.getN_gene_data();
+            n_update_label           += osf.getN_update_label();
+            n_created_modifier       += osf.getN_created_modifier();
+            n_EQ_item                += osf.getN_EQ_item();
+            n_less_than_expected_number_of_lines   += osf.getN_less_than_expected_number_of_lines();
+            n_no_date_created        += osf.getN_no_date_created();
+            n_publication_prefix_in_lower_case     += osf.getN_publication_prefix_in_lower_case();
+            n_replaced_empty_publication_string    += osf.getN_replaced_empty_publication_string();
+            n_corrected_publication_with_database_but_no_id += osf.getN_corrected_publication_with_database_but_no_id();
+            n_changed_MIM_to_OMIM    += osf.getN_changed_MIM_to_OMIM();
             n_changed_PUBMED_to_PMID += osf.getN_changed_PUBMED_to_PMID();
-            n_added_forgotten_colon += osf.getN_added_forgotten_colon();
-            n_frequency_with_dash=osf.getN_frequency_with_dash();
-            n_frequency_with_other_correction = osf.getN_frequency_with_other_correction();
+            n_added_forgotten_colon  += osf.getN_added_forgotten_colon();
+            n_frequency_with_dash    +=osf.getN_frequency_with_dash();
+            n_frequency_with_other_correction      += osf.getN_frequency_with_other_correction();
 
-            n_assigned_by_only_HPO= osf.getN_assigned_by_only_HPO();
-            n_assigned_by_empty = osf.getN_assigned_by_empty();
+            n_assigned_by_only_HPO   += osf.getN_assigned_by_only_HPO();
+            n_assigned_by_empty      += osf.getN_assigned_by_empty();
+            n_converted_n_of_m       += osf.getN_converted_n_of_m();
             osfList.add(osf);
         }
 
@@ -167,6 +169,7 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines with a other frequency correction (e.g., extra %): "+  n_frequency_with_other_correction );
         System.out.println("\tNumber of lines with a only \"HPO\" in assigned by: " +  n_assigned_by_only_HPO);
         System.out.println("\tNumber of lines with empty assigned by: "+  n_assigned_by_empty );
+        System.out.println("\tNumber of lines where we converted \"n of m\" to \"n/m\": "+  n_converted_n_of_m );
         System.out.println();
         System.out.println("Number of lines that were Q/C'd or updated have been written to the log (before/after)");
 

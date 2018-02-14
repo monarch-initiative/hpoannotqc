@@ -479,7 +479,7 @@ public class OldSmallFileEntry {
     }
 
 
-    //(IN 1/4 PATIENTS)
+    //(In 1/4 PATIENTS)
     //1: OMIM-CS:RADIOLOGY > GENERALIZED OSTEOSCLEROSIS
     /**
      * In some case, the Description field will contain a modifier such as {@code Mild}. In  other cases,
@@ -588,8 +588,8 @@ public class OldSmallFileEntry {
         }
     }
 
+    /** Set the date and convert its format to yyy-mm-dd. */
     public void setDateCreated(String dc) {
-        // TODO make all dates look like 2018-01-23
         this.dateCreated = convertToCanonicalDateFormat(dc);
         if (!dc.equals(this.dateCreated)) {
             QCissues.add(UPDATED_DATE_FORMAT);
@@ -775,6 +775,7 @@ public class OldSmallFileEntry {
         } catch (NumberFormatException e) {
             throw new HPOException(String.format("Could not parse second int in N-of-M expression (could not parse \"%s\")"+freq,s.substring(j)));
         }
+        QCissues.add(CONVERTED_N_OF_M);
         return String.format("%d/%d",N,M );
 
     }
