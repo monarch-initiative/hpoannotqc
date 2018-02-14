@@ -58,7 +58,7 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_changed_PUBMED_to_PMID=0;
     private int n_added_forgotten_colon=0;
     private int n_frequency_with_dash=0;
-    private int n_frequency_with_other_correction=0;
+    private int n_frequency_removed_whitespace =0;
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
     private int n_converted_n_of_m=0;
@@ -128,8 +128,7 @@ public class OldSmallFileConvertCommand implements Command {
             n_changed_PUBMED_to_PMID += osf.getN_changed_PUBMED_to_PMID();
             n_added_forgotten_colon  += osf.getN_added_forgotten_colon();
             n_frequency_with_dash    +=osf.getN_frequency_with_dash();
-            n_frequency_with_other_correction      += osf.getN_frequency_with_other_correction();
-
+            n_frequency_removed_whitespace += osf.getN_frequency_removed_whitespace();
             n_assigned_by_only_HPO   += osf.getN_assigned_by_only_HPO();
             n_assigned_by_empty      += osf.getN_assigned_by_empty();
             n_converted_n_of_m       += osf.getN_converted_n_of_m();
@@ -166,7 +165,7 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
         System.out.println("\tNumber of lines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
         System.out.println("\tNumber of lines with a dash in the frequency data: " +  n_frequency_with_dash);
-        System.out.println("\tNumber of lines with a other frequency correction (e.g., extra %): "+  n_frequency_with_other_correction );
+        System.out.println("\tNumber of lines where we removed extra frequency whitespace: "+ n_frequency_removed_whitespace);
         System.out.println("\tNumber of lines with a only \"HPO\" in assigned by: " +  n_assigned_by_only_HPO);
         System.out.println("\tNumber of lines with empty assigned by: "+  n_assigned_by_empty );
         System.out.println("\tNumber of lines where we converted \"n of m\" to \"n/m\": "+  n_converted_n_of_m );

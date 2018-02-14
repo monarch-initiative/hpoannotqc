@@ -74,6 +74,7 @@ public class BigFileWriter {
         }
         logger.trace("We output a total of " + n + " big file lines");
         v2qc.dumpQCtoShell();
+        v2qc.dumpAssignedByMap();
     }
 
     /** Return frequency modifier if available, otherwise null. */
@@ -87,7 +88,6 @@ public class BigFileWriter {
         HpoTerm term = ontology.getTermMap().get(tid);
         if (existsPath(ontology, tid, phenotypeRoot)) {
             v2qualityController.incrementGoodAspect();//
-            System.out.println("Aspect = o");
             return "O"; // organ/phenotype abnormality
         } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
             v2qualityController.incrementGoodAspect();
@@ -101,7 +101,7 @@ public class BigFileWriter {
         } else {
 //            logger.error("Could not identify aspect for entry with term id " + entry.getPhenotypeId().getIdWithPrefix() + "(+" +
 //                    entry.getPhenotypeName()+")");
-            v2qualityController.incrementBadAspect();
+            this.v2qualityController.incrementBadAspect();
             return "?";
         }
     }

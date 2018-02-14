@@ -95,7 +95,7 @@ public class OldSmallFile {
     private int n_changed_PUBMED_to_PMID=0;
     private int n_added_forgotten_colon=0;
     private int n_frequency_with_dash=0;
-    private int n_frequency_with_other_correction;
+    private int n_frequency_removed_whitespace;
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
     private int n_converted_n_of_m=0;
@@ -343,8 +343,8 @@ public class OldSmallFile {
         return n_frequency_with_dash;
     }
 
-    public int getN_frequency_with_other_correction() {
-        return n_frequency_with_other_correction;
+    public int getN_frequency_removed_whitespace() {
+        return n_frequency_removed_whitespace;
     }
 
     public int getN_assigned_by_only_HPO() {
@@ -420,9 +420,11 @@ public class OldSmallFile {
                     n_frequency_with_dash++;
                     LOGGER.trace(String.format("%s:%s",FREQUENCY_WITH_DASH.name(),line));
                     break;
-                case CORRECTED_OTHER_FREQUENCY_FORMAT:
-                    n_frequency_with_other_correction++;
-                    LOGGER.trace(String.format("%s:%s",CORRECTED_OTHER_FREQUENCY_FORMAT.name(),line));
+                case REMOVED_FREQUENCY_WHITESPACE:
+                    n_frequency_removed_whitespace++;
+                    LOGGER.trace(String.format("%s:%s", REMOVED_FREQUENCY_WHITESPACE.name(),line));
+                    System.err.println(String.format("%s:%s", REMOVED_FREQUENCY_WHITESPACE.name(),line));
+                    System.exit(1);
                     break;
                 case ASSIGNED_BY_EMPTY:
                     n_assigned_by_empty++;

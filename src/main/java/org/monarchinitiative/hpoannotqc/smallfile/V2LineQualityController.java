@@ -23,6 +23,7 @@ public class V2LineQualityController {
     private final HpoOntology ontology;
     private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
     private final Ontology<HpoTerm, HpoTermRelation> frequencySubontology;
+    private final Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
 
     private List<String> errors=new ArrayList<>();
 
@@ -78,6 +79,8 @@ public class V2LineQualityController {
         inheritanceSubontology = this.ontology.subOntology(inheritId);
         TermId frequencyId = new ImmutableTermId(pref,"0040279");
         frequencySubontology = this.ontology.subOntology(frequencyId);
+        TermId onsetId = new ImmutableTermId(pref,"0003674");
+        onsetSubontology = this.ontology.subOntology(onsetId);
 
     }
 
@@ -209,12 +212,8 @@ public class V2LineQualityController {
             n_good_ageOfOnset_ID++;
             return true;
         }
-        int n = inheritanceSubontology.getTermMap().size();
-        if (n>1000) {
-            System.err.println("Inhertiance sie = + n");
-            System.exit(1);
-        }
-        if (inheritanceSubontology.getTermMap().containsKey(id)) {
+        int n = onsetSubontology.getTermMap().size();
+        if (onsetSubontology.getTermMap().containsKey(id)) {
             n_good_ageOfOnset_ID++;
             return true;
         } else {
@@ -235,7 +234,7 @@ public class V2LineQualityController {
             n_bad_ageOfOnsetLabel++;
             return false;
         }
-        String currentLabel = inheritanceSubontology.getTermMap().get(id).getName();
+        String currentLabel = onsetSubontology.getTermMap().get(id).getName();
         if (! currentLabel.equals(label)) {
             String errmsg = String.format("Found usage of wrong age of onset label %s instead of %s for %s: see following line",
                     label,
@@ -286,7 +285,7 @@ public class V2LineQualityController {
         int index = assignedBy.indexOf(":");
         if (index<=0) {
             n_bad_assignedBy++;
-            errors.add("Bad assigned by string \""+assignedBy +"\"");
+            errors.add("Bad assigned-by string \""+assignedBy +"\"");
             return false;
         } else {
             if (! assignedByMap.containsKey(assignedBy) ) {
@@ -308,7 +307,7 @@ public class V2LineQualityController {
         if (freq.matches("\\d+/\\d+")) {
             n_good_frequency++;
             return true;
-        } else if (freq.matches("\\d{1,2}\\%")) {
+        } else if (freq.matches("\\d{1,3}\\%")) {
             n_good_frequency++;
             return true;
         } else if (! freq.matches("HP:\\d{7,7}")) {
@@ -388,6 +387,11 @@ public class V2LineQualityController {
 
     public void dumpQCtoShell() {
         System.out.println("#####   V2 Conversion Quality Control   #####");
+        System.out.println("#####   Lines with errors   #####");
+        for (String err : errors) {
+            System.out.println(err);
+        }
+        System.out.println("#####   Q/C Summary   #####");
         System.out.println(qcDB());
         System.out.println(qcDiseasename());
         System.out.println(qcNegation());
@@ -402,9 +406,7 @@ public class V2LineQualityController {
         System.out.println(qcFrequency());
         System.out.println(qcAspect());
 
-        for (String err : errors) {
-            System.out.println(err);
-        }
+
     }
 
 }

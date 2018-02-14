@@ -14,6 +14,8 @@ import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.monarchinitiative.hpoannotqc.smallfile.DateUtil.convertToCanonicalDateFormat;
@@ -489,9 +491,14 @@ public class OldSmallFileEntry {
      */
     public void setDescription(String d) {
         List<String> descriptionList = new ArrayList<>();
+
+        // capture items suich as (In 1/4 PATIENTS)
+        final String REGEX = "IN (\\d+)/(\\d+) PATIENTS";
+        Pattern pattern = Pattern.compile(REGEX);
          // multiple items. Probably from Sebastian's text mining pipeline
             String A[] = d.split(";");
             for (String a : A) {
+                Matcher matcher = pattern.matcher(a);
                 if (a.contains("OMIM-CS")) {
                     this.evidenceID="TAS";
                 }
@@ -523,6 +530,12 @@ public class OldSmallFileEntry {
                     TermId tid = modifier2TermId.get(a.toLowerCase());
                     this.QCissues.add(CREATED_MODIFER);
                     modifierset.add(tid);
+                } else if (matcher.find()){
+                  String m=matcher.group(1);
+                  String n=matcher.group(2);
+                 // System.err.println(a + " m="+m+" n="+n);
+                  this.frequencyString=String.format("%s/%s",m,n );
+                  QCissues.add(CONVERTED_N_OF_M);
                 } else {
                     descriptionList.add(a);
                 }
@@ -730,7 +743,7 @@ public class OldSmallFileEntry {
     }
 
     public String getAssignedBy() {
-        return assignedBy;
+        return assignedBy.trim();
     }
 
     /**
@@ -792,27 +805,35 @@ public class OldSmallFileEntry {
     public String getThreeWayFrequencyString() throws HPOException {
         // it is ok not to have frequency data
         if (frequencyId == null && frequencyString == null) {
-            return "";
+            return EMPTY_STRING;
         } else if (frequencyString.isEmpty()) {
-            return "";
-        } else if (frequencyString.contains("of")) {
+            return EMPTY_STRING;
+        }
+        if (frequencyString.contains("of")) {
             return convertNofMString(frequencyString);
         } else if (frequencyString.matches("\\d+/\\d+")) {
-            return frequencyString;
+            return frequencyString; // standard n/m
         } else if (frequencyString.matches("\\d{1,2}-\\d{1,2}\\s?\\%")){
+            System.err.println("FFF A \\d{1,2}-\\d{1,2}\\s?\\%");
             QCissues.add(FREQUENCY_WITH_DASH);
             return frequencyString.replaceAll(" ","");
         } else if (frequencyString.matches("\\d{1,2}\\%-\\d{1,2}\\s?\\%")){
             // remove middle percent sign
+            System.err.println("FFF B\\d{1,2}\\%-\\d{1,2}\\s?\\%");
             QCissues.add(FREQUENCY_WITH_DASH);
-            QCissues.add(CORRECTED_OTHER_FREQUENCY_FORMAT);
             String f = frequencyString.replaceAll("%","").trim();
             return f+"%";
-        }else  if (frequencyString.matches("\\d{1,3}\\s?\\%")) {
-            return frequencyString.replaceAll(" ",""); // remove whitepsace
-        } else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\s?\\%")) {
+        } else  if (frequencyString.matches("\\d{1,3}\\%")) {
+            return frequencyString; // remove whitepsace
+        }else  if (frequencyString.matches("\\d{1,3}\\s+\\%")) {
+            QCissues.add(REMOVED_FREQUENCY_WHITESPACE);
             return frequencyString.replaceAll(" ","");
-        }
+        }  else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\%")) {
+            return frequencyString;
+        } else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\s+\\%")) {
+            QCissues.add(REMOVED_FREQUENCY_WHITESPACE);
+        return frequencyString.replaceAll(" ","");
+    }
         else if (frequencyId != null) {
             if (frequencySubontology.getTermMap().containsKey(frequencyId)) {
                 return frequencyId.getIdWithPrefix();
@@ -820,9 +841,11 @@ public class OldSmallFileEntry {
                 String err = String.format("Attempt to use term %s [%s] as a frequency term",
                         ontology.getTermMap().get(frequencyId).getName(),
                         ontology.getTermMap().get(frequencyId).getId().getIdWithPrefix());
+                System.err.println(err);
                 throw new HPOException(err);
             }
         } else {
+            System.err.println(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
             // if we get here, frequencyId was null and frequencyString was not null but was not recognized.
             throw new HPOException(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
         }

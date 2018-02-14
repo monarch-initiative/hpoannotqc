@@ -10,11 +10,9 @@
     </appenders>
 
     <loggers>
-        <Logger name="org.apache.log4j.xml" level="info" additivity="false">
+        <Logger name="org.apache.log4j.xml" level="trace" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="com.github.phenomics.ontolib.io.obo.OboParser" level="OFF"/>
-
         <root level="trace">
            <!-- <appender-ref ref="Console" level="trace"/> -->
             <appender-ref ref="MyFile" level="trace"/>
