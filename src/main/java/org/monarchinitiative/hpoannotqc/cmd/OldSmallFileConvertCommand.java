@@ -62,6 +62,10 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
     private int n_converted_n_of_m=0;
+    private int n_lineHasQcIssue=0;
+    private int n_small_old_file_pairs_with_same_number_of_annotations=0;
+    private int n_small_old_file_pairs_with_different_number_of_annotations=0;
+
 
 
 
@@ -84,8 +88,15 @@ public class OldSmallFileConvertCommand implements Command {
     private void convertToNewSmallFiles() {
         int i=0;
         osfList.forEach(old -> {
+            int n_old=old.getEntrylist().size();
             V2SmallFile v2 = new V2SmallFile(old);
+            int n_new=v2.getEntryList().size();
             v2sfList.add(v2);
+            if (n_old==n_new) {
+                n_small_old_file_pairs_with_same_number_of_annotations++;
+            } else {
+                n_small_old_file_pairs_with_different_number_of_annotations++;
+            }
         });
         try {
             for (V2SmallFile v2 : v2sfList) {
@@ -132,6 +143,7 @@ public class OldSmallFileConvertCommand implements Command {
             n_assigned_by_only_HPO   += osf.getN_assigned_by_only_HPO();
             n_assigned_by_empty      += osf.getN_assigned_by_empty();
             n_converted_n_of_m       += osf.getN_converted_n_of_m();
+            n_lineHasQcIssue         += osf.getN_lineHasQcIssue();
             osfList.add(osf);
         }
 
@@ -170,10 +182,12 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines with empty assigned by: "+  n_assigned_by_empty );
         System.out.println("\tNumber of lines where we converted \"n of m\" to \"n/m\": "+  n_converted_n_of_m );
         System.out.println();
-        System.out.println("Number of lines that were Q/C'd or updated have been written to the log (before/after)");
+        System.out.println("\tNumber of old/new small file pairs with same number of annotations: "+  n_small_old_file_pairs_with_same_number_of_annotations);
+        System.out.println("\tNumber of old/new small file pairs with different number of annotations: "+  n_small_old_file_pairs_with_different_number_of_annotations);
+        System.out.println();
+        System.out.println("Number of lines that were Q/C'd or updated have been written to the log (before/after): " + n_lineHasQcIssue);
 
         System.out.println();
-        V2LineQualityController.dumpAssignedByMap();
     }
 
     /** Output the new (v2) small files. Make a new directory if needed. */

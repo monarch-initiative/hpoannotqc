@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableBiMap;
 
 
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 
 
@@ -30,7 +31,7 @@ import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
  * Created by peter on 1/20/2018.
  */
 public class OldSmallFile {
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final int UNINITIALIZED=-42;
     /** The number of fields is usually 21, but we parse according to the header and there is some variability. The
      * number of fields is not a requirement for our old-file format
@@ -99,6 +100,7 @@ public class OldSmallFile {
     private int n_assigned_by_only_HPO=0;
     private int n_assigned_by_empty =0;
     private int n_converted_n_of_m=0;
+    private int n_lineHasQcIssue=0;
 
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
@@ -170,6 +172,10 @@ public class OldSmallFile {
     }
 
     public int getN_less_than_expected_number_of_lines() { return n_less_than_expected_number_of_lines; }
+
+    public int getN_lineHasQcIssue() {
+        return n_lineHasQcIssue;
+    }
 
     private void processContentLine(String line) throws HPOException {
         String F[]=line.split("\t");
@@ -290,7 +296,6 @@ public class OldSmallFile {
         // When we get here, we have added all of the fields of the OLD file. We will do a Q/C check and
         // record any "repair" jobs that needed to be performed.
         Set<SmallFileQCCode> qcItemList = entry.doQCcheck();
-
         tallyQCitems(qcItemList,line);
         if (entry.hasQCissues()) {
             // if there was a QC issue, then the old line will have been output to the LOG together
@@ -299,6 +304,8 @@ public class OldSmallFile {
             // Note that the actual output of the new lines is done by the V2SmallFile class and not here.
             V2SmallFileEntry v2entry = new V2SmallFileEntry(entry);
             LOGGER.trace("V2 entry: " + v2entry.getRow());
+            n_lineHasQcIssue++;
+
         }
         entrylist.add(entry);
     }
@@ -359,6 +366,12 @@ public class OldSmallFile {
         return n_converted_n_of_m;
     }
 
+    /**
+     * This function gets called for all entries (old small file lines) that have one or
+     * more Q/C issues. Basically we just tally them up.
+     * @param qcitems
+     * @param line
+     */
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
         if (qcitems.size()==0)return;
         for (SmallFileQCCode qcode : qcitems) {
@@ -423,8 +436,6 @@ public class OldSmallFile {
                 case REMOVED_FREQUENCY_WHITESPACE:
                     n_frequency_removed_whitespace++;
                     LOGGER.trace(String.format("%s:%s", REMOVED_FREQUENCY_WHITESPACE.name(),line));
-                    System.err.println(String.format("%s:%s", REMOVED_FREQUENCY_WHITESPACE.name(),line));
-                    System.exit(1);
                     break;
                 case ASSIGNED_BY_EMPTY:
                     n_assigned_by_empty++;

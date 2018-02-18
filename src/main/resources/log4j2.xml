@@ -10,7 +10,7 @@
     </appenders>
 
     <loggers>
-        <Logger name="org.apache.log4j.xml" level="trace" additivity="false">
+        <Logger name="org.apache.logging.log4j.Logger" level="trace" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <root level="trace">

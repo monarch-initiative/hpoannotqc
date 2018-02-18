@@ -392,6 +392,13 @@ public class OldSmallFileEntry {
             this.pub = diseaseID;
             this.QCissues.add(CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID);
         }
+        // we need to call some additional functions that the V2SmallFileEntry constructor will
+        // call in order to get a complete tally of the Q/C issues.
+        String dummy=getThreeWayFrequencyString();
+        dummy=getDateCreated();
+        dummy=getSex();
+        dummy=getModifierString();
+
 
         return QCissues;
     }
@@ -794,8 +801,6 @@ public class OldSmallFileEntry {
     }
 
 
-
-
     /** There are 3 correct formats for frequency. This function returns
      * a String representing either a frequency such as 45%, 6/13, or an HPO
      * term id from the frequency subontology. Note that the emtpy string is also
@@ -814,12 +819,10 @@ public class OldSmallFileEntry {
         } else if (frequencyString.matches("\\d+/\\d+")) {
             return frequencyString; // standard n/m
         } else if (frequencyString.matches("\\d{1,2}-\\d{1,2}\\s?\\%")){
-            System.err.println("FFF A \\d{1,2}-\\d{1,2}\\s?\\%");
             QCissues.add(FREQUENCY_WITH_DASH);
             return frequencyString.replaceAll(" ","");
         } else if (frequencyString.matches("\\d{1,2}\\%-\\d{1,2}\\s?\\%")){
             // remove middle percent sign
-            System.err.println("FFF B\\d{1,2}\\%-\\d{1,2}\\s?\\%");
             QCissues.add(FREQUENCY_WITH_DASH);
             String f = frequencyString.replaceAll("%","").trim();
             return f+"%";
