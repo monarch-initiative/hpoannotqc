@@ -36,7 +36,7 @@ public class MergerTest {
     public static void init() throws IOException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
         hpOboPath =classLoader.getResource("hp.obo").getFile();
-        pachyonychiaAnnotationPath=classLoader.getResource("pheno_annotation/pachyonychia_pc2.tab").getFile();
+        pachyonychiaAnnotationPath=classLoader.getResource("phenotype_annotation.tab").getFile();
         HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
         TermPrefix pref = new ImmutableTermPrefix("HP");
@@ -55,7 +55,7 @@ public class MergerTest {
     /** We put the ORPHA and OMIM versions of the same disease into the annotation file. */
     @Test
     public void testParsedTwoDiseases() {
-        assertEquals(2,diseaseMap.size());
+        assertEquals(10294,diseaseMap.size());
         assertNotNull(omim);
         assertNotNull(orpha);
         debugPrintDisease(omim);
