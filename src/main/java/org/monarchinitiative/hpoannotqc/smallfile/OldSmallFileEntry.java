@@ -405,7 +405,11 @@ public class OldSmallFileEntry {
 
 
 
-
+/*
+if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("common") || frequencyMod.equalsIgnoreCase("variable")
+					|| frequencyMod.equalsIgnoreCase("frequent") || frequencyMod.equalsIgnoreCase("FREQUENT(79-30%)")) {
+				frequencyMod = OntologyConstants.frequency_Frequent;
+ */
 
     public void setFrequencyString(String freq) {
         if (freq == null || freq.length() == 0) return; // not required!
@@ -415,25 +419,27 @@ public class OldSmallFileEntry {
             LOGGER.error("NEVER HAPPENS, FREQUENCY WITH TERM");
             System.exit(1);
         } else if (Character.isDigit(frequencyString.charAt(0))) {
-            // ok no op
+            LOGGER.error("BAD FREQ ID \"" + freq + "\"");
+            System.err.println("BAD FREQ ID \"" + freq + "\"");
+            this.frequencyString=freq.trim();
         } else if (frequencyString.equalsIgnoreCase("very rare")) {
             this.frequencyId = VERY_RARE;
         } else if (frequencyString.equalsIgnoreCase("rare")) {
-            this.frequencyId = VERY_RARE; //TODO IS THIS OK?
-        } else if (frequencyString.equalsIgnoreCase("frequent")) {
+            this.frequencyId = OCCASIONAL;
+        } else if (frequencyString.equalsIgnoreCase("frequent")  ) {
             this.frequencyId = FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("occasional")) {
             this.frequencyId = OCCASIONAL;
         } else if (frequencyString.equalsIgnoreCase("variable")) {
-            this.frequencyId = FrequencyRoot; //TODO OK -- ?????
+            this.frequencyId = FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("typical")) {
-            this.frequencyId = FREQUENT; // TODO OK????????????
+            this.frequencyId = FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("very frequent")) {
             this.frequencyId = VERY_FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("common")) {
-            this.frequencyId = FREQUENT; //OK ?????????????????????
+            this.frequencyId = FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("hallmark")) {
-            this.frequencyId = VERY_FREQUENT; // OK ?????????????
+            this.frequencyId = VERY_FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("obligate")) {
             this.frequencyId = OBLIGATE;
         } else {

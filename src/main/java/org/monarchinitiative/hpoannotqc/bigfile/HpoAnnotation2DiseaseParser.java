@@ -90,6 +90,7 @@ public class HpoAnnotation2DiseaseParser {
             final ImmutableList.Builder<TermId> inheritanceListBuilder = ImmutableList.builder();
             final ImmutableList.Builder<TermId> negativeTermListBuilder = ImmutableList.builder();
             String diseaseName = null;
+            String database=null;
             for (AnnotationLine line : annots) {
                 if (isInheritanceTerm(line.hpoId)) {
                     inheritanceListBuilder.add(line.hpoId);
@@ -100,6 +101,7 @@ public class HpoAnnotation2DiseaseParser {
                     phenoListBuilder.add(tidm);
                 }
                 if (line.DbObjectName != null) diseaseName = line.DbObjectName;
+                if (line.database != null) database=line.database;
                 String databaseID = line.DBObjectId;
                 HpoDiseaseWithMetadata hpoDisease = new HpoDiseaseWithMetadata(diseaseName,
                         diseaseId,

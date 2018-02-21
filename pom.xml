@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <ontolib.version>0.1.3</ontolib.version>
+        <ontolib.version>0.1.4</ontolib.version>
         <guava.version>22.0</guava.version>
         <slf4jVersion>1.7.25</slf4jVersion>
     </properties>

@@ -41,32 +41,60 @@ public final class DownloadCommand implements Command {
     public void execute()  {
         createDownloadDir(downloadDirectory);
         downloadHpObo();
+        downloadOrphanet();
        // downloadPhenotypeAnnotationDotTab();
     }
 
+    /**
+     * Download the Oprhanet HPO annotations, which are in XML
+     */
+    private void downloadOrphanet() {
+        //http://www.orphadata.org/data/xml/en_product4_HPO.xml
+        String downloadLocation=String.format("%s%sen_product4_HPO.xml",downloadDirectory, File.separator);
+        File f = new File(downloadLocation);
+        if (f.exists()) {
+            LOGGER.trace("cowardly refusing to download en_product4_HPO.xml, since it is already there");
+            return;
+        }
+        try {
+            URL url = new URL("http://www.orphadata.org/data/xml/en_product4_HPO.xml");
+            FileDownloader downloader = new FileDownloader();
+            boolean result = downloader.copyURLToFile(url, f);
+            if (result) {
+                LOGGER.trace("Downloaded en_product4_HPO.xml to " + downloadLocation);
+            } else {
+                LOGGER.error("Could not download en_product4_HPO.xml to " + downloadLocation);
+            }
+        } catch (FileDownloadException fde) {
+            fde.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-//    private void downloadPhenotypeAnnotationDotTab() {
-//        // Now the same for the phenotype_annotation.tab file
-//        String downloadLocation=String.format("%s%sphenotype_annotation.tab",downloadDirectory, File.separator);
-//        File f = new File(downloadLocation);
-//        if (f.exists()) {
-//            LOGGER.trace("cowardly refusing to download phenoptype_annotation.tab, since it is already there");
-//            return;
-//        }
-//        try {
-//            URL url = new URL("http://compbio.charite.de/jenkins/job/hpo.annotations/lastStableBuild/artifact/misc/phenotype_annotation.tab");
-//            FileDownloader downloader = new FileDownloader();
-//            boolean result = downloader.copyURLToFile(url,f);
-//            if (result) {
-//                LOGGER.trace("Downloaded phenotype_annotation.tab to "+ downloadLocation);
-//            } else {
-//                LOGGER.error("[ERROR] Could not phenotype_annotation.tab hp.obo to " + downloadLocation);
-//            }
-//
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
+
+    private void downloadPhenotypeAnnotationDotTab() {
+        // Now the same for the phenotype_annotation.tab file
+        String downloadLocation = String.format("%s%sphenotype_annotation.tab", downloadDirectory, File.separator);
+        File f = new File(downloadLocation);
+        if (f.exists()) {
+            LOGGER.trace("cowardly refusing to download phenoptype_annotation.tab, since it is already there");
+            return;
+        }
+        try {
+            URL url = new URL("http://compbio.charite.de/jenkins/job/hpo.annotations/lastStableBuild/artifact/misc/phenotype_annotation.tab");
+            FileDownloader downloader = new FileDownloader();
+            boolean result = downloader.copyURLToFile(url, f);
+            if (result) {
+                LOGGER.trace("Downloaded phenotype_annotation.tab to " + downloadLocation);
+            } else {
+                LOGGER.error("[ERROR] Could not phenotype_annotation.tab hp.obo to " + downloadLocation);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     private void downloadHpObo() {
