@@ -1,5 +1,8 @@
 package org.monarchinitiative.hpoannotqc.orphanet;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,7 +19,7 @@ import javax.xml.stream.events.XMLEvent;
 
 
 public class OrphanetXML2HpoDiseaseModelParser {
-
+    private static final Logger logger = LogManager.getLogger();
     private final String orphanetXmlPath;
 
     List<OrphanetDisorder> disorders;
@@ -48,7 +51,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
         XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new FileInputStream(orphanetXmlPath));
         OrphanetDisorder disorder = null;
         String currentHpoId=null;
-        String currentHpoName=null;
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
@@ -90,15 +92,23 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     disorder.setFrequency(xmlEvent.asCharacters().getData());
                 }else if (startElement.getName().getLocalPart().equals("DiagnosticCriteria")) {
                     disorder.setDiagnosticCriterion();
-                }  else {
+                } else if (startElement.getName().getLocalPart().equals("HPO")) {
+                    // no-op, no need to get the id attribute from this node
+                } else if (startElement.getName().getLocalPart().equals("JDBOR")) {
+                    // no-op, no need to do anything for the very top level node
+                } else {
                     System.out.println("NO MAP: " + xmlEvent.toString());
                 }
             } else if (xmlEvent.isEndElement()) {
                 EndElement endElement = xmlEvent.asEndElement();
                 if (endElement.getName().getLocalPart().equals("HPODisorderAssociationList")) {
                     inAssociationList = false;
-                } else if ( endElement.getName().getLocalPart().equals("HPOFrequency")) {
-                    inFrequency = false;
+                } else if ( endElement.getName().getLocalPart().equals("HPODisorderAssociation ")) {
+                    inAssociation = false;
+                }  else if ( endElement.getName().getLocalPart().equals("HPOFrequency")) {
+                inFrequency = false;
+            } else if ( endElement.getName().getLocalPart().equals("JDBOR")) {
+                    logger.trace("Done parsing Orphanet XML document");
                 }
 
             }
