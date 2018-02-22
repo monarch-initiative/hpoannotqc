@@ -40,6 +40,26 @@ public class OrphanetDisorder {
         this.frequency=f;
     }
 
+    public int getOrphaNumber() {
+        return orphaNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getHpoId() {
+        return hpoId;
+    }
+
+    public String getHpoLabel() {
+        return hpoLabel;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
     public void setDiagnosticCriterion() { isDiagnosticCriterion=true; }
 
 
