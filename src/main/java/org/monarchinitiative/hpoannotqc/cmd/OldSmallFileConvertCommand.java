@@ -8,6 +8,7 @@ import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
 import com.github.phenomics.ontolib.ontology.data.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.bigfile.BigFileHeader;
 import org.monarchinitiative.hpoannotqc.smallfile.*;
 
 
@@ -198,7 +199,7 @@ public class OldSmallFileConvertCommand implements Command {
         }
         String filename = String.format("%s%s%s",outdir,File.separator,v2.getBasename());
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        writer.write(V2SmallFileEntry.getHeader()+"\n");
+        writer.write(BigFileHeader.getHeaderV1()+"\n");
         List<V2SmallFileEntry> entryList = v2.getEntryList();
         for (V2SmallFileEntry v2e:entryList) {
             writer.write(v2e.getRow() + "\n");

@@ -47,6 +47,8 @@ public class Commandline {
 
     private final static String DEFAULT_V2_SMALL_FILE_DIRECTORY="v2files";
 
+    private final static String DEFAULT_ORPHANET_XML_FILE="data/en_product4_HPO.xml";
+
 
 
 
@@ -118,7 +120,7 @@ public class Commandline {
             }
             this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
         } else if (mycommand.equals("big-file")) {
-            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY);
+            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY,DEFAULT_ORPHANET_XML_FILE);
         } else {
             printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
         }

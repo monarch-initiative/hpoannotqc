@@ -1,13 +1,30 @@
 package org.monarchinitiative.hpoannotqc.orphanet;
 
-public class OrphanetDisorder {
+import com.github.phenomics.ontolib.ontology.data.TermId;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.UNINITIALIZED_DISEASE_NAME;
+
+public class OrphanetDisorder {
+    private static final Logger logger = LogManager.getLogger();
+    /** This is the internal Orphanet ID which is an attribute of Disorder in the XML file. We can probably ignore this. */
     private int id;
+    /** This is the external Orphanet accession number. */
     private int orphaNumber;
+    /** Disease name */
     private String name;
-    private String hpoId;
+    /** HPO Id of the phenotype annotation */
+    private TermId hpoId;
+    /** HPO Label of the phenotype annotation. */
     private String hpoLabel;
-    private String frequency;
+    /** HPO TermId of the frequency of the phenotype in the disease. */
+    private TermId frequency;
+    /** Flag to indicate if this is an Orphanet Diagnostic Criterion. */
     private boolean isDiagnosticCriterion=false;
 
 
@@ -29,14 +46,18 @@ public class OrphanetDisorder {
 
     public void setName(String n) {
         name=n;
+        if (name==null || name.equals("null")) {
+            logger.error("Orphanet name was set to null...should nevel happen...terminating");
+            System.exit(1);
+        }
     }
 
-    public void setHPO(String id, String label) {
+    public void setHPO(TermId id, String label) {
         this.hpoId=id;
         this.hpoLabel=label;
     }
 
-    public void setFrequency(String f) {
+    public void setFrequency(TermId f) {
         this.frequency=f;
     }
 
@@ -48,7 +69,7 @@ public class OrphanetDisorder {
         return name;
     }
 
-    public String getHpoId() {
+    public TermId getHpoId() {
         return hpoId;
     }
 
@@ -56,7 +77,7 @@ public class OrphanetDisorder {
         return hpoLabel;
     }
 
-    public String getFrequency() {
+    public TermId getFrequency() {
         return frequency;
     }
 
@@ -65,8 +86,17 @@ public class OrphanetDisorder {
 
     @Override
     public String toString() {
-        String dc=isDiagnosticCriterion?" [diagnostic criterion]":"";
-        return String.format("ORPHA:%d %s (%d) %s [%s]: %s%s",orphaNumber,name,id,hpoLabel,hpoId,frequency,dc);
+        return String.format("ORPHA:%d %s", orphaNumber, name);
+    }
+
+
+
+    public List<SmallFileQCCode> qcCheck() {
+        List<SmallFileQCCode> lst = new ArrayList<>();
+        if (name==null) {
+            lst.add(UNINITIALIZED_DISEASE_NAME);
+        }
+        return lst;
     }
 
 

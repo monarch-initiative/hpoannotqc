@@ -292,27 +292,6 @@ public class V2SmallFileEntry {
     }
 
 
-    /**
-     * @return Header line for the new V2 small files.
-     */
-    public static String getHeader() {
-        String []fields={"#DiseaseID",
-                "DiseaseName",
-                "HpoId",
-                "HpoName",
-                "ageOfOnsetId",
-                "ageOfOnsetName",
-                "evidenceCode",
-                "frequencyModifier",
-                "sex",
-                "negation",
-                "modifier",
-                "description",
-                "publication",
-                "assignedBy",
-                "dateCreated"};
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
-    }
 
     /** @return the row that will be written to the V2 file for this entry. */
     @Override public String toString() { return getRow();}
