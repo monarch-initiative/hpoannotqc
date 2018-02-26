@@ -114,6 +114,10 @@ public class BigFileWriter {
 
     private String getAspectV1(TermId tid) {
         HpoTerm term = ontology.getTermMap().get(tid);
+        if (term==null) {
+            logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
+            return "?";
+        }
         tid = term.getId(); // update in case term is an alt_id
         if (existsPath(ontology, tid, phenotypeRoot)) {
             v2qualityController.incrementGoodAspect();//
