@@ -136,10 +136,15 @@ public class BigFileWriter {
     }
 
     public void writeOrphanet(List<OrphanetDisorder> disorderList) {
+        int n=0;
         try {
             for (OrphanetDisorder disorder : disorderList) {
-                String line = transformOrphanetEntry2BigFileLine(disorder);
-                writer.write(line + "\n");
+                List<TermId> hpoIds = disorder.getHpoIds();
+                for (TermId tid: hpoIds) {
+                    String line = transformOrphanetEntry2BigFileLine(disorder,tid);
+                    writer.write(line + "\n");
+                    n++;
+                }
             }
         } catch (IOException e) {
             logger.fatal(e);
@@ -147,6 +152,7 @@ public class BigFileWriter {
             logger.fatal("No choice but to terminate program, sorry....");
             System.exit(1);
         }
+        logger.trace("We output a total of " + n + " orphanet annotations");
     }
 
     public void tidyUp() {
@@ -162,20 +168,20 @@ public class BigFileWriter {
 
 
 
-    private String transformOrphanetEntry2BigFileLine(OrphanetDisorder entry) throws IOException {
+    private String transformOrphanetEntry2BigFileLine(OrphanetDisorder entry, TermId hpoId) throws IOException {
         String diseaseID=String.format("%s:%d", ORPHANET_DB,entry.getOrphaNumber());
         String [] elems = {
                 ORPHANET_DB, // DB
                 String.valueOf(entry.getOrphaNumber()), // DB_Object_ID
                 entry.getName(), // DB_Name
                 EMPTY_STRING, // Qualifier
-                entry.getHpoId().getIdWithPrefix(), // HPO ID
+                hpoId.getIdWithPrefix(), // HPO ID
                 diseaseID, // DB:Reference
                 ORPHA_EVIDENCE_CODE, // Evidence code
                 NO_ONSET_CODE_AVAILABLE, // Onset modifier
                 entry.getFrequency().getIdWithPrefix(),// Frequency modifier (An HPO TermId, always)
                 EMPTY_STRING, // With (not used)
-                getAspectV1(entry.getHpoId()),
+                getAspectV1(hpoId),
                 EMPTY_STRING, // Synonym (not used)
                 getTodaysDate(), // Date
                 ASSIGNED_BY // Assigned by

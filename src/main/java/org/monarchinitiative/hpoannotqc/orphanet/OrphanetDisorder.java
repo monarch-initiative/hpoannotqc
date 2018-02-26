@@ -10,18 +10,20 @@ import java.util.List;
 
 import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.UNINITIALIZED_DISEASE_NAME;
 
+/**
+ * This class represents on disease as annotated by Orphanet.
+ */
 public class OrphanetDisorder {
     private static final Logger logger = LogManager.getLogger();
-    /** This is the internal Orphanet ID which is an attribute of Disorder in the XML file. We can probably ignore this. */
-    private int id;
     /** This is the external Orphanet accession number. */
     private int orphaNumber;
     /** Disease name */
     private String name;
-    /** HPO Id of the phenotype annotation */
-    private TermId hpoId;
-    /** HPO Label of the phenotype annotation. */
-    private String hpoLabel;
+    /** HPO Ids of the phenotype annotation */
+    private List<TermId> hpoIdList;
+    /** HPO Labels of the phenotype annotation. Note that these are in the same order as the Ids, but since we only
+     * output the TermIds in the big file, they will get ignored anyway.*/
+    private List<String> hpoLabelList;
     /** HPO TermId of the frequency of the phenotype in the disease. */
     private TermId frequency;
     /** Flag to indicate if this is an Orphanet Diagnostic Criterion. */
@@ -29,14 +31,9 @@ public class OrphanetDisorder {
 
 
 
-
     public OrphanetDisorder() {
-
-    }
-
-
-    public void setId(int id) {
-     this.id=id;
+        hpoIdList=new ArrayList<>();
+        hpoLabelList=new ArrayList<>();
     }
 
 
@@ -53,8 +50,8 @@ public class OrphanetDisorder {
     }
 
     public void setHPO(TermId id, String label) {
-        this.hpoId=id;
-        this.hpoLabel=label;
+        this.hpoIdList.add(id);
+        this.hpoLabelList.add(label);
     }
 
     public void setFrequency(TermId f) {
@@ -69,13 +66,11 @@ public class OrphanetDisorder {
         return name;
     }
 
-    public TermId getHpoId() {
-        return hpoId;
+    public List<TermId> getHpoIds() {
+        return hpoIdList;
     }
 
-    public String getHpoLabel() {
-        return hpoLabel;
-    }
+
 
     public TermId getFrequency() {
         return frequency;

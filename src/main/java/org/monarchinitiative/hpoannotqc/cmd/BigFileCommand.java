@@ -46,16 +46,18 @@ public class BigFileCommand implements Command {
             logger.trace("Parsing hp.obo ...");
             HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
             this.ontology = hpoOboParser.parse();
-            BigFileWriter writer = new BigFileWriter(ontology,v2smallFileDirectory);
-            writer.outputBigFileV1();
-            OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
-            List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
-            writer.writeOrphanet(orphanetDisorders);
-            writer.tidyUp();
-        } catch (Exception e) {
-            logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
-            System.exit(1); // we cannot recover from this
+        } catch (IOException e) {
+            logger.fatal("Unable to parse hp.obo file at " + hpOboPath);
+            logger.fatal("Unable to recover, stopping execution");
+            return;
         }
+        BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory);
+        writer.outputBigFileV1();
+        OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
+        List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
+        writer.writeOrphanet(orphanetDisorders);
+        writer.tidyUp();
+
     }
 
 

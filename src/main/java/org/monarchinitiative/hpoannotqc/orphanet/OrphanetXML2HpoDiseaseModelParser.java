@@ -128,29 +128,21 @@ public class OrphanetXML2HpoDiseaseModelParser {
             if (xmlEvent.isStartElement()) {
                 StartElement startElement = xmlEvent.asStartElement();
                 if (startElement.getName().getLocalPart().equals("DisorderList")) {
-                    inDisorderList = true;
+                    inDisorderList = true; // nothing to do here, we are starting the list of disorders
                 } else if (startElement.getName().getLocalPart().equals("Disorder")) {
                     disorder = new OrphanetDisorder();
-                    Attribute idAttr = startElement.getAttributeByName(new QName("id"));
-                    if (idAttr != null) {
-                        disorder.setId(Integer.parseInt(idAttr.getValue()));
-                    }
                 } else if (startElement.getName().getLocalPart().equals("OrphaNumber")) {
                     if (inFrequency) { continue; } // Orphanumbers are used for the Disorder but also for the Frequency nodes
                     xmlEvent = xmlEventReader.nextEvent();
                     String orphanumber = xmlEvent.asCharacters().getData();
-                    System.err.println("Orphanet id="+orphanumber );
                     disorder.setOrphaNumber(Integer.parseInt(orphanumber));
-                } else if (startElement.getName().getLocalPart().equals("Name") &&! inFrequency ) {
-                    // skip, we got this information from the attribute.
+                } else if (startElement.getName().getLocalPart().equals("Name")  ) {
+                    if (inFrequency) { continue; } // skip, we have no need to parse the name of the frequency element
+                    // since we get the class from the attribute "id"
                     xmlEvent = xmlEventReader.nextEvent();
-                    System.out.println(xmlEvent.asCharacters().getData());
-                }else if (startElement.getName().getLocalPart().equals("Name") && inFrequency ) {
-                    // skip, we got this information from the attribute.
-                } else if (startElement.getName().getLocalPart().equals("Name") ) {
-                    xmlEvent = xmlEventReader.nextEvent();
-                    disorder.setName(xmlEvent.asCharacters().getData());
-                }else if (startElement.getName().getLocalPart().equals("HPODisorderAssociationList")) {
+                    String diseaseName = xmlEvent.asCharacters().getData();
+                    disorder.setName(diseaseName);
+                } else if (startElement.getName().getLocalPart().equals("HPODisorderAssociationList")) {
                     inAssociationList = true;
                 } else if (startElement.getName().getLocalPart().equals("HPODisorderAssociation")) {
                     inAssociation = true;
@@ -184,15 +176,17 @@ public class OrphanetXML2HpoDiseaseModelParser {
                 }
             } else if (xmlEvent.isEndElement()) {
                 EndElement endElement = xmlEvent.asEndElement();
-                if (endElement.getName().getLocalPart().equals("HPODisorderAssociationList")) {
+                String endElementName = endElement.getName().getLocalPart();
+                //System.err.println("END ="+endElement.getName().getLocalPart());
+                if (endElementName.equals("HPODisorderAssociationList")) {
                     inAssociationList = false;
-                } else if ( endElement.getName().getLocalPart().equals("HPODisorderAssociation ")) {
+                } else if (endElementName.equals("HPODisorderAssociation")) {
                     inAssociation = false;
-                }else if ( endElement.getName().getLocalPart().equals("HPOFrequency ")) {
+                }else if ( endElementName.equals("HPOFrequency")) {
                     inFrequency = false;
-                }  else if ( endElement.getName().getLocalPart().equals("JDBOR")) {
+                }  else if ( endElementName.equals("JDBOR")) {
                     logger.trace("Done parsing Orphanet XML document");
-                } else if (endElement.getName().getLocalPart().equals("Disorder")) {
+                } else if (endElementName.equals("Disorder")) {
                     if (disorder != null) {
                         List<SmallFileQCCode> qclist = disorder.qcCheck();
                         if (qclist.size()>0) {
