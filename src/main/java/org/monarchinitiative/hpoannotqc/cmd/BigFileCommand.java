@@ -56,6 +56,8 @@ public class BigFileCommand implements Command {
         OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
         List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
         writer.writeOrphanet(orphanetDisorders);
+        /// now output the V2 version of the file
+        writer.outputBigFileV2();
         writer.tidyUp();
 
     }

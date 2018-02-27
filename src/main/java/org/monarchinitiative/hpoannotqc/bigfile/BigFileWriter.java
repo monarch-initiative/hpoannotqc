@@ -34,11 +34,15 @@ public class BigFileWriter {
     private final HpoOntology ontology;
     private final V2LineQualityController v2qualityController;
     private String bigFileOutputName="phenotype_annotation2.tab";
+
+    private final static String bigFileOutputNameV2="phenotype.hpoa";
     private List<String> v2smallFiles;
     private final String v2smallFileDirectory;
     private List<V2SmallFile> v2filelist=new ArrayList<>();
     /** This is the file handle for writing the small files and Orphanet data to file. */
     private BufferedWriter writer;
+    /** This is the file handle for writing the small files and Orphanet data to file with the new (2018-02) format*/
+    private BufferedWriter writerV2;
 
     private final static String ORPHANET_DB ="ORPHA";
     private final static String EMPTY_STRING="";
@@ -50,7 +54,7 @@ public class BigFileWriter {
     private static final TermId ONSET_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0003674");;
     private static final TermId MODIFIER_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
     private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");
-    private static final TermId MORTALITY_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0040006");;
+    private static final TermId CLINICAL_COURSE_ID =ImmutableTermId.constructWithPrefix("HP:0031797");;
 
 
     public BigFileWriter(HpoOntology ont, String directoryPath) {
@@ -62,6 +66,7 @@ public class BigFileWriter {
         inputV2files();
         try {
             this.writer = new BufferedWriter(new FileWriter(bigFileOutputName));
+            this.writerV2 = new BufferedWriter(new FileWriter(bigFileOutputNameV2));
         } catch (IOException e) {
             logger.fatal(e);
             logger.fatal("Could not open file for writing at " + bigFileOutputName);
@@ -69,6 +74,31 @@ public class BigFileWriter {
             System.exit(1);
         }
     }
+
+
+    public void outputBigFileV2() {
+        int n=0;
+        V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
+        try {
+            writerV2.write(BigFileHeader.getHeaderV2() +"\n");
+            for (V2SmallFile v2 : v2filelist ) {
+                List<V2SmallFileEntry> entryList = v2.getEntryList();
+                for (V2SmallFileEntry entry : entryList) {
+                    v2qc.checkV2entry(entry);
+                    String bigfileLine = transformEntry2BigFileLineV2(entry);
+                    writerV2.write(bigfileLine + "\n");
+                    n++;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        logger.trace("We output a total of " + n + " big file lines");
+        v2qc.dumpQCtoShell();
+    }
+
+
+
 
 
     /**
@@ -125,15 +155,37 @@ public class BigFileWriter {
         } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
             v2qualityController.incrementGoodAspect();
             return "I";
+        } else if (existsPath(ontology, tid, CLINICAL_COURSE_ID)) {
+            v2qualityController.incrementGoodAspect();
+            return "C";
+        }  else {
+//            logger.error("Could not identify aspect for entry with term id " + entry.getPhenotypeId().getIdWithPrefix() + "(+" +
+//                    entry.getPhenotypeName()+")");
+            this.v2qualityController.incrementBadAspect();
+            return "?";
+        }
+    }
+
+
+
+
+    private String getAspectV2(TermId tid) {
+        HpoTerm term = ontology.getTermMap().get(tid);
+        if (term==null) {
+            logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
+            return "?";
+        }
+        tid = term.getId(); // update in case term is an alt_id
+        if (existsPath(ontology, tid, phenotypeRoot)) {
+            v2qualityController.incrementGoodAspect();//
+            return "P"; // organ/phenotype abnormality
+        } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
+            v2qualityController.incrementGoodAspect();
+            return "I";
         } else if (existsPath(ontology, tid, ONSET_TERM_ID)) {
             v2qualityController.incrementGoodAspect();
             return "C";
-        } else if (existsPath(ontology, tid, MORTALITY_TERM_ID)) {
-            v2qualityController.incrementGoodAspect();
-            return "M";
         } else {
-//            logger.error("Could not identify aspect for entry with term id " + entry.getPhenotypeId().getIdWithPrefix() + "(+" +
-//                    entry.getPhenotypeName()+")");
             this.v2qualityController.incrementBadAspect();
             return "?";
         }
@@ -197,8 +249,8 @@ public class BigFileWriter {
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
     private String transformEntry2BigFileLineV1(V2SmallFileEntry entry) {
         String [] elems = {
-                entry.getDB(),
-                entry.getDB_Object_ID(),
+                entry.getDB(), // DB
+                entry.getDB_Object_ID(), //DB_Object_ID
                 entry.getDiseaseName(), // DB_Name
                 entry.getNegation(), // Qualifier
                 entry.getPhenotypeId().getIdWithPrefix(), // HPO ID
@@ -214,6 +266,51 @@ public class BigFileWriter {
         };
         return Arrays.stream(elems).collect(Collectors.joining("\t"));
     }
+
+
+    /** Output a line of an Orphanet entry to the V2 big file, phenotype.hpoa. */
+    private String transformOrphanetEntry2BigFileLineV2(OrphanetDisorder entry, TermId hpoId) throws IOException {
+        String diseaseID=String.format("%s:%d", ORPHANET_DB,entry.getOrphaNumber());
+        String [] elems = {
+                ORPHANET_DB, // DB
+                String.valueOf(entry.getOrphaNumber()), // DB_Object_ID
+                entry.getName(), // DB_Name
+                EMPTY_STRING, // Qualifier
+                hpoId.getIdWithPrefix(), // HPO ID
+                diseaseID, // DB_Reference
+                ORPHA_EVIDENCE_CODE, // Evidence_Code
+                NO_ONSET_CODE_AVAILABLE, // Onset
+                entry.getFrequency().getIdWithPrefix(),// Frequency (An HPO TermId, always)
+                EMPTY_STRING, // Sex (not used)
+                EMPTY_STRING, // Modifier (not used)
+                getAspectV2(hpoId),
+                getTodaysDate(), // Date
+                ASSIGNED_BY // Assigned by
+        };
+        return Arrays.stream(elems).collect(Collectors.joining("\t"));
+    }
+    /** Construct one line for the V1 big file that was in use from 2009-2018. */
+    private String transformEntry2BigFileLineV2(V2SmallFileEntry entry) {
+        String [] elems = {
+                entry.getDB(), //DB
+                entry.getDB_Object_ID(), //DB_Object_ID
+                entry.getDiseaseName(), // DB_Name
+                entry.getNegation(), // Qualifier
+                entry.getPhenotypeId().getIdWithPrefix(), // HPO_ID
+                entry.getPublication(), // DB_Reference
+                entry.getEvidenceCode(), // Evidence_Code
+                entry.getAgeOfOnsetId()==null?"":entry.getAgeOfOnsetId().getIdWithPrefix(), // Onset
+                getFrequencyString(entry), // Frequency
+                entry.getSex(), // Sex
+                entry.getModifier(), // Modifier
+                getAspectV2(entry.getPhenotypeId()), // Aspect
+                entry.getDateCreated(), // Date
+                entry.getAssignedBy() // Assigned by
+        };
+        return Arrays.stream(elems).collect(Collectors.joining("\t"));
+    }
+
+
 
 
     private void inputV2files() {
