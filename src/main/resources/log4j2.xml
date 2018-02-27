@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="trace">
+    <Appenders>
+        <Console name="Console"
+                 target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
+        </Console>
+
+        <File name="MyLog"
+              append="true" immediateFlush="true"
+              fileName="HpoAnnotQc.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
+        </File>
+
+       <!-- <RollingFile name="MyRollingFile"
+                     append="true" immediateFlush="true"
+                     fileName="${log-path}/tearsLogRF.log"
+                     filePattern="${log-path}/tearsLogRF_%d{yyyy-MM-dd_HH-mm-ss}.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile> -->
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="trace" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="MyFile" level="trace"/>
+            <!-- <AppenderRef ref="MyRollingFile" /> -->
+        </Logger>
+
+        <Root level="trace">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="MyLog" level="trace" additivity="false" />
+            <!-- <AppenderRef ref="MyRollingFile" additivity="false" /> -->
+        </Root>
+    </Loggers>
+</Configuration>
