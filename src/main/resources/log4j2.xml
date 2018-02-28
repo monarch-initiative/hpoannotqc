@@ -26,15 +26,15 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="trace" additivity="false">
-            <AppenderRef ref="Console" />
-            <AppenderRef ref="MyFile" level="trace"/>
+        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="trace">
+            <AppenderRef ref="Console" level="error"/>
+            <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" /> -->
         </Logger>
 
         <Root level="trace">
-            <AppenderRef ref="Console" />
-            <AppenderRef ref="MyLog" level="trace" additivity="false" />
+            <AppenderRef ref="Console" level="error"/>
+            <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" additivity="false" /> -->
         </Root>
     </Loggers>

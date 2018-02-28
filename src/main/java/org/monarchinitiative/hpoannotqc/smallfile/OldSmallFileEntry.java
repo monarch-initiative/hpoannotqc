@@ -419,8 +419,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
             LOGGER.error("NEVER HAPPENS, FREQUENCY WITH TERM");
             System.exit(1);
         } else if (Character.isDigit(frequencyString.charAt(0))) {
-            LOGGER.error("BAD FREQ ID \"" + freq + "\"");
-            System.err.println("BAD FREQ ID \"" + freq + "\"");
+            LOGGER.error("Adding numeric frequency data: \"" + freq + "\"");
             this.frequencyString=freq.trim();
         } else if (frequencyString.equalsIgnoreCase("very rare")) {
             this.frequencyId = VERY_RARE;

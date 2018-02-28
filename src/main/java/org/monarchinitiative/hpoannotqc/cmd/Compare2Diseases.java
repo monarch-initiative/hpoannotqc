@@ -14,6 +14,7 @@ import org.monarchinitiative.hpoannotqc.bigfile.HpoOntologyParser;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 
 /** This tool is intended to compare the annotations of two diseases. It will help us to develop
@@ -32,17 +33,20 @@ public class Compare2Diseases  implements Command {
 
 
 
-    public Compare2Diseases(String hpopath, String annotationPath) {
+    public Compare2Diseases(String hpopath, String annotationPath, String disease1, String disease2) {
         hpOboPath=hpopath;
         phenotype_annotation_path = annotationPath;
+        logger.trace(String.format("Compare %s and %s using HPO file %s and annotation file %s",disease1,disease2,hpopath,annotationPath ));
         HpoOntologyParser parser = new HpoOntologyParser(hpopath);
         try {
             parser.parseOntology();
             phenotypeSubOntology = parser.getPhenotypeSubontology();
             inheritanceSubontology = parser.getInheritanceSubontology();
-
+            Objects.requireNonNull(phenotypeSubOntology);
+            Objects.requireNonNull(inheritanceSubontology);
             HpoAnnotation2DiseaseParser annotationParser = new HpoAnnotation2DiseaseParser(phenotype_annotation_path, phenotypeSubOntology, inheritanceSubontology);
             diseaseMap = annotationParser.getDiseaseMap();
+            logger.error("Done parsing");
         } catch (Exception e) {
             e.printStackTrace();
         }
