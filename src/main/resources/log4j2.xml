@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="trace">
+<Configuration status="error">
     <Appenders>
         <Console name="Console"
                  target="SYSTEM_OUT">
@@ -26,7 +26,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="trace">
+        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="error">
             <AppenderRef ref="Console" level="error"/>
             <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" /> -->
@@ -34,7 +34,7 @@
 
         <Root level="trace">
             <AppenderRef ref="Console" level="error"/>
-            <AppenderRef ref="MyLog" level="trace"/>
+            <AppenderRef ref="MyLog" level="error"/>
             <!-- <AppenderRef ref="MyRollingFile" additivity="false" /> -->
         </Root>
     </Loggers>

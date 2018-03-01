@@ -25,6 +25,8 @@ public final class DownloadCommand implements Command {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String downloadDirectory;
 
+    private final static String MONDO_URL="https://raw.githubusercontent.com/monarch-initiative/monarch-disease-ontology/master/src/mondo/mondo.obo";
+
     public String getName() { return "download"; }
 
     /**
@@ -42,6 +44,7 @@ public final class DownloadCommand implements Command {
         createDownloadDir(downloadDirectory);
         downloadHpObo();
         downloadOrphanet();
+        downloadMondo();
        // downloadPhenotypeAnnotationDotTab();
     }
 
@@ -73,6 +76,30 @@ public final class DownloadCommand implements Command {
     }
 
 
+    private void downloadMondo() {
+        // Now the same for the phenotype_annotation.tab file
+        String downloadLocation = String.format("%s%smondo.obo", downloadDirectory, File.separator);
+        File f = new File(downloadLocation);
+        if (f.exists()) {
+            LOGGER.trace("cowardly refusing to download mondo.obo, since it is already there");
+            return;
+        }
+        try {
+            URL url = new URL(MONDO_URL);
+            FileDownloader downloader = new FileDownloader();
+            boolean result = downloader.copyURLToFile(url, f);
+            if (result) {
+                LOGGER.trace("Downloaded mondo.obo to " + downloadLocation);
+            } else {
+                LOGGER.error("[ERROR] Could not mondo.obo to " + downloadLocation);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void downloadPhenotypeAnnotationDotTab() {
         // Now the same for the phenotype_annotation.tab file
         String downloadLocation = String.format("%s%sphenotype_annotation.tab", downloadDirectory, File.separator);
@@ -88,7 +115,7 @@ public final class DownloadCommand implements Command {
             if (result) {
                 LOGGER.trace("Downloaded phenotype_annotation.tab to " + downloadLocation);
             } else {
-                LOGGER.error("[ERROR] Could not phenotype_annotation.tab hp.obo to " + downloadLocation);
+                LOGGER.error("[ERROR] Could not phenotype_annotation.tab to " + downloadLocation);
             }
 
         } catch (Exception e) {
