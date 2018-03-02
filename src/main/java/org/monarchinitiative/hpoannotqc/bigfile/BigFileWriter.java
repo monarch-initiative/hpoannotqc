@@ -1,15 +1,16 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
-import com.github.phenomics.ontolib.ontology.data.ImmutableTermId;
-import com.github.phenomics.ontolib.ontology.data.TermId;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
+import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -26,7 +27,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.phenomics.ontolib.ontology.algo.OntologyAlgorithm.existsPath;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
+
 
 public class BigFileWriter {
     private static final Logger logger = LogManager.getLogger();
@@ -50,7 +52,7 @@ public class BigFileWriter {
     private final static String NO_ONSET_CODE_AVAILABLE=EMPTY_STRING;
     private final static String ASSIGNED_BY="ORPHA:orphadata";
     private static final TermId phenotypeRoot= ImmutableTermId.constructWithPrefix("HP:0000118");
-    private static final TermId FREQUENCY_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0040279");
+    private static final TermId FREQUENCY_TERM_ID = ImmutableTermId.constructWithPrefix("HP:0040279");
     private static final TermId ONSET_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0003674");;
     private static final TermId MODIFIER_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
     private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");

@@ -1,11 +1,10 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
-import com.github.phenomics.ontolib.ontology.data.TermId;
+
 import org.apache.logging.log4j.LogManager;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
-
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 

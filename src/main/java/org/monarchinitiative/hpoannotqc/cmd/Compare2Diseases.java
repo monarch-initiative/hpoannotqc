@@ -1,16 +1,16 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import com.github.phenomics.ontolib.formats.hpo.HpoDiseaseWithMetadata;
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
-import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
-import com.github.phenomics.ontolib.io.obo.hpo.HpoAnnotation2DiseaseParser;
-import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
-import com.github.phenomics.ontolib.ontology.data.Ontology;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
+import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
 import org.monarchinitiative.hpoannotqc.bigfile.HpoOntologyParser;
+import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
+import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.ontology.data.Ontology;
 
 import java.io.File;
 import java.util.Map;

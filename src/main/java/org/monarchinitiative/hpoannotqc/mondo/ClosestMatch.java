@@ -1,11 +1,16 @@
 package org.monarchinitiative.hpoannotqc.mondo;
 
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.ontology.data.TermId;
+
+
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
 
-import static com.github.phenomics.ontolib.ontology.algo.OntologyAlgorithm.*;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getParentTerms;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.isSubclass;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.termsAreSiblings;
+
 
 /**
  * This class with serve to experiment with the best way of writing a function that will find the closest

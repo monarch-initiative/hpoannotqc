@@ -1,10 +1,11 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
-import com.github.phenomics.ontolib.formats.hpo.*;
-import com.github.phenomics.ontolib.ontology.data.*;
+
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.phenol.formats.hpo.*;
+import org.monarchinitiative.phenol.ontology.data.*;
 
 
 import java.io.BufferedReader;

@@ -1,13 +1,11 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
-import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
-import com.github.phenomics.ontolib.ontology.data.Ontology;
+
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

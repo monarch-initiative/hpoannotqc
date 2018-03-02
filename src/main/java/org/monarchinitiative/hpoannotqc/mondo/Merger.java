@@ -1,10 +1,12 @@
 package org.monarchinitiative.hpoannotqc.mondo;
 
 
-import com.github.phenomics.ontolib.formats.hpo.HpoDiseaseWithMetadata;
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.formats.hpo.TermIdWithMetadata;
-import com.github.phenomics.ontolib.ontology.data.TermId;
+
+
+import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.formats.hpo.TermIdWithMetadata;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
 import java.util.stream.Collectors;

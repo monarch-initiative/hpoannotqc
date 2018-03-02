@@ -1,14 +1,15 @@
 package org.monarchinitiative.hpoannotqc.mondo;
 
-import com.github.phenomics.ontolib.formats.hpo.HpoDiseaseWithMetadata;
-import com.github.phenomics.ontolib.formats.hpo.HpoOntology;
-import com.github.phenomics.ontolib.formats.hpo.HpoTerm;
-import com.github.phenomics.ontolib.formats.hpo.HpoTermRelation;
-import com.github.phenomics.ontolib.io.obo.hpo.HpoAnnotation2DiseaseParser;
-import com.github.phenomics.ontolib.io.obo.hpo.HpoOboParser;
-import com.github.phenomics.ontolib.ontology.data.*;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
+import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
+import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.ontology.data.*;
 
 import java.io.File;
 import java.io.IOException;
