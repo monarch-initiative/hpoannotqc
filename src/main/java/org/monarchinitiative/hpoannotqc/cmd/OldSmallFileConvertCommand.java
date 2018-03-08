@@ -32,13 +32,10 @@ public class OldSmallFileConvertCommand implements Command {
 
     private final String hpOboPath;
     private final String oldSmallFileAnnotationDirectory;
-
     private HpoOntology ontology=null;
-    private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
-    private Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology=null;
-
+    /** List of all "old" entries" */
     private List<OldSmallFile> osfList=new ArrayList<>();
-
+    /** List of all "new entries". Should match {@link #osfList}. */
     private List<V2SmallFile> v2sfList = new ArrayList<>();
     /** Default path for writing the new V2 small files. */
     private final String DEFAULT_OUTPUT_DIRECTORY ="v2files";
@@ -199,7 +196,7 @@ public class OldSmallFileConvertCommand implements Command {
         }
         String filename = String.format("%s%s%s",outdir,File.separator,v2.getBasename());
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        writer.write(BigFileHeader.getHeaderV1()+"\n");
+        writer.write(V2SmallFile.getHeaderV2()+"\n");
         List<V2SmallFileEntry> entryList = v2.getEntryList();
         for (V2SmallFileEntry v2e:entryList) {
             writer.write(v2e.getRow() + "\n");
@@ -232,13 +229,9 @@ public class OldSmallFileConvertCommand implements Command {
      * set them using a static setter
      */
     private void initOntology() {
-        TermPrefix pref = new ImmutableTermPrefix("HP");
-        TermId inheritId = new ImmutableTermId(pref,"0000005");
         try {
             HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
             this.ontology = hpoOboParser.parse();
-            this.abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
-            this.inheritanceSubontology = ontology.subOntology(inheritId);
         } catch (Exception e) {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
             System.exit(1); // we cannot recover from this

@@ -4,10 +4,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.phenol.formats.hpo.HpoFrequency;
-import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
+import org.monarchinitiative.phenol.formats.hpo.*;
 import org.monarchinitiative.phenol.graph.data.Edge;
 import org.monarchinitiative.phenol.ontology.data.*;
 
@@ -77,16 +74,16 @@ public class OldSmallFileEntry {
     private TermId frequencyId = null;
     // Frequency Ids
     private static final TermPrefix HP_PREFIX = new ImmutableTermPrefix("HP");
-    private static final TermId FrequencyRoot = new ImmutableTermId(HP_PREFIX, "0040279");
-    private static final TermId FREQUENT = HpoFrequency.FREQUENT.toTermId();
-    private static final TermId VERY_FREQUENT = HpoFrequency.VERY_FREQUENT.toTermId();
-    private static final TermId OBLIGATE = new ImmutableTermId(HP_PREFIX, "0040280");
-    private static final TermId OCCASIONAL = HpoFrequency.OCCASIONAL.toTermId();
-    private static final TermId EXCLUDED = HpoFrequency.EXCLUDED.toTermId();
-    private static final TermId VERY_RARE = HpoFrequency.VERY_RARE.toTermId();
 
-    /// Modifier term that is used for Recurrent
+
+    /// Modifier term that is used for Episodic
     private static final TermId EPISODIC = new ImmutableTermId(HP_PREFIX,"0025303");
+
+    private static final TermId RECURRENT = new ImmutableTermId(HP_PREFIX,"0031796");
+    private static final TermId PROGRESSIVE = new ImmutableTermId(HP_PREFIX,"0003676");
+    private static final TermId CHRONIC = new ImmutableTermId(HP_PREFIX,"0011010");
+
+
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
     /** Assign this assignedBy string if we do not have more information. */
@@ -141,12 +138,12 @@ public class OldSmallFileEntry {
      private String abnormalId = null;
     /** Added here for completeness. But we will be discarding this field in the v2 because it was hardly ever used. */
     private String abnormalName = null;
-    private String othologs = null;
+    private String orthologs = null;
 
     private static HpoOntology ontology = null;
-    private static Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology = null;
+   // private static Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology = null;
     private static Ontology<HpoTerm, HpoTermRelation> frequencySubontology = null;
-    private static Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology = null;
+   // private static Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology = null;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
 
@@ -160,9 +157,9 @@ public class OldSmallFileEntry {
         ontology = ont;
         TermId inheritId = new ImmutableTermId(HP_PREFIX,"0000005");
         TermId frequencyId = new ImmutableTermId(HP_PREFIX,"0040279");
-        inheritanceSubontology = ontology.subOntology(inheritId);
+       // inheritanceSubontology = ontology.subOntology(inheritId);
         frequencySubontology = ontology.subOntology(frequencyId);
-        abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
+      //  abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
         findModifierTerms();
     }
 
@@ -200,7 +197,7 @@ public class OldSmallFileEntry {
     }
 
 
-    public void addDiseaseId(String id) {
+    void addDiseaseId(String id) {
         if (id.startsWith("OMIM")) {
             this.database = OMIM;
             this.diseaseID = id;
@@ -216,7 +213,7 @@ public class OldSmallFileEntry {
         }
     }
 
-    public void addDiseaseName(String n) {
+    void addDiseaseName(String n) {
         this.diseaseName = n;
         if (diseaseName.length() < 1) {
             LOGGER.trace("Error zero length name ");
@@ -233,9 +230,9 @@ public class OldSmallFileEntry {
      * This is not an error in the parsing (I checked this by hand), but was a biocuration practice that we simply
      * abandoned years ago because it was not useful. We are discarding the gene id/name/symbol information anyway.
      * Therefore, we write this to the log for completeness sake, but do not need to worry.
-     * @param id
+     * @param id the gene id
      */
-    public void addGeneId(String id) {
+    void addGeneId(String id) {
         if (id == null || id.isEmpty()) return;
         LOGGER.trace("Adding gene id: " + id);
         if (id.startsWith("OMIM")) { LOGGER.error("We found an OMIM Id in the gene column: " + id);}
@@ -243,20 +240,20 @@ public class OldSmallFileEntry {
         geneID = id;
     }
     /** Record that we are adding gene data because we will be discarding it. */
-    public void setGeneName(String name){
+    void setGeneName(String name){
         if (name==null || name.isEmpty()) return;
         if (name.startsWith("OMIM")) {LOGGER.error("We found an OMIM name in the gene column: " + name); }
         this.QCissues.add(GOT_GENE_DATA);
         geneName = name;
     }
 
-    public void setGenotype(String gt) {
+    void setGenotype(String gt) {
         if (gt==null || gt.isEmpty()) return;
         this.QCissues.add(GOT_GENE_DATA);
         genotype = gt;
     }
 
-    public void setGenesymbol(String gs) {
+    void setGenesymbol(String gs) {
         if (gs==null || gs.isEmpty()) return;
         if (gs.startsWith("OMIM")) { LOGGER.error("We found an OMIM name in the gene symbol: " + gs);}
         this.QCissues.add(GOT_GENE_DATA);
@@ -327,20 +324,18 @@ public class OldSmallFileEntry {
 
     private boolean evidenceCodeWellFormed(String evi) {
         if (evi==null || evi.isEmpty()) return false;
-        if ((!evi.equals("IEA")) && (!evi.equals("PCS")) &&
-                (!evi.equals("TAS") && (!evi.equals("ICE")))) {
-            return false;
-        } else {
-            return true;
-        }
+        return  ((!evi.equals("IEA")) &&
+                (!evi.equals("PCS")) &&
+                (!evi.equals("TAS") &&
+                        (!evi.equals("ICE"))));
     }
 
-    public void setEvidenceId(String id) throws HPOException {
+    void setEvidenceId(String id) throws HPOException {
         this.evidenceID = id;
 
     }
 
-    public void setEvidenceName(String name) throws HPOException {
+    void setEvidenceName(String name) throws HPOException {
         this.evidenceName = name;
         evidenceCodeWellFormed(evidenceName);
     }
@@ -349,7 +344,7 @@ public class OldSmallFileEntry {
      * updating the date format, which is done silently.
      * @return true if there is at least one reportable Q/C issue
      */
-    public boolean hasQCissues() {
+    boolean hasQCissues() {
         if (QCissues.size()==0) return false;
         else if (QCissues.size()==1 && QCissues.contains(UPDATED_DATE_FORMAT)) return false;
         else return true;
@@ -359,7 +354,7 @@ public class OldSmallFileEntry {
      * This method is called after all of the data have been entered. We return a List of error codes so that
      * we can list up what we had to do to convert the filesd and do targeted manual checking.
      */
-    public Set<SmallFileQCCode> doQCcheck() throws HPOException{
+    Set<SmallFileQCCode> doQCcheck() throws HPOException{
         // check the evidence codes. At least one of the three fields
         // has to have one of the correct codes, in order for the V2small file  entry to be ok
         boolean evidenceOK=false;
@@ -411,7 +406,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
 				frequencyMod = OntologyConstants.frequency_Frequent;
  */
 
-    public void setFrequencyString(String freq) {
+    void setFrequencyString(String freq) {
         if (freq == null || freq.length() == 0) return; // not required!
         this.frequencyString = freq.trim();
         if (frequencyString.length() == 0) return; //it ewas just a whitespace
@@ -419,28 +414,28 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
             LOGGER.error("NEVER HAPPENS, FREQUENCY WITH TERM");
             System.exit(1);
         } else if (Character.isDigit(frequencyString.charAt(0))) {
-            LOGGER.error("Adding numeric frequency data: \"" + freq + "\"");
+            LOGGER.trace("Adding numeric frequency data: \"" + freq + "\"");
             this.frequencyString=freq.trim();
         } else if (frequencyString.equalsIgnoreCase("very rare")) {
-            this.frequencyId = VERY_RARE;
+            this.frequencyId = HpoFrequencyTermIds.VERY_RARE;
         } else if (frequencyString.equalsIgnoreCase("rare")) {
-            this.frequencyId = OCCASIONAL;
+            this.frequencyId = HpoFrequencyTermIds.OCCASIONAL;
         } else if (frequencyString.equalsIgnoreCase("frequent")  ) {
-            this.frequencyId = FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("occasional")) {
-            this.frequencyId = OCCASIONAL;
+            this.frequencyId = HpoFrequencyTermIds.OCCASIONAL;
         } else if (frequencyString.equalsIgnoreCase("variable")) {
-            this.frequencyId = FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("typical")) {
-            this.frequencyId = FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("very frequent")) {
-            this.frequencyId = VERY_FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.VERY_FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("common")) {
-            this.frequencyId = FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("hallmark")) {
-            this.frequencyId = VERY_FREQUENT;
+            this.frequencyId = HpoFrequencyTermIds.VERY_FREQUENT;
         } else if (frequencyString.equalsIgnoreCase("obligate")) {
-            this.frequencyId = OBLIGATE;
+            this.frequencyId = HpoFrequencyTermIds.ALWAYS_PRESENT;
         } else {
             LOGGER.error("BAD FREQ ID \"" + freq + "\"");
             System.exit(1); // should never happen, but we want to know about it right away --
@@ -449,7 +444,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
     }
 
 
-    public void setSexID(String id) throws HPOException {
+    void setSexID(String id) throws HPOException {
         if (id == null || id.length() == 0) return;//oik, not required
         if (id.equalsIgnoreCase("MALE"))
             sexID = MALE_CODE;
@@ -463,7 +458,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
             throw new HPOException("Did not recognize Sex ID: \"" + id + "\"");
     }
 
-    public void setSexName(String name) throws HPOException {
+    void setSexName(String name) throws HPOException {
         if (name == null || name.length() == 0) return;//oik, not required
         if (name.equalsIgnoreCase("MALE"))
             sexID = MALE_CODE;
@@ -473,23 +468,23 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
             throw new HPOException("Did not recognize Sex Name: " + name);
     }
 
-    public void setNegationID(String id) throws HPOException {
+    void setNegationID(String id) throws HPOException {
         if (id == null || id.length() == 0) return;
         if (id.equalsIgnoreCase("NOT")) {
             negationID = "NOT";
         } else throw new HPOException("Malformed negation ID: \"" + id + "\"");
     }
 
-    public void setNegationName(String name) throws HPOException {
+    void setNegationName(String name) throws HPOException {
         if (name == null || name.length() == 0) return;
         if (name.equalsIgnoreCase("NOT")) {
             negationID = "NOT";
         } else throw new HPOException("Malformed negation Name: \"" + name + "\"");
     }
     /** This is an obsolete field type that will be discarded in the V2 version. Parse it here for completeness sake. */
-    public void setOrthologs(String orth) {
+    void setOrthologs(String orth) {
         if (orth==null || orth.isEmpty()) return;
-        this.othologs=orth;
+        this.orthologs =orth;
     }
 
 
@@ -517,24 +512,36 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
                 if (a.startsWith("MODIFIER:")) {
                     String candidateModifier = a.substring(9).toLowerCase();
                     if (candidateModifier.contains("recurrent")) {
-                        LOGGER.trace("Adding Modifier term \"Episodic\" for recurrent");
+                        LOGGER.trace("Adding Modifier term \"Recurrent\"");
+                        modifierset.add(RECURRENT);
+                        this.QCissues.add(CREATED_MODIFER);
+                    } else if (candidateModifier.contains("episodic")) {
+                        LOGGER.trace("Adding Modifier term \"Episodic\"");
                         modifierset.add(EPISODIC);
                         this.QCissues.add(CREATED_MODIFER);
-                    } else if (modifier2TermId.containsKey(candidateModifier)) {
+                    } else if (candidateModifier.contains("progressive")) {
+                        LOGGER.trace("Adding Modifier term \"Progressive\"");
+                        modifierset.add(PROGRESSIVE);
+                        this.QCissues.add(CREATED_MODIFER);
+                    } else if (candidateModifier.contains("chronic")) {
+                        LOGGER.trace("Adding Modifier term \"Chronic\"");
+                        modifierset.add(CHRONIC);
+                        this.QCissues.add(CREATED_MODIFER);
+                    }else if (modifier2TermId.containsKey(candidateModifier)) {
                         modifierset.add(modifier2TermId.get(candidateModifier));
                     } else {
                         LOGGER.error("Could not identify modifer for " + candidateModifier + ", in description "+d+", terminating program....");
                         System.exit(1); // if this happens we need to add the item to HPO or otherwise check the code!
                     }
-                } else if (a.contains("(RARE)")) {
+                } else if (a.contains("(RARE)")) { // Note we map "RARE" to Occasional
                     if (this.frequencyId==null && this.frequencyString==null) {
-                        this.frequencyId=VERY_RARE;
-                        this.frequencyString="Very rare";
+                        this.frequencyId= HpoFrequencyTermIds.OCCASIONAL;
+                        this.frequencyString="Occasional";
                     }
                     descriptionList.add(a);
                 } else if (a.contains("(IN SOME PATIENTS)")) {
                     if (this.frequencyId==null && this.frequencyString==null) {
-                        this.frequencyId=OCCASIONAL;
+                        this.frequencyId=HpoFrequencyTermIds.OCCASIONAL;
                         this.frequencyString="Occasional";
                     }
                     descriptionList.add(a);
@@ -621,31 +628,31 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         }
     }
 
-    public void setAddlEntityName(String n) {
+    void setAddlEntityName(String n) {
         addlEntityName = n;
     }
 
-    public void setAddlEntityId(String id) {
+    void setAddlEntityId(String id) {
         addlEntityId = id;
     }
 
-    public void setEntityId(String id) {
+    void setEntityId(String id) {
         entityId = id;
     }
 
-    public void setEntityName(String name) {
+    void setEntityName(String name) {
         if (name ==null || name.isEmpty()) return;
         QCissues.add(GOT_EQ_ITEM);
         entityName = name;
     }
 
-    public void setQualityId(String id) {
+    void setQualityId(String id) {
         if (id ==null || id.isEmpty()) return;
         QCissues.add(GOT_EQ_ITEM);
         qualityId = id;
     }
 
-    public void setQualityName(String name) {
+    void setQualityName(String name) {
         if (name ==null || name.isEmpty()) return;
         QCissues.add(GOT_EQ_ITEM);
         qualityName = name;
@@ -655,13 +662,13 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         evidence = e;
     }
 
-    public void setAbnormalId(String id) {
+    void setAbnormalId(String id) {
         if (id ==null || id.isEmpty()) return;
         QCissues.add(GOT_EQ_ITEM);
         abnormalId = id;
     }
 
-    public void setAbnormalName(String name) {
+    void setAbnormalName(String name) {
         if (name ==null || name.isEmpty()) return;
         QCissues.add(GOT_EQ_ITEM);
         abnormalName = name;
@@ -704,11 +711,11 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         return ageOfOnsetName;
     }
 
-    public String getEvidenceID() {
+    String getEvidenceID() {
         return evidenceID;
     }
 
-    public String getEvidenceName() {
+    String getEvidenceName() {
         return evidenceName;
     }
 
@@ -720,7 +727,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         return frequencyString;
     }
 
-    public TermId getFrequencyId() {
+    TermId getFrequencyId() {
         return frequencyId;
     }
 

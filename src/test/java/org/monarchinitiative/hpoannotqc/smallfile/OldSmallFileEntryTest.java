@@ -5,6 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -127,7 +128,7 @@ public class OldSmallFileEntryTest {
         assertEquals("HP:0002445", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Tetraplegia", entry.getPhenotypeName());
         assertEquals("TAS", entry.getEvidenceID()); // TAS because of OMIM-CS
-        assertEquals("HP:0025303", entry.getModifierString());
+        assertEquals("HP:0025303", entry.getModifierString());// id for modifier episodic
         assertEquals("OMIM-CS:NEUROLOGIC_CENTRAL NERVOUS SYSTEM > QUADRIPLEGIA, EPISODIC", entry.getDescription());
 
     }
@@ -189,7 +190,7 @@ public class OldSmallFileEntryTest {
 
     /**
      * Test whether we assign this Free Text description the Hpo Frequency term Very rare
-     * OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (RARE)
+     * OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (RARE). Note that we map "RARE" to the HPO Frequency term Occasional!
      */
     @Test
     public void testModification4() throws IOException {
@@ -212,8 +213,7 @@ public class OldSmallFileEntryTest {
         assertEquals("HP:0000486", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Strabismus", entry.getPhenotypeName());
         assertEquals("TAS", entry.getEvidenceID());
-        TermId veryRare = ImmutableTermId.constructWithPrefix("HP:0040284");// HP:0040284 is Very rare
-        assertEquals(veryRare,entry.getFrequencyId()  );
+        assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("OMIM:608154",entry.getPub());
         assertEquals("OMIM-CS:HEAD AND NECK_EYES > STRABISMUS (RARE)", entry.getDescription());
 
@@ -254,6 +254,7 @@ public class OldSmallFileEntryTest {
 
     /** Test whether we assign this Free Text description the Hpo Frequency term Very rare and the modifer mild
      * OMIM-CS:SKELETAL_SPINE > SCOLIOSIS, MILD (RARE)
+     * Note that we map "RARE" to the HPO Frequency term Occasional
      */
     @Test
     public void testModification6() throws IOException {
@@ -272,8 +273,7 @@ public class OldSmallFileEntryTest {
         OldSmallFileEntry entry = entries.get(0);
 
         assertEquals("OMIM:608154", entry.getDiseaseID());
-        TermId veryRare = ImmutableTermId.constructWithPrefix("HP:0040284");// HP:0040284 is Very rare
-        assertEquals(veryRare,entry.getFrequencyId()  );
+        assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
     }
 
@@ -285,6 +285,7 @@ public class OldSmallFileEntryTest {
      alt_id: HP:0001573
      alt_id: HP:0006356
      Check that an annotation with an alt_id gets updated to an annotation with the current primary id
+     * Note that we map "RARE" to the HPO Frequency term Occasional
      * @throws IOException
      */
     @Test
@@ -303,8 +304,7 @@ public class OldSmallFileEntryTest {
         OldSmallFileEntry entry = entries.get(0);
 
         assertEquals("OMIM:608154", entry.getDiseaseID());
-        TermId veryRare = ImmutableTermId.constructWithPrefix("HP:0040284");// HP:0040284 is Very rare
-        assertEquals(veryRare,entry.getFrequencyId()  );
+        assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0006315");
         assertEquals(primaryId,entry.getPhenotypeId());
@@ -315,6 +315,7 @@ public class OldSmallFileEntryTest {
      id: HP:0006316
      name: Irregularly spaced teeth
      alt_id: HP:0009081
+     Note we map RARE to the HPO Frequency term Occasional.
      */
     @Test
     public void updateAltIdAnnotation2() throws IOException {
@@ -332,8 +333,7 @@ public class OldSmallFileEntryTest {
         OldSmallFileEntry entry = entries.get(0);
 
         assertEquals("OMIM:608154", entry.getDiseaseID());
-        TermId veryRare = ImmutableTermId.constructWithPrefix("HP:0040284");// HP:0040284 is Very rare
-        assertEquals(veryRare,entry.getFrequencyId()  );
+        assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0006316");
         assertEquals(primaryId,entry.getPhenotypeId());

@@ -12,7 +12,7 @@ import org.monarchinitiative.hpoannotqc.io.Commandline;
  * This application will perform Q/C on the HPO rare disease "small file" annotation files, will transform the
  * small files into an integrate "large" file (phenotype_annotation.tab), and print a report to file.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- * @version 0.1.3 (2018-01-02)
+ * @version 0.1.16 (2018-01-02)
  */
 
 public class Main {

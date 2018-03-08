@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class represents one disease-entity annotation  consisting usually of multiple annotations lines, and using
@@ -58,7 +60,27 @@ public class V2SmallFile {
     }
 
 
-
+    /**
+     * This is the header of the V2 small files.
+     * @return V2 small file header.
+     */
+    public static String getHeaderV2() {
+        String []fields={"#diseaseID",
+                "diseaseName",
+                "phenotypeId",
+                "phenotypeName",
+                "onsetId",
+                "onsetName",
+                "frequency",
+                "sex",
+                "negation",
+                "modifier",
+                "description",
+            "publication",
+            "assignedBy",
+            "dateCreated"};
+        return Arrays.stream(fields).collect(Collectors.joining("\t"));
+    }
 
 
 
