@@ -42,7 +42,8 @@ Current small file format
 
 
 
-The current output format for the new small files is as follows. The (proposed new format is on the annotationFormat page.
+The "average" current format for the small files is as follows. Note that there were different
+formats at different times from 2009-2018, and the various formats were merged into a unified big file.
 
 
 
@@ -115,9 +116,11 @@ Proposed new small file format
 +--------+-----------------+--------------------------------+
 | 12     | publication     | e.g., PMID:123321              |
 +--------+-----------------+--------------------------------+
-| 13     | assignedBy      | ORCID or HPO etc               |
+| 13     | evidence        | PCS, IEA, ICE, or TAS          |
 +--------+-----------------+--------------------------------+
-| 14     | dateCreated     | e.g., 2017-01-15               |
+| 14     | assignedBy      | ORCID or HPO etc               |
++--------+-----------------+--------------------------------+
+| 15     | dateCreated     | e.g., 2017-01-15               |
 +--------+-----------------+--------------------------------+
 
 

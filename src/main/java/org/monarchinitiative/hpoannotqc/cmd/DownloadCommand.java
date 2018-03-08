@@ -57,6 +57,7 @@ public final class DownloadCommand implements Command {
         File f = new File(downloadLocation);
         if (f.exists()) {
             LOGGER.trace("cowardly refusing to download en_product4_HPO.xml, since it is already there");
+            System.out.println("cowardly refusing to download en_product4_HPO.xml, since it is already there");
             return;
         }
         try {
@@ -64,7 +65,9 @@ public final class DownloadCommand implements Command {
             FileDownloader downloader = new FileDownloader();
             boolean result = downloader.copyURLToFile(url, f);
             if (result) {
-                LOGGER.trace("Downloaded en_product4_HPO.xml to " + downloadLocation);
+                String msg = String.format("Downloaded en_product4_HPO.xml to \"%s\"", downloadLocation);
+                LOGGER.trace(msg);
+                System.out.println(msg);
             } else {
                 LOGGER.error("Could not download en_product4_HPO.xml to " + downloadLocation);
             }
@@ -81,7 +84,9 @@ public final class DownloadCommand implements Command {
         String downloadLocation = String.format("%s%smondo.obo", downloadDirectory, File.separator);
         File f = new File(downloadLocation);
         if (f.exists()) {
-            LOGGER.trace("cowardly refusing to download mondo.obo, since it is already there");
+            String msg = "cowardly refusing to download mondo.obo, since it is already there";
+            LOGGER.trace(msg);
+            System.out.println(msg);
             return;
         }
         try {
@@ -89,7 +94,9 @@ public final class DownloadCommand implements Command {
             FileDownloader downloader = new FileDownloader();
             boolean result = downloader.copyURLToFile(url, f);
             if (result) {
-                LOGGER.trace("Downloaded mondo.obo to " + downloadLocation);
+                String msg = String.format("Downloaded mondo.obo to %s" , downloadLocation );
+                LOGGER.trace(msg);
+                System.out.println(msg);
             } else {
                 LOGGER.error("[ERROR] Could not mondo.obo to " + downloadLocation);
             }
@@ -128,7 +135,9 @@ public final class DownloadCommand implements Command {
         String downloadLocation=String.format("%s%shp.obo",downloadDirectory, File.separator);
         File f = new File(downloadLocation);
         if (f.exists()) {
-            LOGGER.trace("cowardly refusing to download hp.obo, since it is already there");
+            String msg = "cowardly refusing to download hp.obo, since it is already there";
+            LOGGER.trace(msg);
+            System.out.println(msg);
             return;
         }
         try {
@@ -136,7 +145,9 @@ public final class DownloadCommand implements Command {
             FileDownloader downloader = new FileDownloader();
             boolean result = downloader.copyURLToFile(url, f);
             if (result) {
-                LOGGER.trace("Downloaded hp.obo to " + downloadLocation);
+                String msg =String.format("Downloaded hp.obo to %s",downloadLocation );
+                        LOGGER.trace( msg);
+                        System.out.println(msg);
             } else {
                 LOGGER.error("Could not download hp.obo to " + downloadLocation);
             }

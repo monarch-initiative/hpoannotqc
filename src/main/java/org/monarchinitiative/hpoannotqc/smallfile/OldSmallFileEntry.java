@@ -322,20 +322,30 @@ public class OldSmallFileEntry {
         return tid;
     }
 
+    /**
+     * @param evi String representing the evidence code. Must be one of IEA,TAS, PCS, ICE
+     * @return true iff evi is well-formed
+     */
     private boolean evidenceCodeWellFormed(String evi) {
         if (evi==null || evi.isEmpty()) return false;
-        return  ((!evi.equals("IEA")) &&
-                (!evi.equals("PCS")) &&
-                (!evi.equals("TAS") &&
-                        (!evi.equals("ICE"))));
+        return  (evi.equals("IEA")) ||
+                (evi.equals("PCS")) ||
+                (evi.equals("TAS") ||
+                        (evi.equals("ICE")));
     }
 
     void setEvidenceId(String id) throws HPOException {
+        if (evidenceID!=null && evidenceID.equals("TAS")) {
+            return; // evidence id was set by Description to TAS
+        }
         this.evidenceID = id;
 
     }
 
     void setEvidenceName(String name) throws HPOException {
+        if (evidenceName!=null && evidenceName.equals("TAS")) {
+            return; // evidence name was set by Description to TAS
+        }
         this.evidenceName = name;
         evidenceCodeWellFormed(evidenceName);
     }
@@ -508,6 +518,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
                 Matcher matcher = pattern.matcher(a);
                 if (a.contains("OMIM-CS")) {
                     this.evidenceID="TAS";
+                    this.evidenceName="TAS";
                 }
                 if (a.startsWith("MODIFIER:")) {
                     String candidateModifier = a.substring(9).toLowerCase();

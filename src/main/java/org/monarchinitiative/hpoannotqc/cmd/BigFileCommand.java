@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * This class coordinates the output of the {@code phenotype_annotation.tab} file or variations thereof with the
  * new an old format. It combines the V2 small files with the Orphanet data (note this has to be downloaded first
- * with the {@link DownloadCommand}). TODO currently we are outputting the "old" big file format by default.
+ * with the {@link DownloadCommand}).
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class BigFileCommand implements Command {

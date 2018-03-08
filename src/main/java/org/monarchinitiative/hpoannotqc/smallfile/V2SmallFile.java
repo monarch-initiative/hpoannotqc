@@ -67,8 +67,8 @@ public class V2SmallFile {
     public static String getHeaderV2() {
         String []fields={"#diseaseID",
                 "diseaseName",
-                "phenotypeId",
-                "phenotypeName",
+                "hpoId",
+                "hpoName",
                 "onsetId",
                 "onsetName",
                 "frequency",
@@ -77,6 +77,7 @@ public class V2SmallFile {
                 "modifier",
                 "description",
             "publication",
+             "evidence",
             "assignedBy",
             "dateCreated"};
         return Arrays.stream(fields).collect(Collectors.joining("\t"));

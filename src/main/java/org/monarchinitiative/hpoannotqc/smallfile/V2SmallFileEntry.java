@@ -309,13 +309,13 @@ public class V2SmallFileEntry {
                 phenotypeName,
                 ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
                 ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
-                evidenceCode!=null?evidenceCode:"",
                 frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
                 sex!=null?sex:"",
                 negation!=null?negation:EMPTY_STRING,
                 modifier!=null?modifier:EMPTY_STRING,
                 description!=null?description:EMPTY_STRING,
                 publication,
+                evidenceCode!=null?evidenceCode:"",
                 assignedBy!=null?assignedBy:EMPTY_STRING,
                 dateCreated);
     }
