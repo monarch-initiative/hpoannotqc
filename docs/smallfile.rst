@@ -159,11 +159,20 @@ Clinical Modifier subontology. Multiple terms are to be separated by semicolons.
 
 12. **publication**. The publication reference for the annotation assertion. Must be present and must be one of
 PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes are allowed:
-- PMID
-- OMIM
-- http
-- ISBN
-- DECIPHER
+
+* PMID
+* OMIM
+* http
+* ISBN
+* DECIPHER
+
+13. **evidence**. One of the four codes
+
+* IEA
+* TAS
+* PCS
+* ICE
+
 
 13. **assignedBy**. This field must be filled with a valid reference of the form prefix:id. This can be
 ORCID:0000-0000-0000-0123 or a database id followed by a name (usually first initial-lastname) HPO:mmustermann.
