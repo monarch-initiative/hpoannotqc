@@ -200,13 +200,27 @@ public class OldSmallFileEntry {
     void addDiseaseId(String id) {
         if (id.startsWith("OMIM")) {
             this.database = OMIM;
-            this.diseaseID = id;
+            this.diseaseID = id.substring(5);
+            if (diseaseID.length()!=6) {
+                LOGGER.error("Malformed OMIM id: %s. Length of numerical part was %d ", id, diseaseID.length());
+                System.exit(1); // serious error. Better to figure out what is going on and then redo
+            }
         } else if (id.startsWith("ORPHA")) {
             this.database = ORPHANET;
-            this.diseaseID = id;
+            this.diseaseID = id.substring(6);
+            try {
+                Integer i = Integer.parseInt(diseaseID);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Malformed ORHPA id: %s. Could not parse numerical part", id, e);
+            }
         } else if (id.startsWith("DECIPHER")) {
             database = DECIPHER;
-            this.diseaseID = id;
+            this.diseaseID = id.substring(9);
+            try {
+                Integer i = Integer.parseInt(diseaseID);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Malformed DECIPHER id: %s. Could not parse numerical part", id, e);
+            }
         } else {
             LOGGER.error("Did not recognize disease database for " + id);
             System.exit(1);

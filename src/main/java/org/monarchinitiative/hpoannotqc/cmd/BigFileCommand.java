@@ -29,9 +29,9 @@ public class BigFileCommand implements Command {
     private final String orphanetXMLpath;
     private HpoOntology ontology;
     /** Number of annotations for which we could not figure out the aspect. */
-    private int n_bad_aspect=0;
+   //private int n_bad_aspect=0;
 
-    private String bigFileOutputName="phenotype_annotation2.tab";
+ //   private String bigFileOutputName="phenotype_annotation2.tab";
 
     public BigFileCommand(String hpopath, String dir, String orphaXML) {
         hpOboPath=hpopath;
