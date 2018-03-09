@@ -18,6 +18,7 @@ import org.monarchinitiative.hpoannotqc.io.Commandline;
 public class Main {
     private static final Logger logger = LogManager.getLogger();
     public static void main(String[] args) {
+        logger.trace("Starting HPO AnnotQC");
         Commandline clp = new Commandline(args);
         Command command = clp.getCommand();
         command.execute();

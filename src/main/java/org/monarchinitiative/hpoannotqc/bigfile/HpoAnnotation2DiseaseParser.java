@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
+
 /**
  * This class parses the phenotype_annotation.tab file into a collection of HpoDisease objects.
  */
@@ -23,8 +25,8 @@ public class HpoAnnotation2DiseaseParser {
     private static final Logger logger = LogManager.getLogger();
 
     private String annotationFilePath = null;
-    private Ontology<HpoTerm, HpoTermRelation> hpoPhenotypeOntology = null;
-    private Ontology<HpoTerm, HpoTermRelation> inheritancePhenotypeOntology = null;
+    private HpoOntology hpoPhenotypeOntology = null;
+    //private Ontology<HpoTerm, HpoTermRelation> inheritancePhenotypeOntology = null;
 
     private static final TermPrefix HP_PREFIX = new ImmutableTermPrefix("HP");
     private static final TermId INHERITANCE_ROOT = new ImmutableTermId(HP_PREFIX, "0000005");
@@ -39,11 +41,10 @@ public class HpoAnnotation2DiseaseParser {
     Map<String, HpoDiseaseWithMetadata> diseaseMap;
 
 
-    public HpoAnnotation2DiseaseParser(String annotationFile, Ontology<HpoTerm, HpoTermRelation> phenotypeOntology,
-                                       Ontology<HpoTerm, HpoTermRelation> inheritanceOntology) {
+    public HpoAnnotation2DiseaseParser(String annotationFile, HpoOntology ontology) {
         this.annotationFilePath = annotationFile;
-        this.hpoPhenotypeOntology = phenotypeOntology;
-        this.inheritancePhenotypeOntology = inheritanceOntology;
+        this.hpoPhenotypeOntology = ontology;
+       // this.inheritancePhenotypeOntology = inheritanceOntology;
         this.diseaseMap = new HashMap<>();
         parseAnnotation();
     }
@@ -118,14 +119,11 @@ public class HpoAnnotation2DiseaseParser {
 
     /**
      * Check whether a term is a member of the inheritance subontology.
-     * ToDo implement this with the termmap once we are using the new ontolib version
-     *
      * @param tid A term to be checked
      * @return true of tid is an inheritance term
      */
     private boolean isInheritanceTerm(TermId tid) {
-        return inheritancePhenotypeOntology.getAncestorTermIds(tid) != null &&
-                inheritancePhenotypeOntology.getAncestorTermIds(tid).contains(INHERITANCE_ROOT);
+        return  (existsPath(hpoPhenotypeOntology,tid,INHERITANCE_ROOT));
     }
 
 

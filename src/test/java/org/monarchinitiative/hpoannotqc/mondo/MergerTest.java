@@ -7,7 +7,7 @@ import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
 import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
+
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.*;
 
@@ -23,9 +23,6 @@ public class MergerTest {
     private static String hpOboPath;
     private static String annotationPath;
     private static HpoOntology ontology;
-    private static Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
-    private static Ontology<HpoTerm, HpoTermRelation> phenotypeSubontology;
-    private static Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
     private static Map<String,HpoDiseaseWithMetadata> diseaseMap;
 
     private static HpoDiseaseWithMetadata omim;
@@ -44,11 +41,11 @@ public class MergerTest {
         Objects.requireNonNull(ontology);
         TermPrefix pref = new ImmutableTermPrefix("HP");
         TermId inheritId = new ImmutableTermId(pref,"0000005");
-        inheritanceSubontology = ontology.subOntology(inheritId);
-        Objects.requireNonNull(inheritanceSubontology);
+
+
 
         HpoAnnotation2DiseaseParser parser = new HpoAnnotation2DiseaseParser(annotationPath,
-                ontology.getPhenotypicAbnormalitySubOntology(),inheritanceSubontology);
+                ontology);
 
         Objects.requireNonNull(parser);
         diseaseMap=parser.getDiseaseMap();

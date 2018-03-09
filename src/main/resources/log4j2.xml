@@ -6,8 +6,10 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
         </Console>
 
+
         <File name="MyLog"
-              append="true" immediateFlush="true"
+              append="true"
+              immediateFlush="true"
               fileName="HpoAnnotQc.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
         </File>
@@ -30,6 +32,10 @@
             <AppenderRef ref="Console" level="error"/>
             <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" /> -->
+        </Logger>
+
+        <Logger name="org.monarchinitiative.phenol">
+            <AppenderRef ref="Console" level="error"/>
         </Logger>
 
         <Root level="trace">

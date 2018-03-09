@@ -5,7 +5,6 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.*;
 
@@ -29,8 +28,6 @@ public class HpoOntologyParser {
     private String hpoOntologyPath=null;
 
     private HpoOntology ontology=null;
-    private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
-    private Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology=null;
     /** Map of all of the Phenotypic abnormality terms (i.e., not the inheritance terms). */
     private Map<TermId,HpoTerm> termmap=null;
 
@@ -40,8 +37,6 @@ public class HpoOntologyParser {
     }
 
     /**
-     * Parse the HP ontology file and place the data in {@link #abnormalPhenoSubOntology} and
-     * {@link #inheritanceSubontology}.
      * @throws IOException if we cannot parse the hp.obo file
      */
     private void parseOntology() throws HPOException {
@@ -50,15 +45,11 @@ public class HpoOntologyParser {
         try {
             HpoOboParser hpoOboParser = new HpoOboParser(new File(hpoOntologyPath));
             this.ontology = hpoOboParser.parse();
-            this.abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
-            this.inheritanceSubontology = ontology.subOntology(inheritId);
         } catch (Exception e) {
             throw new HPOException(String.format("error trying to parse hp.obo file at %s: %s",hpoOntologyPath,e.getMessage()));
         }
     }
 
-    public Ontology<HpoTerm, HpoTermRelation> getPhenotypeSubontology() { return this.abnormalPhenoSubOntology; }
-    public Ontology<HpoTerm, HpoTermRelation> getInheritanceSubontology() { return  this.inheritanceSubontology; }
 
     public HpoOntology getOntology() {
         return ontology;

@@ -5,13 +5,15 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
+
 import org.monarchinitiative.phenol.ontology.data.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
 /**
  * The purpose of this class is to check each V2 small file line from the version 2 (V2) small files that represent
@@ -24,9 +26,9 @@ public class V2LineQualityController {
 
 
     private final HpoOntology ontology;
-    private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
-    private final Ontology<HpoTerm, HpoTermRelation> frequencySubontology;
-    private final Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> frequencySubontology;
+//    private final Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
 
     private List<String> errors=new ArrayList<>();
 
@@ -73,18 +75,21 @@ public class V2LineQualityController {
     private int n_bad_frequency=0;
     private String qcFrequency() { return String.format("%d good and %d bad frequency entries",n_good_frequency,n_bad_frequency);}
 
-
-
+    /** Todo get from phenol */
+    private final TermId ONSET_ROOT = ImmutableTermId.constructWithPrefix("HP:0003674");
+    private static final TermId FREQUENCY_ROOT = ImmutableTermId.constructWithPrefix("HP:0040279");
     public V2LineQualityController(HpoOntology onto) {
         ontology=onto;
         TermPrefix pref = new ImmutableTermPrefix("HP");
         TermId inheritId = new ImmutableTermId(pref,"0000005");
-        inheritanceSubontology = this.ontology.subOntology(inheritId);
+        //inheritanceSubontology = this.ontology.subOntology(inheritId);
         TermId frequencyId = new ImmutableTermId(pref,"0040279");
-        frequencySubontology = this.ontology.subOntology(frequencyId);
+       // frequencySubontology = this.ontology.subOntology(frequencyId);
         TermId onsetId = new ImmutableTermId(pref,"0003674");
-        onsetSubontology = this.ontology.subOntology(onsetId);
-
+       // Ontology<HpoTerm, Relation> onsetSubontology;
+        //onsetSubontology = this.ontology.subOntology(onsetId);
+       // ontology.subOntology()
+        //org.monarchinitiative.phenol.formats.hpo.HpoRelationshipType
     }
 
 
@@ -215,8 +220,9 @@ public class V2LineQualityController {
             n_good_ageOfOnset_ID++;
             return true;
         }
-        int n = onsetSubontology.getTermMap().size();
-        if (onsetSubontology.getTermMap().containsKey(id)) {
+        if (existsPath(ontology,id,ONSET_ROOT)) {
+//        int n = onsetSubontology.getTermMap().size();
+//        if (onsetSubontology.getTermMap().containsKey(id)) {
             n_good_ageOfOnset_ID++;
             return true;
         } else {
@@ -237,12 +243,12 @@ public class V2LineQualityController {
             n_bad_ageOfOnsetLabel++;
             return false;
         }
-        String currentLabel = onsetSubontology.getTermMap().get(id).getName();
+        String currentLabel = ontology.getTermMap().get(id).getName();
         if (! currentLabel.equals(label)) {
             String errmsg = String.format("Found usage of wrong age of onset label %s instead of %s for %s: see following line",
                     label,
                     currentLabel,
-                    inheritanceSubontology.getTermMap().get(id).getId().getIdWithPrefix());
+                    ontology.getTermMap().get(id).getId().getIdWithPrefix());
             errors.add(errmsg);
             n_bad_ageOfOnsetLabel++;
             return false;
@@ -322,8 +328,8 @@ public class V2LineQualityController {
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
         TermId id = ImmutableTermId.constructWithPrefix(freq);
-        boolean OK = frequencySubontology.getTermMap().containsKey(id);
-        if (OK) {
+        //boolean OK = frequencySubontology.getTermMap().containsKey(id);
+        if (existsPath(ontology,id,FREQUENCY_ROOT)) {
             n_good_frequency++;
             return true;
         }else {

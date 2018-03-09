@@ -3,13 +3,9 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.bigfile.BigFileHeader;
 import org.monarchinitiative.hpoannotqc.smallfile.*;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
-import org.monarchinitiative.phenol.ontology.data.*;
 
 
 import java.io.BufferedWriter;

@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.phenol.formats.hpo.*;
-import org.monarchinitiative.phenol.graph.data.Edge;
+
 import org.monarchinitiative.phenol.ontology.data.*;
 
 import java.text.DateFormat;
@@ -20,6 +20,8 @@ import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.DECIPHE
 import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.OMIM;
 import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.ORPHANET;
 import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getChildTerms;
 
 
 /**
@@ -84,6 +86,9 @@ public class OldSmallFileEntry {
     private static final TermId CHRONIC = new ImmutableTermId(HP_PREFIX,"0011010");
 
 
+    private static final TermId FREQUENCY_ROOT= new ImmutableTermId(HP_PREFIX,"0040279");
+
+
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
     /** Assign this assignedBy string if we do not have more information. */
@@ -142,7 +147,7 @@ public class OldSmallFileEntry {
 
     private static HpoOntology ontology = null;
    // private static Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology = null;
-    private static Ontology<HpoTerm, HpoTermRelation> frequencySubontology = null;
+   // private static Ontology<HpoTerm, HpoTermRelation> frequencySubontology = null;
    // private static Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology = null;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
@@ -158,7 +163,7 @@ public class OldSmallFileEntry {
         TermId inheritId = new ImmutableTermId(HP_PREFIX,"0000005");
         TermId frequencyId = new ImmutableTermId(HP_PREFIX,"0040279");
        // inheritanceSubontology = ontology.subOntology(inheritId);
-        frequencySubontology = ontology.subOntology(frequencyId);
+        //frequencySubontology = ontology.subOntology(frequencyId);
       //  abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
         findModifierTerms();
     }
@@ -186,14 +191,15 @@ public class OldSmallFileEntry {
     }
 
     private static Set<TermId> getChildren(TermId parent) {
-        Set<TermId> kids = new HashSet<>();
-        Iterator it = ontology.getGraph().inEdgeIterator(parent);
-        while (it.hasNext()) {
-            Edge<TermId> sourceEdge = (Edge<TermId>) it.next();
-            TermId source = sourceEdge.getSource();
-            kids.add(source);
-        }
-        return kids;
+//        Set<TermId> kids = new HashSet<>();
+//        Iterator it = ontology.getGraph().inEdgeIterator(parent);
+//        while (it.hasNext()) {
+//            Edge<TermId> sourceEdge = (Edge<TermId>) it.next();
+//            TermId source = sourceEdge.getSource();
+//            kids.add(source);
+//        }
+        return getChildTerms(ontology,parent);
+      //  return kids;
     }
 
 
@@ -875,7 +881,8 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         return frequencyString.replaceAll(" ","");
     }
         else if (frequencyId != null) {
-            if (frequencySubontology.getTermMap().containsKey(frequencyId)) {
+            //if (frequencySubontology.getTermMap().containsKey(frequencyId)) {
+            if (existsPath(ontology,frequencyId,FREQUENCY_ROOT)) {
                 return frequencyId.getIdWithPrefix();
             } else {
                 String err = String.format("Attempt to use term %s [%s] as a frequency term",

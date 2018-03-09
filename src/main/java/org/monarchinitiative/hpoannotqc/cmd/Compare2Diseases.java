@@ -7,10 +7,8 @@ import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
 import org.monarchinitiative.hpoannotqc.bigfile.HpoOntologyParser;
 import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermRelation;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
-import org.monarchinitiative.phenol.ontology.data.Ontology;
+
 
 import java.io.File;
 import java.util.Map;
@@ -25,8 +23,6 @@ import java.util.Objects;
 public class Compare2Diseases  implements Command {
     private static final Logger logger = LogManager.getLogger();
     private HpoOntology ontology=null;
-    private Ontology<HpoTerm, HpoTermRelation> phenotypeSubOntology=null;
-    private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
     private static Map<String,HpoDiseaseWithMetadata> diseaseMap;
     private final String phenotype_annotation_path;
     private final String hpOboPath;
@@ -40,11 +36,9 @@ public class Compare2Diseases  implements Command {
         HpoOntologyParser parser = new HpoOntologyParser(hpopath);
         try {
             parser.parseOntology();
-            phenotypeSubOntology = parser.getPhenotypeSubontology();
-            inheritanceSubontology = parser.getInheritanceSubontology();
-            Objects.requireNonNull(phenotypeSubOntology);
-            Objects.requireNonNull(inheritanceSubontology);
-            HpoAnnotation2DiseaseParser annotationParser = new HpoAnnotation2DiseaseParser(phenotype_annotation_path, phenotypeSubOntology, inheritanceSubontology);
+            ontology = parser.getOntology();
+            Objects.requireNonNull(ontology);
+            HpoAnnotation2DiseaseParser annotationParser = new HpoAnnotation2DiseaseParser(phenotype_annotation_path, ontology);
             diseaseMap = annotationParser.getDiseaseMap();
             logger.error("Done parsing");
         } catch (Exception e) {
