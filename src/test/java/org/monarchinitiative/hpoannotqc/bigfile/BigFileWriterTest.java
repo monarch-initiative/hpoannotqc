@@ -1,7 +1,8 @@
-package org.monarchinitiative.hpoannotqc;
+package org.monarchinitiative.hpoannotqc.bigfile;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -33,7 +34,7 @@ public class BigFileWriterTest {
         entry = builder.build();
     }
 
-
+    // TODO needs work
     @Test
     public void testV1line() {
         String [] fields = {
@@ -53,7 +54,8 @@ public class BigFileWriterTest {
                 "HPO:skoehler" // assigned by
         };
         String expected= Arrays.stream(fields).collect(Collectors.joining("\t"));
-        assertEquals(expected,entry.getRowV1());
+        String line = "";//BigFileWriter.transformEntry2BigFileLineV1(entry);
+        assertEquals(expected,line);
     }
 
 }

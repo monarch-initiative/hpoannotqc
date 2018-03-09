@@ -53,13 +53,17 @@ public class BigFileCommand implements Command {
             return;
         }
         BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory);
-        writer.outputBigFileV1();
-        OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
-        List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
-        writer.writeOrphanet(orphanetDisorders);
-        /// now output the V2 version of the file
-        writer.outputBigFileV2();
-        writer.tidyUp();
+        try {
+            writer.outputBigFileV1();
+            OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
+            List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
+            writer.appendOrphanetV1(orphanetDisorders);
+            /// now output the V2 version of the file
+            writer.outputBigFileV2();
+
+        } catch (IOException e) {
+            logger.fatal("[ERROR] Could not output V2 big file",e);
+        }
 
     }
 
