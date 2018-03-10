@@ -27,48 +27,9 @@ DB 	Yes |MIM, ORPHA, DECIPHER
 13 	Date_Created 	Yes | YYYY-MM-DD
 14 	Assigned_By
  */
-    /**
-     * @return Header line for the new V2 small files.
-     */
-    public static String getHeaderV2() {
-        String []fields={"#DB",
-                "DB_Object_ID",
-                "DB_Name",
-                "Qualifier",
-                "HPO_ID",
-                "DB_Reference",
-                "Evidence_Code",
-                "Onset",
-                "Frequency",
-                "Sex",
-                "Modifier",
-                "Aspect",
-                "Date_Created",
-                "Assigned_By"};
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
-    }
 
 
 
 
-    /**
-     * @return Header line for the V1 big file (the format in use from 2009 to the beginning of 2018)
-     */
-    public static String getHeaderV1() {
-        String []fields={"#DB",
-                "DB_Object_ID",
-                "DB_Name",
-                "Qualifier",
-                "HPO ID",
-                "DB:Reference",
-                "Evidence code",
-                "Onset modifier",
-                "Frequency modifier",
-                "With",
-                "Aspect",
-                "Synonym",
-                "Date",
-                "Assigned by"};
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
-    }
+
 }

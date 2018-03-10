@@ -37,13 +37,20 @@ class V1BigFile {
     private final List<V2SmallFile> v2SmallFileList;
 
 
-
+    /**
+     * @param ont Reference to the HPO Ontology
+     * @param v2SmallFiles List of V2 small files to be converted to the bigfile.
+     */
     V1BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
         v2qualityController=new V2LineQualityController(this.ontology);
     }
 
+    /**
+     * This constructor is intended for testing.
+     * @param ont Reference to the HPO Ontology
+     */
     V1BigFile(HpoOntology ont) {
         this.ontology=ont;
         v2SmallFileList=new ArrayList<>();
@@ -60,7 +67,7 @@ class V1BigFile {
     void outputBigFileV1(BufferedWriter writer) throws IOException {
         int n = 0;
         V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
-        writer.write(BigFileHeader.getHeaderV1() + "\n");
+        writer.write(getHeaderV1() + "\n");
         for (V2SmallFile v2 : v2SmallFileList) {
             List<V2SmallFileEntry> entryList = v2.getEntryList();
             for (V2SmallFileEntry entry : entryList) {
@@ -128,6 +135,25 @@ class V1BigFile {
         }
     }
 
-
+    /**
+     * @return Header line for the V1 big file (the format in use from 2009 to the beginning of 2018)
+     */
+    static String getHeaderV1() {
+        String []fields={"#DB",
+                "DB_Object_ID",
+                "DB_Name",
+                "Qualifier",
+                "HPO ID",
+                "DB:Reference",
+                "Evidence code",
+                "Onset modifier",
+                "Frequency modifier",
+                "With",
+                "Aspect",
+                "Synonym",
+                "Date",
+                "Assigned by"};
+        return Arrays.stream(fields).collect(Collectors.joining("\t"));
+    }
 
 }

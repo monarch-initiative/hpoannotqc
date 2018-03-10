@@ -33,7 +33,7 @@ Proposed new big file format
 +----+-------------------+------------------------------------------+
 | 6  | DB_Reference      |    Yes  |OMIM:154700 or PMID:15517394    |
 +----+-------------------+------------------------------------------+
-| 7  | Evidence_Code     |    Yes  | IEA                            |
+| 7  | Evidence          |    Yes  | IEA                            |
 +----+-------------------+------------------------------------------+
 | 8  | Onset             |    No   | HP:0003577                     |
 +----+-------------------+------------------------------------------+
@@ -71,7 +71,7 @@ This field is mandatory, cardinality 1.
 6. **DB_Reference**: This required field indicates the source of the information used for the annotation.
 This may be the clinical experience of the annotator or may be taken from an article as indicated by a pubmed id. Each collaborating center of the Human Phenotype Ontology consortium is assigned a HPO:Ref id. In addition, if appropriate, a pubmed id for an article describing the clinical abnormality may be used.
 
-7. **Evidence_Code**: This required field indicates the level of evidence supporting the annotation.
+7. **Evidence**: This required field indicates the level of evidence supporting the annotation.
 Annotations  extracted by parsing the Clinical Features sections of the Online Mendelian Inheritance in Man resource
 are assigned the evidence code “IEA” (inferred from electronic annotation). Other codes include “PCS” for published clinical study.
 This should be used for information extracted from articles in the medical literature. Generally, annotations of this type will

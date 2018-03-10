@@ -47,10 +47,12 @@ public class BigFileWriterTest {
         entry = builder.build();
     }
 
-    // TODO needs work
+    /**
+     * Test emitting a line of the V1 (2009-2018) big file from a V2 small file line.
+     */
     @Test
     public void testV1line() {
-        String [] fields = {
+        String [] v1bigFileFields = {
                 "OMIM", //DB
                 "154700",//DB_Object_ID
                  "MARFAN SYNDROME", // DB_Name
@@ -66,10 +68,50 @@ public class BigFileWriterTest {
                 "2015-07-26", // date
                 "HPO:skoehler" // assigned by
         };
-        String expected= Arrays.stream(fields).collect(Collectors.joining("\t"));
+        String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
         V1BigFile v1b = new V1BigFile(ontology);
         String line = v1b.transformEntry2BigFileLineV1(entry);
         assertEquals(expected,line);
+    }
+
+
+    /**
+     * Test emitting a line of the V2 (2018-?) big file from a V2 small file line.
+     */
+    @Test
+    public void testV2line() {
+        String [] v1bigFileFields = {
+                "OMIM", //DB
+                "154700",//DB_Object_ID
+                "MARFAN SYNDROME", // DB_Name
+                "",//Qualifier
+                "HP:0004872", // HPO_ID,
+                "OMIM:154700",//DB_Reference
+                "IEA", // Evidence_Code
+                "HP:0040283",//Onset
+                "", // Frequency
+                "", // Sex
+                "",//Modifier
+                "P",// Aspect
+                "2015-07-26", // Date_Created
+                "HPO:skoehler" // Assigned_By
+        };
+        String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
+        V2BigFile v1b = new V2BigFile(ontology);
+        String line = v1b.transformEntry2BigFileLineV2(entry);
+        assertEquals(expected,line);
+    }
+
+    @Test
+    public void testV1Header() {
+        String expected="#DB\tDB_Object_ID\tDB_Name\tQualifier\tHPO ID\tDB:Reference\tEvidence code\tOnset modifier\tFrequency modifier\tWith\tAspect\tSynonym\tDate\tAssigned by";
+        assertEquals(expected,V1BigFile.getHeaderV1());
+    }
+
+    @Test
+    public void testV2Header() {
+
+        String expected="#DB\tDB_Object_ID\tDB_Name\tQualifier\tHPO_ID\tDB_Reference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tDate_Created\tAssigned_By";
     }
 
 }

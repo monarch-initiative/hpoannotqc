@@ -12,12 +12,18 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
+/**
+ * A class to encapsulate the data related to a V2 (2018 and onwards) "big file" that is called
+ * {@code phenotype.hpoa}.
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson </a>
+ */
 public class V2BigFile {
     private static final Logger logger = LogManager.getLogger();
 
@@ -32,18 +38,30 @@ public class V2BigFile {
     private final List<V2SmallFile> v2SmallFileList;
 
 
-
+    /**
+     * @param ont Reference to the HPO Ontology
+     * @param v2SmallFiles List of V2 small files to be converted to the bigfile.
+     */
     public V2BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
         v2qualityController=new V2LineQualityController(this.ontology);
+    }
 
+    /**
+     * This constructor is intended for testing.
+     * @param ont Reference to the HPO Ontology
+     */
+    V2BigFile(HpoOntology ont) {
+        this.ontology=ont;
+        v2SmallFileList=new ArrayList<>();
+        v2qualityController=new V2LineQualityController(this.ontology);
     }
 
     public void outputBigFileV2(BufferedWriter writer) throws IOException {
         int n = 0;
         V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
-        writer.write(BigFileHeader.getHeaderV2() + "\n");
+        writer.write(getHeaderV2() + "\n");
         for (V2SmallFile v2 : v2SmallFileList) {
             List<V2SmallFileEntry> entryList = v2.getEntryList();
             for (V2SmallFileEntry entry : entryList) {
@@ -98,6 +116,26 @@ public class V2BigFile {
             this.v2qualityController.incrementBadAspect();
             return "?";
         }
+    }
+    /**
+     * @return Header line for the new V2 small files.
+     */
+    static String getHeaderV2() {
+        String []fields={"#DB",
+                "DB_Object_ID",
+                "DB_Name",
+                "Qualifier",
+                "HPO_ID",
+                "DB_Reference",
+                "Evidence",
+                "Onset",
+                "Frequency",
+                "Sex",
+                "Modifier",
+                "Aspect",
+                "Date_Created",
+                "Assigned_By"};
+        return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
 

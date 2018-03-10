@@ -15,7 +15,6 @@
         </File>
 
         <Console name="AntiLog"
-                 append="false"
                  target="SYSTEM_OUT"/>
     </Appenders>
 

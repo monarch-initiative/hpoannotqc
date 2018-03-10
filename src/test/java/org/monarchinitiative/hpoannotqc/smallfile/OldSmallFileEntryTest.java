@@ -119,7 +119,6 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-        System.err.println("Database \""+entry.getDatabase() +"\"");
         assertEquals("OMIM",entry.getDatabase());
         assertEquals("104290", entry.getDiseaseID());
         assertEquals("#104290 ALTERNATING HEMIPLEGIA OF CHILDHOOD 1; AHC1", entry.getDiseaseName());
