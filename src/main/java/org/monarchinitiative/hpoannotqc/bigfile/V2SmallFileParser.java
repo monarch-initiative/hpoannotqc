@@ -33,12 +33,15 @@ public class V2SmallFileParser {
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
 
+    private final String pathToV2File;
+
     private V2SmallFile v2smallfile=null;
 
     private static final int NUMBER_OF_FIELDS=15;
 
     public V2SmallFileParser(String path) {
-        parse(path);
+        pathToV2File=path;
+        parse();
     }
 
 
@@ -50,15 +53,14 @@ public class V2SmallFileParser {
         ontology = ont;
         termMap=ontology.getTermMap();
     }
-
-
-    private void parse(String path) {
-        String basename=(new File(path).getName());
+    private void parse() {
+        String basename=(new File(pathToV2File).getName());
         List<V2SmallFileEntry> entryList=new ArrayList<>();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
-            String line;
+            BufferedReader br = new BufferedReader(new FileReader(pathToV2File));
+            String line=br.readLine();
+            qcHeaderLine(line);
             while ((line=br.readLine())!=null) {
                 //System.out.println(line);
                 if (line.startsWith("#")) continue;
@@ -75,37 +77,39 @@ public class V2SmallFileParser {
                     System.exit(1);
                 }
                 String phenotypeName=A[3];
-                TermId ageOfOnsetId;
+                TermId ageOfOnsetId=null;
+                if (A[4]!=null && A[4].startsWith("HP")) {
+                    ImmutableTermId.constructWithPrefix(A[4]);
+                }
                 String ageOfOnsetName=A[5];
-                String evidenceCode=A[6];
-                String publication=A[12];
+                String frequencyString=A[6];
+                String sex=A[7];
+                String negation=A[8];
+                String modifier=A[9];
+                // modifer is discarded here since it was not in the big file -- FOR NOW TODO
+                String description=A[10];
+                String publication=A[11];
+                String evidenceCode=A[12];
                 String assignedBy=A[13];
                 String dateCreated=A[14];
 
                 V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,assignedBy,dateCreated);
-                String frequencyString=A[7];
                 if (frequencyString!=null && ! frequencyString.isEmpty()) {
                     builder=builder.frequencyString(frequencyString);
                 }
-                String sex=A[8];
                 if (sex!=null && !sex.isEmpty()) {
                     builder=builder.sex(sex);
                 }
-                String negation=A[9];
                 if (negation!=null && !negation.isEmpty()) {
                     builder=builder.negation(negation);
                 }
-                String modifier=A[10];
                 if (modifier!=null && !modifier.isEmpty()) {
                     builder=builder.modifier(modifier);
                 }
-               // modifer is discarded here since it was not in the big file -- FOR NOW TODO
-                String description=A[11];
                 if (description!=null && ! description.isEmpty()) {
                     builder.description(description);
                 }
                 entryList.add(builder.build());
-
             }
             br.close();
             this.v2smallfile = new V2SmallFile(basename,entryList);
@@ -113,10 +117,48 @@ public class V2SmallFileParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-
-
-
+    private static final String[] expectedFields = {
+            "#diseaseID",
+            "diseaseName",
+            "phenotypeId",
+            "phenotypeName",
+            "onsetId",
+            "onsetName",
+            "frequency",
+            "sex",
+            "negation",
+            "modifier",
+            "description",
+            "publication",
+            "evidence",
+            "assignedBy",
+            "dateCreated"};
+    /**
+     * This method checks that the nead has the expected number and order of lines.
+     * If it doesn't, then a serious error has occured somewhere and it is better to
+     * die and figure out what is wrong than to attempt error correction
+     * @param line
+     */
+    private void qcHeaderLine(String line) {
+        String fields[] = line.split("\t");
+        if (fields.length != expectedFields.length) {
+            logger.fatal(String.format("Malformed header line\n"+line+
+            "\nExpecting %d fields but got %d",
+                    expectedFields.length,
+                    fields.length));
+            System.exit(1);
+        }
+        for (int i=0;i<fields.length;i++) {
+            if (! fields[i].equals(expectedFields[i])) {
+                logger.fatal("Malformed header in file: "+pathToV2File);
+                logger.fatal(String.format("Malformed field %d. Expected %s but got %s",
+                        i,expectedFields[i],fields[i]));
+                System.exit(1);
+            }
+        }
+        // if we get here, all is good
     }
 
 

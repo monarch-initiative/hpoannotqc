@@ -67,8 +67,8 @@ public class V2SmallFile {
     public static String getHeaderV2() {
         String []fields={"#diseaseID",
                 "diseaseName",
-                "hpoId",
-                "hpoName",
+                "phenotypeId",
+                "phenotypeName",
                 "onsetId",
                 "onsetName",
                 "frequency",

@@ -192,7 +192,8 @@ public class OldSmallFileConvertCommand implements Command {
         }
         String filename = String.format("%s%s%s",outdir,File.separator,v2.getBasename());
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        writer.write(V2SmallFile.getHeaderV2()+"\n");
+        String header = V2SmallFile.getHeaderV2();
+        writer.write(header+"\n");
         List<V2SmallFileEntry> entryList = v2.getEntryList();
         for (V2SmallFileEntry v2e:entryList) {
             writer.write(v2e.getRow() + "\n");

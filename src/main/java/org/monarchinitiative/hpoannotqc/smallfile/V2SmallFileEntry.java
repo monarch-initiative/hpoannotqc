@@ -255,7 +255,7 @@ public class V2SmallFileEntry {
     }
 
     V2SmallFileEntry(OldSmallFileEntry oldEntry) throws HPOException {
-        diseaseID=oldEntry.getDiseaseID();
+        diseaseID=oldEntry.getDatabase() +":"+oldEntry.getDiseaseID();
         diseaseName=oldEntry.getDiseaseName();
         phenotypeId=oldEntry.getPhenotypeId();
         phenotypeName=oldEntry.getPhenotypeName();
@@ -320,40 +320,40 @@ public class V2SmallFileEntry {
                 dateCreated);
     }
 
-    /** Get row for the original phenotype_annotation.tab file format (which was used 2009-2018) */
-    public String getRowV1() {
-        String DB="";
-        String DB_Object_ID="";
-        String fields[] = diseaseID.split(":");
-        if (fields.length==2) {
-            DB=fields[0];
-            DB_Object_ID=fields[1];
-        } else {
-            // the following should never happen, but if it does, we have a major problem
-            // so it is best to terminate and figure out what is going on.
-            //It will only be a problem for the V1 bigfile and not for V2 bigfile moving forward.
-            logger.error(String.format("Malformed diseaseID column: \"%s\"",diseaseID));
-            System.exit(1);
-        }
-
-        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
-                DB, //
-                DB_Object_ID, //DB_Object_ID
-                diseaseName, //DB_Object_ID
-                phenotypeId.getIdWithPrefix(),
-                phenotypeName,
-                ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
-                ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
-                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
-                sex!=null?sex:"",
-                negation!=null?negation:EMPTY_STRING,
-                modifier!=null?modifier:EMPTY_STRING,
-                description!=null?description:EMPTY_STRING,
-                publication,
-                evidenceCode!=null?evidenceCode:"",
-                assignedBy!=null?assignedBy:EMPTY_STRING,
-                dateCreated);
-    }
+//    /** Get row for the original phenotype_annotation.tab file format (which was used 2009-2018) */
+//    public String getRowV1() {
+//        String DB="";
+//        String DB_Object_ID="";
+//        String fields[] = diseaseID.split(":");
+//        if (fields.length==2) {
+//            DB=fields[0];
+//            DB_Object_ID=fields[1];
+//        } else {
+//            // the following should never happen, but if it does, we have a major problem
+//            // so it is best to terminate and figure out what is going on.
+//            //It will only be a problem for the V1 bigfile and not for V2 bigfile moving forward.
+//            logger.error(String.format("Malformed diseaseID column: \"%s\"",diseaseID));
+//            System.exit(1);
+//        }
+//
+//        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
+//                DB, //
+//                DB_Object_ID, //DB_Object_ID
+//                diseaseName, //DB_Object_ID
+//                phenotypeId.getIdWithPrefix(),
+//                phenotypeName,
+//                ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
+//                ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
+//                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
+//                sex!=null?sex:"",
+//                negation!=null?negation:EMPTY_STRING,
+//                modifier!=null?modifier:EMPTY_STRING,
+//                description!=null?description:EMPTY_STRING,
+//                publication,
+//                evidenceCode!=null?evidenceCode:"",
+//                assignedBy!=null?assignedBy:EMPTY_STRING,
+//                dateCreated);
+//    }
 
 
 }

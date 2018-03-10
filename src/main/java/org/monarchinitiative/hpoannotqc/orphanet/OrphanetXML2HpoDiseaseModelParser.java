@@ -89,7 +89,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private TermId currentNotAltHpoId(String id) {
         TermId tid = ImmutableTermId.constructWithPrefix(id);
         if (! ontology.getTermMap().containsKey(tid)) {
-            logger.error("[ERROR] Could not find TermId for Orphanet HPO ID "+ id);
+            logger.error("[ERROR] Could not find TermId for Orphanet HPO ID \""+ id + "\"");
             n_could_not_find_orphanet_HpoId++;
             return tid; // probably an obsolete term.
         }

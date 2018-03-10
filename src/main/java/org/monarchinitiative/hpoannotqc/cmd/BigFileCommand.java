@@ -31,7 +31,6 @@ public class BigFileCommand implements Command {
     /** Number of annotations for which we could not figure out the aspect. */
    //private int n_bad_aspect=0;
 
- //   private String bigFileOutputName="phenotype_annotation2.tab";
 
     public BigFileCommand(String hpopath, String dir, String orphaXML) {
         hpOboPath=hpopath;
@@ -54,12 +53,16 @@ public class BigFileCommand implements Command {
         }
         BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory);
         try {
-            writer.outputBigFileV1();
+           // writer.outputBigFileV1();
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
+            writer.outputBigFileV1();
             writer.appendOrphanetV1(orphanetDisorders);
+            writer.closeV1();
             /// now output the V2 version of the file
             writer.outputBigFileV2();
+            writer.appendOrphanetV2(orphanetDisorders);
+            writer.closeV2();
 
         } catch (IOException e) {
             logger.fatal("[ERROR] Could not output V2 big file",e);

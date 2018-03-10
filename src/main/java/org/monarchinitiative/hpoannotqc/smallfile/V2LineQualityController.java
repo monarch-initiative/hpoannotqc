@@ -3,6 +3,8 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 
@@ -23,7 +25,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class V2LineQualityController {
-
+    private static final Logger logger = LogManager.getLogger();
     private final HpoOntology ontology;
 
 
@@ -363,7 +365,11 @@ public class V2LineQualityController {
             errors.add(String.format("Bad age of onset label: %s",entry.toString()));
         }
         if (! checkEvidence(entry.getEvidenceCode())) {
-            errors.add(String.format("Bad evidence code: %s",entry.toString()));
+            errors.add(String.format("Bad evidence code: \"%s\" for entry %s",
+                    entry.getEvidenceCode(),entry.toString()));
+            logger.error(String.format("Bad evidence code: \"%s\" for entry %s",
+                    entry.getEvidenceCode(),entry.toString()));
+            System.exit(1);
         }
         if (! checkDateCreated(entry.getDateCreated())) {
             errors.add(String.format("Bad data created: %s",entry.toString()));

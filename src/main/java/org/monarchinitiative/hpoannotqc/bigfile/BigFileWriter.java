@@ -68,6 +68,23 @@ public class BigFileWriter {
     }
 
 
+    public void closeV1() {
+        try {
+            writerV1.close();
+        } catch (IOException e) {
+            logger.error("[ERROR] I/O Problem: ", e);
+        }
+    }
+
+    public void closeV2() {
+        try {
+            writerV2.close();
+        } catch (IOException e) {
+            logger.error("[ERROR] I/O Problem: ", e);
+        }
+    }
+
+
     public void outputBothBigFileVersions() {
         try {
             outputBigFileV1();
@@ -132,7 +149,6 @@ public class BigFileWriter {
                 if (path.toString().endsWith(".tab")) {
                     fileNames.add(path.toString());
                 }
-                // fileNames.add(path.toString());
             }
         } catch (IOException ex) {
             logger.error(String.format("Could not get list of small v2smallFilePaths from %s. Terminating...",v2smallFileDirectory),ex);
