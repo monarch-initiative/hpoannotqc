@@ -3,11 +3,17 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
+import org.monarchinitiative.hpoannotqc.mondo.MergerTest;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -17,10 +23,16 @@ public class BigFileWriterTest {
 
 
     private static V2SmallFileEntry entry;
-
+    private static HpoOntology ontology;
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws IOException {
+        // set up ontology
+        ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
+        String hpOboPath =classLoader.getResource("hp.obo").getFile();
+        Objects.requireNonNull(hpOboPath);
+        HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
+        ontology = oboparser.parse();
         // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:154700";
         String diseaseName="MARFAN SYNDROME";
@@ -30,7 +42,8 @@ public class BigFileWriterTest {
         String pub="OMIM:154700";
         String assignedBy="HPO:skoehler";
         String dateCreated="2015-07-26";
-        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,assignedBy,dateCreated);
+        TermId onsetModifier=ImmutableTermId.constructWithPrefix("HP:0040283");
+        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,assignedBy,dateCreated).ageOfOnsetId(onsetModifier);
         entry = builder.build();
     }
 
@@ -49,12 +62,13 @@ public class BigFileWriterTest {
                 "", // frequency modifier
                 "", // with
                 "O",// Aspect
-                "", //synonyma
+                "", //synonym
                 "2015-07-26", // date
                 "HPO:skoehler" // assigned by
         };
         String expected= Arrays.stream(fields).collect(Collectors.joining("\t"));
-        String line = "";//BigFileWriter.transformEntry2BigFileLineV1(entry);
+        V1BigFile v1b = new V1BigFile(ontology);
+        String line = v1b.transformEntry2BigFileLineV1(entry);
         assertEquals(expected,line);
     }
 

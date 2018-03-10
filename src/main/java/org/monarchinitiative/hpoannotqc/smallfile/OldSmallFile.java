@@ -369,8 +369,8 @@ public class OldSmallFile {
     /**
      * This function gets called for all entries (old small file lines) that have one or
      * more Q/C issues. Basically we just tally them up.
-     * @param qcitems
-     * @param line
+     * @param qcitems list of QC issues found for this line
+     * @param line A line of the small file
      */
     private void tallyQCitems(Set<SmallFileQCCode> qcitems, String line) {
         if (qcitems.size()==0)return;
@@ -385,13 +385,10 @@ public class OldSmallFile {
                    n_no_evidence++;
                     LOGGER.trace(String.format("%s:%s",DID_NOT_FIND_EVIDENCE_CODE.name(),line));
                     break;
-                    /* We just discard the gene information so there is no point in outputting these lines.
-                    Uncomment if desired.
                 case GOT_GENE_DATA:
                     n_gene_data++;
                     LOGGER.trace(String.format("%s:%s",GOT_GENE_DATA.name(),line));
                     break;
-                    */
                 case PUBLICATION_PREFIX_IN_LOWER_CASE:
                     n_publication_prefix_in_lower_case++;
                     break;
@@ -449,7 +446,6 @@ public class OldSmallFile {
                     n_converted_n_of_m++;
                     LOGGER.trace(String.format("%s:%s",CONVERTED_N_OF_M.name(),line));
                     break;
-
             }
         }
     }

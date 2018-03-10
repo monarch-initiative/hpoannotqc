@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -29,11 +30,6 @@ public class OldSmallFileEntryTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
-    /*
-     private HpoOntology ontology=null;
-        private Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology=null;
-        private Ontology<HpoTerm, HpoTermRelation> abnormalPhenoSubOntology=null;
-     */
     @BeforeClass
     public static void init() {
         //ClassLoader classLoader = OldSmallFileEntryTest.class.getClassLoader();
@@ -42,8 +38,8 @@ public class OldSmallFileEntryTest {
         Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         try {
-            HpoOntologyParser parser = new HpoOntologyParser(hpOboPath);
-            HpoOntology ontology = parser.getOntology();
+            HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
+            HpoOntology ontology = oboparser.parse();
             OldSmallFileEntry.setOntology(ontology);
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,7 +119,9 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-        assertEquals("OMIM:104290", entry.getDiseaseID());
+        System.err.println("Database \""+entry.getDatabase() +"\"");
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("104290", entry.getDiseaseID());
         assertEquals("#104290 ALTERNATING HEMIPLEGIA OF CHILDHOOD 1; AHC1", entry.getDiseaseName());
         assertEquals("HP:0002445", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Tetraplegia", entry.getPhenotypeName());
@@ -150,7 +148,8 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-        assertEquals("OMIM:614255", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("614255", entry.getDiseaseID());
         assertEquals("#614255 MENTAL RETARDATION, AUTOSOMAL DOMINANT 9; MRD9", entry.getDiseaseName());
         assertEquals("HP:0006855", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Cerebellar vermis atrophy", entry.getPhenotypeName());
@@ -178,7 +177,8 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES", entry.getDiseaseName());
         assertEquals("HP:0000938", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Osteopenia", entry.getPhenotypeName());
@@ -207,8 +207,8 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES", entry.getDiseaseName());
         assertEquals("HP:0000486", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Strabismus", entry.getPhenotypeName());
@@ -240,8 +240,8 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals("%608154 LIPODYSTROPHY, GENERALIZED, WITH MENTAL RETARDATION, DEAFNESS, SHORTSTATURE, AND SLENDER BONES", entry.getDiseaseName());
         assertEquals("HP:0000486", entry.getPhenotypeId().getIdWithPrefix());
         assertEquals("Strabismus", entry.getPhenotypeName());
@@ -271,8 +271,8 @@ public class OldSmallFileEntryTest {
         // we expect one entry, and the Modifer field should have "Episodic" (HP:0025303)
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
     }
@@ -302,8 +302,8 @@ public class OldSmallFileEntryTest {
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0006315");
@@ -331,8 +331,8 @@ public class OldSmallFileEntryTest {
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:608154", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154", entry.getDiseaseID());
         assertEquals(HpoFrequencyTermIds.OCCASIONAL,entry.getFrequencyId()  );
         assertEquals("TAS", entry.getEvidenceID());
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0006316");
@@ -357,7 +357,8 @@ public class OldSmallFileEntryTest {
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
         // The date should be replaced with today's date. Note--theoretically, this test could fail if run JUST at midnight, so beware :-0!
-
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("608154",entry.getDiseaseID());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
         Date date = new Date();
         String expectedDate= dateFormat.format(date);

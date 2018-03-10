@@ -12,6 +12,7 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  * hierarch despite the code duplication with {@link V2BigFile} because we will be removing the V1 big file classes
  * once we are finishing with the conversion.
  */
-public class V1BigFile {
+class V1BigFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
@@ -37,11 +38,16 @@ public class V1BigFile {
 
 
 
-    public V1BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
+    V1BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
         v2qualityController=new V2LineQualityController(this.ontology);
+    }
 
+    V1BigFile(HpoOntology ont) {
+        this.ontology=ont;
+        v2SmallFileList=new ArrayList<>();
+        v2qualityController=new V2LineQualityController(this.ontology);
     }
 
 
@@ -51,7 +57,7 @@ public class V1BigFile {
      * the new structure of the ontology, it is not possible or desirable to recreate the original phenotype_annotation.tab
      * exactly -- this is just for Q/C purposes, and in general the V2 version should be used.
      */
-    public void outputBigFileV1(BufferedWriter writer) throws IOException {
+    void outputBigFileV1(BufferedWriter writer) throws IOException {
         int n = 0;
         V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
         writer.write(BigFileHeader.getHeaderV1() + "\n");
@@ -72,7 +78,7 @@ public class V1BigFile {
 
 
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
-    private String transformEntry2BigFileLineV1(V2SmallFileEntry entry) {
+    String transformEntry2BigFileLineV1(V2SmallFileEntry entry) {
         String [] elems = {
                 entry.getDB(), // DB
                 entry.getDB_Object_ID(), //DB_Object_ID

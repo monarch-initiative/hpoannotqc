@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -41,8 +42,8 @@ public class UpdateLabelTest {
         Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         try {
-            HpoOntologyParser parser = new HpoOntologyParser(hpOboPath);
-            HpoOntology ontology = parser.getOntology();
+            HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
+            HpoOntology ontology = oboparser.parse();
             OldSmallFileEntry.setOntology(ontology);
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,8 +85,8 @@ public class UpdateLabelTest {
         List<OldSmallFileEntry> entries = osm.getEntrylist();
         assertEquals(1, entries.size());
         OldSmallFileEntry entry = entries.get(0);
-
-        assertEquals("OMIM:602535", entry.getDiseaseID());
+        assertEquals("OMIM",entry.getDatabase());
+        assertEquals("602535", entry.getDiseaseID());
         assertEquals("TAS", entry.getEvidenceID());
         TermId primaryId= ImmutableTermId.constructWithPrefix("HP:0010759");
         assertEquals(primaryId,entry.getPhenotypeId());

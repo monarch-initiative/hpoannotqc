@@ -24,15 +24,12 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  */
 public class V2LineQualityController {
 
-
     private final HpoOntology ontology;
-//    private final Ontology<HpoTerm, HpoTermRelation> inheritanceSubontology;
-//    private final Ontology<HpoTerm, HpoTermRelation> frequencySubontology;
-//    private final Ontology<HpoTerm, HpoTermRelation> onsetSubontology;
+
 
     private List<String> errors=new ArrayList<>();
 
-    private static Map<String,Integer> assignedByMap = new HashMap();
+    private Map<String,Integer> assignedByMap = new HashMap();
 
     private int n_good_DB=0;
     private int n_bad_DB=0;
@@ -80,16 +77,6 @@ public class V2LineQualityController {
     private static final TermId FREQUENCY_ROOT = ImmutableTermId.constructWithPrefix("HP:0040279");
     public V2LineQualityController(HpoOntology onto) {
         ontology=onto;
-        TermPrefix pref = new ImmutableTermPrefix("HP");
-        TermId inheritId = new ImmutableTermId(pref,"0000005");
-        //inheritanceSubontology = this.ontology.subOntology(inheritId);
-        TermId frequencyId = new ImmutableTermId(pref,"0040279");
-       // frequencySubontology = this.ontology.subOntology(frequencyId);
-        TermId onsetId = new ImmutableTermId(pref,"0003674");
-       // Ontology<HpoTerm, Relation> onsetSubontology;
-        //onsetSubontology = this.ontology.subOntology(onsetId);
-       // ontology.subOntology()
-        //org.monarchinitiative.phenol.formats.hpo.HpoRelationshipType
     }
 
 
@@ -137,7 +124,7 @@ public class V2LineQualityController {
     /**
      * Check that the id is not an alt_id
      * @param id the {@link TermId} for a phenotype HPO term
-     * @return
+     * @return true iff phenotype id is valid
      */
     private boolean checkPhenotypeId(TermId id) {
         if (id==null) {
@@ -212,8 +199,8 @@ public class V2LineQualityController {
     /**
      * check the age of onset id. It is allowed to be null, but then the age of onset label also has to be null.
      * If it is not null, it has to be a valid term in the Onset subhierarchy of the hpo.
-     * @param id
-     * @return
+     * @param id A term id that should be from the Onset subhierarchy
+     * @return true if the HPO id is a valid onset term id.
      */
     private boolean checkAgeOfOnsetId(TermId id) {
         if (id==null ) {
@@ -221,8 +208,6 @@ public class V2LineQualityController {
             return true;
         }
         if (existsPath(ontology,id,ONSET_ROOT)) {
-//        int n = onsetSubontology.getTermMap().size();
-//        if (onsetSubontology.getTermMap().containsKey(id)) {
             n_good_ageOfOnset_ID++;
             return true;
         } else {
@@ -343,7 +328,7 @@ public class V2LineQualityController {
 
 
 
-    public static void dumpAssignedByMap() {
+    public void dumpAssignedByMap() {
         System.out.println("### Biocurated annotations ###");
         for (String ab : assignedByMap.keySet()) {
             System.out.println(ab +": n="+assignedByMap.get(ab));

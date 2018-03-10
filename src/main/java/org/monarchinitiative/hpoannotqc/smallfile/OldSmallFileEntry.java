@@ -22,6 +22,7 @@ import static org.monarchinitiative.hpoannotqc.smallfile.DiseaseDatabase.ORPHANE
 import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getChildTerms;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getDescendents;
 
 
 /**
@@ -72,34 +73,23 @@ public class OldSmallFileEntry {
     private String evidenceName = null;
 
     private String frequencyString = null;
-
+    /** The frequency of the feqture in the disease (optional). */
     private TermId frequencyId = null;
     // Frequency Ids
     private static final TermPrefix HP_PREFIX = new ImmutableTermPrefix("HP");
-
-
-    /// Modifier term that is used for Episodic
+    // Modifier term that is used for Episodic
     private static final TermId EPISODIC = new ImmutableTermId(HP_PREFIX,"0025303");
-
     private static final TermId RECURRENT = new ImmutableTermId(HP_PREFIX,"0031796");
     private static final TermId PROGRESSIVE = new ImmutableTermId(HP_PREFIX,"0003676");
     private static final TermId CHRONIC = new ImmutableTermId(HP_PREFIX,"0011010");
-
-
     private static final TermId FREQUENCY_ROOT= new ImmutableTermId(HP_PREFIX,"0040279");
-
-
     /** Assign IEA if we cannot find an evidence code in the original data */
     private static final String DEFAULT_EVIDENCE_CODE="IEA";
     /** Assign this assignedBy string if we do not have more information. */
     private static final String DEFAULT_HPO_ASSIGNED_BY="HPO:iea";
     /** Return the empty string instead of NULL if we have nothing. Otherwise, we may wind up writing the string "null". */
     private static final String EMPTY_STRING="";
-
-
-    /**
-     * If present, a limitation to MALE or FEMALE.
-     */
+    /**If present, a limitation to MALE or FEMALE.*/
     private String sexID = null;
     /** Redundant with {@link #sexID}. */
     private String sexName = null;
@@ -160,11 +150,6 @@ public class OldSmallFileEntry {
     /** This is called once by client code before we start parsing. Not pretty design but it works fine for this one-off app. */
     public static void setOntology(HpoOntology ont) {
         ontology = ont;
-        TermId inheritId = new ImmutableTermId(HP_PREFIX,"0000005");
-        TermId frequencyId = new ImmutableTermId(HP_PREFIX,"0040279");
-       // inheritanceSubontology = ontology.subOntology(inheritId);
-        //frequencySubontology = ontology.subOntology(frequencyId);
-      //  abnormalPhenoSubOntology = ontology.getPhenotypicAbnormalitySubOntology();
         findModifierTerms();
     }
 
@@ -176,39 +161,25 @@ public class OldSmallFileEntry {
     private static void findModifierTerms() {
         TermId modifier = new ImmutableTermId(HP_PREFIX, "0012823");
         Stack<TermId> stack = new Stack<>();
-        Set<TermId> descendents = new HashSet<>();
-        stack.push(modifier);
-        while (!stack.empty()) {
-            TermId parent = stack.pop();
-            descendents.add(parent);
-            Set<TermId> kids = getChildren(parent);
-            kids.forEach(k ->   stack.push(k));
-        }
+        Set<TermId> descendents = getDescendents(ontology,modifier);
         for (TermId tid : descendents) {
             String label = ontology.getTermMap().get(tid).getName().toLowerCase();
             modifier2TermId.put(label, tid);
         }
     }
 
-    private static Set<TermId> getChildren(TermId parent) {
-//        Set<TermId> kids = new HashSet<>();
-//        Iterator it = ontology.getGraph().inEdgeIterator(parent);
-//        while (it.hasNext()) {
-//            Edge<TermId> sourceEdge = (Edge<TermId>) it.next();
-//            TermId source = sourceEdge.getSource();
-//            kids.add(source);
-//        }
-        return getChildTerms(ontology,parent);
-      //  return kids;
-    }
-
-
+    /**
+     * This takes an id such as OMIM:123456, and splits it into the database and accession parts. In this example
+     * {@link #database} would get "OMIM" and {@link #diseaseID} would get "123456".
+     * @param id A string from the small file such as OMIM:123456
+     */
     void addDiseaseId(String id) {
+        id=id.trim();
         if (id.startsWith("OMIM")) {
             this.database = OMIM;
             this.diseaseID = id.substring(5);
             if (diseaseID.length()!=6) {
-                LOGGER.error("Malformed OMIM id: %s. Length of numerical part was %d ", id, diseaseID.length());
+                LOGGER.error(String.format("Malformed OMIM id: %s. Length of numerical part was %d. Terminating....", id, diseaseID.length()));
                 System.exit(1); // serious error. Better to figure out what is going on and then redo
             }
         } else if (id.startsWith("ORPHA")) {
@@ -228,8 +199,8 @@ public class OldSmallFileEntry {
                 LOGGER.error("Malformed DECIPHER id: %s. Could not parse numerical part", id, e);
             }
         } else {
-            LOGGER.error("Did not recognize disease database for " + id);
-            System.exit(1);
+            LOGGER.error("Did not recognize disease database for " + id +". Terminating program....");
+            System.exit(1);//serious error. Figure out what is going on
         }
     }
 
@@ -280,7 +251,7 @@ public class OldSmallFileEntry {
         genesymbol = gs;
     }
     /** Cherck the validating of the String id and crfeate the corresponding TermIKd in {@link #phenotypeId}. */
-    public void setPhenotypeId(String id) throws HPOException {
+    void setPhenotypeId(String id) throws HPOException {
         this.phenotypeId = createHpoTermIdFromString(id);
         TermId primaryId = ontology.getTermMap().get(phenotypeId).getId();
         if (! phenotypeId.equals(primaryId)) {
@@ -289,7 +260,7 @@ public class OldSmallFileEntry {
         }
     }
     /** Sets the name of the HPO term. */
-    public void setPhenotypeName(String name) {
+    void setPhenotypeName(String name) {
         phenotypeName = name;
     }
     /** Sets the age of onset id (HPO term) and checks it is a valid term. */
@@ -330,9 +301,6 @@ public class OldSmallFileEntry {
         }
         id = id.substring(3);
         TermId tid = new ImmutableTermId(HP_PREFIX, id);
-        if (tid == null) {
-            throw new HPOException("Could not create TermId object from id: \""+ id+"\"");
-        }
         if (ontology == null) {
             throw new HPOException("Ontology is null and thus we could not create TermId for " + id);
         }
@@ -598,7 +566,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
      * pmid:123 is changed to PMID:123. We also enforce that the string is not null and that there is
      * a prefix:id structure. This code does not try to correct anything except a lower case prefix such
      * as pmid. We also change "MIM" to "OMIM"
-     * @param p
+     * @param p a string such as PMID:123
      */
     public void setPub(String p) throws HPOException {
         if (p==null || p.isEmpty()) {
@@ -712,8 +680,8 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         else throw new HPOException("Did not recognize sex code \"" + s + "\"");
     }
 
-    public DiseaseDatabase getDatabase() {
-        return database;
+    public String getDatabase() {
+        return database.toString();
     }
 
     public String getDiseaseID() {
@@ -726,11 +694,11 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
 
 
 
-    public TermId getPhenotypeId() {
+    TermId getPhenotypeId() {
         return phenotypeId;
     }
 
-    public String getPhenotypeName() {
+    String getPhenotypeName() {
         return phenotypeName;
     }
 
@@ -775,11 +743,11 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
         else return "";
     }
 
-    public Set<TermId> getModifierSet() {
+    Set<TermId> getModifierSet() {
         return modifierset;
     }
 
-    public String getModifierString() {
+    String getModifierString() {
         if (modifierset == null || modifierset.isEmpty()) return "";
         else return modifierset.stream().map(TermId::getIdWithPrefix).collect(Collectors.joining(";"));
     }
@@ -813,8 +781,8 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
 
     /**
      * COnvert a string such as 9 of 16 to 9/16
-     * @param freq A string that has been founf to have the word "of" ion it
-     * @return
+     * @param freq A string that has been found to have the word "of" ion it
+     * @return a String such as 9/19
      * @throws  HPOException if  format does not match 9 of 16
      */
     private String convertNofMString(String freq) throws HPOException {
@@ -850,7 +818,7 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
      * valid. All other data will cause an error. Note that by assumption (and this will be
      * true given the formats of the old small files), not more than one type of
      * frequency data can occur in one old small file entry. */
-    public String getThreeWayFrequencyString() throws HPOException {
+    String getThreeWayFrequencyString() throws HPOException {
         // it is ok not to have frequency data
         if (frequencyId == null && frequencyString == null) {
             return EMPTY_STRING;

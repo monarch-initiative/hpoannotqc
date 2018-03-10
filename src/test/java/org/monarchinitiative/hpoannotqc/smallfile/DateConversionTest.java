@@ -6,7 +6,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -24,14 +26,11 @@ public class DateConversionTest {
      */
     @BeforeClass
     public static void init() {
-        //ClassLoader classLoader = OldSmallFileEntryTest.class.getClassLoader();
-        //String hpOboPath = classLoader.getResource("hp.obo").getFile();
-        //File file = ResourceUtils.getFile(OldSmallFileEntryTest.getResource("/some_file.txt"));
         Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         try {
-            HpoOntologyParser parser = new HpoOntologyParser(hpOboPath);
-            HpoOntology ontology = parser.getOntology();
+            HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
+            HpoOntology ontology = oboparser.parse();
             OldSmallFileEntry.setOntology(ontology);
         } catch (Exception e) {
             e.printStackTrace();

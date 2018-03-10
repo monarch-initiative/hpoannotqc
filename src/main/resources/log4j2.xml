@@ -14,17 +14,9 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
         </File>
 
-       <!-- <RollingFile name="MyRollingFile"
-                     append="true" immediateFlush="true"
-                     fileName="${log-path}/tearsLogRF.log"
-                     filePattern="${log-path}/tearsLogRF_%d{yyyy-MM-dd_HH-mm-ss}.log">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
-            <Policies>
-                <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="100 KB" />
-            </Policies>
-            <DefaultRolloverStrategy max="10" />
-        </RollingFile> -->
+        <Console name="AntiLog"
+                 append="false"
+                 target="SYSTEM_OUT"/>
     </Appenders>
 
     <Loggers>
@@ -35,7 +27,7 @@
         </Logger>
 
         <Logger name="org.monarchinitiative.phenol">
-            <AppenderRef ref="Console" level="error"/>
+            <AppenderRef ref="AntiLog" level="off"/>
         </Logger>
 
         <Root level="trace">
