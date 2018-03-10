@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * (... and so on for each line you want to add)
  * </pre>
  */
-public class SmallFileBuilder {
+class SmallFileBuilder {
 
 
     /**
@@ -59,55 +59,60 @@ public class SmallFileBuilder {
     /**
      * @return a tab separated String with the standard header line.
      */
-    public static String getHeader() {
+    static String getHeader() {
         return Arrays.stream(headerFields).collect(Collectors.joining("\t"));
     }
 
-    public SmallFileBuilder() {
+    SmallFileBuilder() {
 
     }
 
-    public SmallFileBuilder diseaseId(String id) {
+    SmallFileBuilder diseaseId(String id) {
         this.diseaseId = id;
         return this;
     }
 
-    public SmallFileBuilder diseaseName(String name) {
+    SmallFileBuilder diseaseName(String name) {
         this.diseaseName = name;
         return this;
     }
 
-    public SmallFileBuilder description(String d) {
+    SmallFileBuilder description(String d) {
         this.description=d;
         return this;
     }
 
-    public SmallFileBuilder hpoId(String id) {
+    SmallFileBuilder hpoId(String id) {
         this.phenotypeId=id;
         return this;
     }
 
-    public SmallFileBuilder hpoName(String name) {
+    SmallFileBuilder hpoName(String name) {
         this.phenotypeName=name;
         return this;
     }
 
-    public SmallFileBuilder pub(String pb) {
+    SmallFileBuilder pub(String pb) {
         this.pub=pb;
         return this;
     }
 
-    public SmallFileBuilder evidence(String e) {
+    SmallFileBuilder evidence(String e) {
         this.evidenceID=e;
         return this;
     }
 
-    public SmallFileBuilder dateCreated(String dc) {
+    SmallFileBuilder dateCreated(String dc) {
         this.dateCreated=dc;
         return this;
     }
 
-    public String build() {
+    SmallFileBuilder frequency(String f) {
+        this.frequency=f;
+        return this;
+    }
+
+    String build() {
         List<String> entry = new ArrayList<>();
         for (String f : headerFields) {
             switch (f) {

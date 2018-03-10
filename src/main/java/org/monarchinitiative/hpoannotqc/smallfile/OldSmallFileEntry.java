@@ -826,30 +826,28 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
             return EMPTY_STRING;
         }
         if (frequencyString.contains("of")) {
-            return convertNofMString(frequencyString);
+            frequencyString= convertNofMString(frequencyString);
         } else if (frequencyString.matches("\\d+/\\d+")) {
             return frequencyString; // standard n/m
         } else if (frequencyString.matches("\\d{1,2}-\\d{1,2}\\s?\\%")){
             QCissues.add(FREQUENCY_WITH_DASH);
-            return frequencyString.replaceAll(" ","");
+            frequencyString = frequencyString.replaceAll(" ","");
         } else if (frequencyString.matches("\\d{1,2}\\%-\\d{1,2}\\s?\\%")){
             // remove middle percent sign
             QCissues.add(FREQUENCY_WITH_DASH);
             String f = frequencyString.replaceAll("%","").trim();
-            return f+"%";
+            frequencyString=f+"%"; // remove middle percent sign if necessary
         } else  if (frequencyString.matches("\\d{1,3}\\%")) {
-            return frequencyString; // remove whitepsace
+            return frequencyString;
         }else  if (frequencyString.matches("\\d{1,3}\\s+\\%")) {
             QCissues.add(REMOVED_FREQUENCY_WHITESPACE);
-            return frequencyString.replaceAll(" ","");
+            frequencyString= frequencyString.replaceAll(" ","");
         }  else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\%")) {
             return frequencyString;
         } else if (frequencyString.matches("\\d{1,3}\\.?\\d+?\\s+\\%")) {
             QCissues.add(REMOVED_FREQUENCY_WHITESPACE);
-        return frequencyString.replaceAll(" ","");
-    }
-        else if (frequencyId != null) {
-            //if (frequencySubontology.getTermMap().containsKey(frequencyId)) {
+            frequencyString=frequencyString.replaceAll(" ","");
+        } else if (frequencyId != null) {
             if (existsPath(ontology,frequencyId,FREQUENCY_ROOT)) {
                 return frequencyId.getIdWithPrefix();
             } else {
@@ -857,13 +855,14 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
                         ontology.getTermMap().get(frequencyId).getName(),
                         ontology.getTermMap().get(frequencyId).getId().getIdWithPrefix());
                 System.err.println(err);
-                throw new HPOException(err);
+                throw new HPOException(err);// serious error. Check before continuing (should never happen!)
             }
         } else {
             System.err.println(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
             // if we get here, frequencyId was null and frequencyString was not null but was not recognized.
             throw new HPOException(String.format("Unrecognized frequency string: \"%s\"",frequencyString ));
         }
+        return frequencyString;
     }
 
 
