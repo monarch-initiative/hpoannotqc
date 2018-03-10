@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -10,12 +11,10 @@ import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 
 import org.monarchinitiative.phenol.ontology.data.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getDescendents;
 
 /**
  * The purpose of this class is to check each V2 small file line from the version 2 (V2) small files that represent
@@ -30,6 +29,8 @@ public class V2LineQualityController {
 
 
     private List<String> errors=new ArrayList<>();
+
+    private final Set<TermId> onsetTerms;
 
     private Map<String,Integer> assignedByMap = new HashMap();
 
@@ -77,8 +78,16 @@ public class V2LineQualityController {
     /** Todo get from phenol */
     private final TermId ONSET_ROOT = ImmutableTermId.constructWithPrefix("HP:0003674");
     private static final TermId FREQUENCY_ROOT = ImmutableTermId.constructWithPrefix("HP:0040279");
+
     public V2LineQualityController(HpoOntology onto) {
-        ontology=onto;
+
+        this.ontology=onto;
+        this.onsetTerms = getDescendents(ontology,ONSET_ROOT);
+        logger.trace("Onset terms : n = "+onsetTerms.size());
+        for (TermId tid:onsetTerms) {
+            String name = ontology.getTermMap().get(tid).getName();
+            logger.trace(name + ": " + tid.getIdWithPrefix());
+        }
     }
 
 
@@ -209,14 +218,39 @@ public class V2LineQualityController {
             n_good_ageOfOnset_ID++;
             return true;
         }
-        if (existsPath(ontology,id,ONSET_ROOT)) {
+        if (! ontology.getTermMap().containsKey(id)) {
+            errors.add("Attempt to add onset ID that was not in graph: "+id.getIdWithPrefix());
+            System.err.println("Attempt to add onset ID that was not in graph: "+id.getIdWithPrefix());
+            return false;
+        }
+        if (! checkIsNotAltId(id)) {
+            errors.add("Attempt to use alt_id for onset term: " + id.getIdWithPrefix());
+            return false;
+        }
+        if (this.onsetTerms.contains(id)) {
+            System.err.println("GOTD onset Id: "+id.getIdWithPrefix());
             n_good_ageOfOnset_ID++;
             return true;
         } else {
             n_bad_ageOfOnset_ID++;
             errors.add("Malformed age of onset ID: \""+id.toString()+"\"");
+            System.err.println("Malformed age of onset ID: \""+id.toString()+"\"");
             return false;
         }
+    }
+
+    /**
+     *
+     * @param tid An HPO Term Id
+     * @return true if the tid is up to date, i.e., NOT an alt_id
+     */
+    private boolean checkIsNotAltId(TermId tid) {
+        if (! ontology.getTermMap().containsKey(tid)) {
+            errors.add("TermId not found at all in ontology: " + tid.getIdWithPrefix());
+            return false;
+        }
+        TermId upToDate = ontology.getPrimaryTermId(tid);
+        return tid.equals(upToDate);
     }
 
 
@@ -360,6 +394,8 @@ public class V2LineQualityController {
         }
         if (! checkAgeOfOnsetId(entry.getAgeOfOnsetId())) {
             errors.add(String.format("Bad age of onset id: %s",entry.toString()));
+            System.err.println(String.format("Bad age of onset id: \"%s\" %s",entry.getAgeOfOnsetId(),entry.toString()));
+            System.exit(1);
         }
         if (! checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetName())) {
             errors.add(String.format("Bad age of onset label: %s",entry.toString()));

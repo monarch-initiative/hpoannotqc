@@ -79,7 +79,7 @@ public class V2SmallFileParser {
                 String phenotypeName=A[3];
                 TermId ageOfOnsetId=null;
                 if (A[4]!=null && A[4].startsWith("HP")) {
-                    ImmutableTermId.constructWithPrefix(A[4]);
+                    ageOfOnsetId=ImmutableTermId.constructWithPrefix(A[4]);
                 }
                 String ageOfOnsetName=A[5];
                 String frequencyString=A[6];
@@ -107,7 +107,10 @@ public class V2SmallFileParser {
                     builder=builder.modifier(modifier);
                 }
                 if (description!=null && ! description.isEmpty()) {
-                    builder.description(description);
+                    builder=builder.description(description);
+                }
+                if (ageOfOnsetId!=null) {
+                    builder=builder.ageOfOnsetId(ageOfOnsetId);
                 }
                 entryList.add(builder.build());
             }
