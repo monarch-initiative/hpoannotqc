@@ -353,6 +353,11 @@ public class OldSmallFileEntry {
         else return true;
     }
 
+    private static boolean isNumeric(String str)
+    {
+        return str.matches("\\d+");  //match a number
+    }
+
     /**
      * This method is called after all of the data have been entered. We return a List of error codes so that
      * we can list up what we had to do to convert the filesd and do targeted manual checking.
@@ -389,7 +394,14 @@ public class OldSmallFileEntry {
         } else if (pub.equals("OMIM")&& this.diseaseID != null && diseaseID.startsWith("OMIM") )  {
             this.pub = String.format("%s:%s",database,diseaseID);
             this.QCissues.add(CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID);
+        } else if (isNumeric(pub) && pub.equals(this.diseaseID)) {
+            // check whether pub just has 123456 instead of OMIM:123456
+            pub=String.format("%s:%s",this.database,this.diseaseID);
+            this.QCissues.add(PUBLICATION_HAD_NO_DB_PART);
         }
+
+
+
 
 
         if (ageOfOnsetId!=null) {

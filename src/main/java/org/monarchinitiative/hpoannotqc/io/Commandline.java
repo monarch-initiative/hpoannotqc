@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * Class to capture options and command from the command line.
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- * @version 0.0.2 (2018-01-05)
+ * @version 0.0.3 (2018-03-12)
  */
 public class Commandline {
     private static final Logger logger = LogManager.getLogger();
@@ -49,14 +49,14 @@ public class Commandline {
 
     private final static String DEFAULT_ORPHANET_XML_FILE="data/en_product4_HPO.xml";
 
-
+    private final static String DEFAULT_BIG_FILE_VERSION="v2";
 
 
     private String downloadDirectory;
     private String hpoOboPath = null;
     private String oldSmallFileAnnotationPath = null;
     private String termid = null;
-
+    private String bigFileVersion = null;
 
     private String outputFilePath = null;
     private String outputDirectory = null;
@@ -106,6 +106,11 @@ public class Commandline {
             if (commandLine.hasOption("t")) {
                 this.termid = commandLine.getOptionValue("t");
             }
+            if (commandLine.hasOption("v")) {
+                this.bigFileVersion = commandLine.getOptionValue("v");
+            } else {
+                this.bigFileVersion = DEFAULT_BIG_FILE_VERSION;
+            }
         } catch (ParseException parseException)  // checked exception
         {
             String msg = String.format("Could not parse options %s [%s]", clstring, parseException.toString());
@@ -120,7 +125,7 @@ public class Commandline {
             }
             this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
         } else if (mycommand.equals("big-file")) {
-            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY,DEFAULT_ORPHANET_XML_FILE);
+            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY,DEFAULT_ORPHANET_XML_FILE,bigFileVersion);
         } else {
             printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
         }
@@ -143,10 +148,8 @@ public class Commandline {
                 .addOption("d", "download", true, "directory to download HPO data (default \"data\")")
                 .addOption("t", "term", true, "HPO id (e.g., HP:0000123)")
                 .addOption("a", "annot", true, "path to HPO annotation directory (old small files")
-                .addOption("h", "hpo", true, "path to hp.obo");
-//                .addOption("b", "bad", false, "output bad (rejected) reads to separated file")
-//                .addOption(Option.builder("f1").longOpt("file1").desc("path to fastq file 1").hasArg(true).argName("file1").build())
-//                .addOption(Option.builder("f2").longOpt("file2").desc("path to fastq file 2").hasArg(true).argName("file2").build());
+                .addOption("h", "hpo", true, "path to hp.obo")
+                .addOption("v","bigfile-version",true,"descriptn big-file version (v1 or v2 [default])");
         return options;
     }
 

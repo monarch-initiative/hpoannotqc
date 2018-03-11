@@ -28,14 +28,24 @@ public class BigFileCommand implements Command {
     /** Path to the downloaded Orphanet XML file */
     private final String orphanetXMLpath;
     private HpoOntology ontology;
+    /** True if we should output the V1 big file (2009-2018). False if we should output v2. */
+    private boolean doV1bigfileOutput;
     /** Number of annotations for which we could not figure out the aspect. */
    //private int n_bad_aspect=0;
 
 
-    public BigFileCommand(String hpopath, String dir, String orphaXML) {
+    public BigFileCommand(String hpopath, String dir, String orphaXML, String bfVersion) {
         hpOboPath=hpopath;
         v2smallFileDirectory =dir;
         orphanetXMLpath=orphaXML;
+        if (bfVersion.equalsIgnoreCase("v1")) {
+            doV1bigfileOutput=true;
+        } else if (bfVersion.equalsIgnoreCase("v2")){
+            doV1bigfileOutput=false;
+        } else {
+            logger.fatal("Did not recognize big file version: " + bfVersion);
+            logger.fatal("Terminating program. Choose -v v1 or -v v2");
+        }
     }
 
 
@@ -56,13 +66,19 @@ public class BigFileCommand implements Command {
            // writer.outputBigFileV1();
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
-            writer.outputBigFileV1();
-            writer.appendOrphanetV1(orphanetDisorders);
-            writer.closeV1();
-            /// now output the V2 version of the file
-            writer.outputBigFileV2();
-            writer.appendOrphanetV2(orphanetDisorders);
-            writer.closeV2();
+
+            if (doV1bigfileOutput) {
+                writer.initializeV1filehandle();
+                writer.outputBigFileV1();
+                writer.appendOrphanetV1(orphanetDisorders);
+                writer.closeFileHandle();
+            } else {
+                /// now output the V2 version of the file
+                writer.initializeV2filehandle();
+                writer.outputBigFileV2();
+                writer.appendOrphanetV2(orphanetDisorders);
+                writer.closeFileHandle();
+            }
 
         } catch (IOException e) {
             logger.fatal("[ERROR] Could not output V2 big file",e);

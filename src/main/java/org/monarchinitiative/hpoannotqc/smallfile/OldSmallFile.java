@@ -104,6 +104,12 @@ public class OldSmallFile {
     private int n_lineHasQcIssue=0;
     private int n_updating_onset_label=0;
 
+    public int getN_publication_had_no_db_part() {
+        return n_publication_had_no_db_part;
+    }
+
+    private int n_publication_had_no_db_part=0;
+
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
      */
@@ -464,7 +470,11 @@ public class OldSmallFile {
                     n_updating_onset_label++;
                     LOGGER.trace(String.format("%s:%s",UPDATING_ONSET_LABEL.name(),line));
                     break;
-
+                case PUBLICATION_HAD_NO_DB_PART:
+                    n_publication_had_no_db_part++;
+                    LOGGER.trace(String.format("%s:%s",PUBLICATION_HAD_NO_DB_PART.name(),line));
+                    System.exit(1);
+                    break;
             }
         }
     }

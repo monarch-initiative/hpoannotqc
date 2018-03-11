@@ -390,8 +390,6 @@ public class V2LineQualityController {
         }
         if (! checkPublication(entry.getPublication())) {
             errors.add(String.format("Bad publication: %s",entry.toString()));
-            System.err.println(String.format("Bad publication: \"%s\" %s",entry.getPublication(),entry.toString()));
-            System.exit(1);
         }
         if (! checkAgeOfOnsetId(entry.getAgeOfOnsetId())) {
             errors.add(String.format("Bad age of onset id: %s",entry.toString()));

@@ -61,6 +61,7 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_small_old_file_pairs_with_different_number_of_annotations=0;
     private int n_onset_alt_id=0;
     private int n_updating_onset_label=0;
+    private int n_publication_had_no_db_part=0;
 
 
 
@@ -142,6 +143,7 @@ public class OldSmallFileConvertCommand implements Command {
             n_lineHasQcIssue         += osf.getN_lineHasQcIssue();
             n_onset_alt_id           += osf.getN_onset_alt_id();
             n_updating_onset_label   += osf.getN_updating_onset_label();
+            n_publication_had_no_db_part += osf.getN_publication_had_no_db_part();
             osfList.add(osf);
         }
 
@@ -173,6 +175,8 @@ public class OldSmallFileConvertCommand implements Command {
                         n_replaced_empty_publication_string);
         System.out.println("\tNumber of lines with a publication field with a database but no id (replaced by databaseID): "
                 +n_corrected_publication_with_database_but_no_id);
+        System.out.println("\tNumber of lines with a publication field with  id but no database (we replaced it): "
+                +n_publication_had_no_db_part);
         System.out.println("\tNumber of lines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
         System.out.println("\tNumber of lines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
         System.out.println("\tNumber of lines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
