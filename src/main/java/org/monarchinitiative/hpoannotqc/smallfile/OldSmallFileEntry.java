@@ -384,10 +384,10 @@ public class OldSmallFileEntry {
             this.phenotypeName=ontology.getTermMap().get(this.phenotypeId).getName();
         }
         if (this.pub==null && this.diseaseID != null )  {
-            this.pub = diseaseID;
+            this.pub = String.format("%s:%s",database,diseaseID);
             this.QCissues.add(REPLACED_EMPTY_PUBLICATION_STRING);
         } else if (pub.equals("OMIM")&& this.diseaseID != null && diseaseID.startsWith("OMIM") )  {
-            this.pub = diseaseID;
+            this.pub = String.format("%s:%s",database,diseaseID);
             this.QCissues.add(CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID);
         }
 

@@ -112,6 +112,9 @@ public class V2SmallFileParser {
                 if (ageOfOnsetId!=null) {
                     builder=builder.ageOfOnsetId(ageOfOnsetId);
                 }
+                if (ageOfOnsetName!=null) {
+                    builder=builder.ageOfOnsetName(ageOfOnsetName);
+                }
                 entryList.add(builder.build());
             }
             br.close();
