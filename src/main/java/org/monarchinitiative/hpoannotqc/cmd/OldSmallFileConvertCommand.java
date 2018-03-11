@@ -59,6 +59,8 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_lineHasQcIssue=0;
     private int n_small_old_file_pairs_with_same_number_of_annotations=0;
     private int n_small_old_file_pairs_with_different_number_of_annotations=0;
+    private int n_onset_alt_id=0;
+    private int n_updating_onset_label=0;
 
 
 
@@ -138,6 +140,8 @@ public class OldSmallFileConvertCommand implements Command {
             n_assigned_by_empty      += osf.getN_assigned_by_empty();
             n_converted_n_of_m       += osf.getN_converted_n_of_m();
             n_lineHasQcIssue         += osf.getN_lineHasQcIssue();
+            n_onset_alt_id           += osf.getN_onset_alt_id();
+            n_updating_onset_label   += osf.getN_updating_onset_label();
             osfList.add(osf);
         }
 
@@ -157,7 +161,9 @@ public class OldSmallFileConvertCommand implements Command {
         System.out.println("\tNumber of lines with \"Gene\" data that was discarded for the V2 files: " + n_gene_data);
         System.out.println("\tNumber of lines with \"E/Q\" data that was discarded for the V2 files: " + n_EQ_item);
         System.out.println("\tNumber of lines with alt_ids updated to current ids: " + n_alt_id);
+        System.out.println("\tNumber of lines with ONSET alt_ids updated to current ids: " + n_onset_alt_id);
         System.out.println("\tNumber of lines with labels updated to current labels: " + n_update_label);
+        System.out.println("\tNumber of lines with ONSET labels updated to current labels: " + n_updating_onset_label);
         System.out.println("\tNumber of lines for which no Evidence code was found: "+ n_no_evidence);
         System.out.println("\tNumber of lines for which a Clinical modifer was extracted: "+n_created_modifier);
         System.out.println("\tNumber of lines with less than expected number of fields (given number of fields in header): "+n_less_than_expected_number_of_lines);

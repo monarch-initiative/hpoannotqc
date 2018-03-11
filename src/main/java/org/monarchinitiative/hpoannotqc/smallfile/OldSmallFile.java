@@ -85,6 +85,7 @@ public class OldSmallFile {
     private int n_no_evidence=0;
     private int n_gene_data=0;
     private int n_alt_id=0;
+    private int n_onset_alt_id=0;
     private int n_update_label=0;
     private int n_created_modifier=0;
     private int n_EQ_item=0;
@@ -101,6 +102,7 @@ public class OldSmallFile {
     private int n_assigned_by_empty =0;
     private int n_converted_n_of_m=0;
     private int n_lineHasQcIssue=0;
+    private int n_updating_onset_label=0;
 
     /** This is called for lines that have less than the expected number of fields given the number of fields in the header.
      * In practice this seems to be related to entries that are missing a "Date created" field.
@@ -366,6 +368,14 @@ public class OldSmallFile {
         return n_converted_n_of_m;
     }
 
+    public int getN_onset_alt_id() {
+        return n_onset_alt_id;
+    }
+
+    public int getN_updating_onset_label() {
+        return n_updating_onset_label;
+    }
+
     /**
      * This function gets called for all entries (old small file lines) that have one or
      * more Q/C issues. Basically we just tally them up.
@@ -446,6 +456,15 @@ public class OldSmallFile {
                     n_converted_n_of_m++;
                     LOGGER.trace(String.format("%s:%s",CONVERTED_N_OF_M.name(),line));
                     break;
+                case UPDATING_ONSET_ALT_ID:
+                    n_onset_alt_id++;
+                    LOGGER.trace(String.format("%s:%s",UPDATING_ONSET_ALT_ID.name(),line));
+                    break;
+                case UPDATING_ONSET_LABEL:
+                    n_updating_onset_label++;
+                    LOGGER.trace(String.format("%s:%s",UPDATING_ONSET_LABEL.name(),line));
+                    break;
+
             }
         }
     }

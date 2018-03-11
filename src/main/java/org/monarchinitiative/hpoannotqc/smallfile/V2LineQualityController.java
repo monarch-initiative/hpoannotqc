@@ -54,10 +54,10 @@ public class V2LineQualityController {
     private String qcPublication() { return String.format("%d good and %d bad publication entries",n_good_publication,n_bad_publication);}
     private int n_good_ageOfOnset_ID=0;
     private int n_bad_ageOfOnset_ID=0;
-    private String qcAgeOfOnsetID() { return String.format("%d good and %d age of onset ID entries",n_good_ageOfOnset_ID,n_bad_ageOfOnset_ID);}
+    private String qcAgeOfOnsetID() { return String.format("%d good and %d bad age of onset ID entries",n_good_ageOfOnset_ID,n_bad_ageOfOnset_ID);}
     private int n_good_ageOfOnsetLabel=0;
     private int n_bad_ageOfOnsetLabel=0;
-    private String qcAgeOfOnsetLabel() { return String.format("%d good and %d age of onset label entries",
+    private String qcAgeOfOnsetLabel() { return String.format("%d good and %d bad age of onset label entries",
             n_good_ageOfOnsetLabel,n_bad_ageOfOnsetLabel);}
     private int n_good_evidence=0;
     private int n_bad_evidence=0;
@@ -228,7 +228,6 @@ public class V2LineQualityController {
             return false;
         }
         if (this.onsetTerms.contains(id)) {
-            System.err.println("GOTD onset Id: "+id.getIdWithPrefix());
             n_good_ageOfOnset_ID++;
             return true;
         } else {
@@ -399,6 +398,8 @@ public class V2LineQualityController {
         }
         if (! checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetName())) {
             errors.add(String.format("Bad age of onset label: %s",entry.toString()));
+            System.err.println(String.format("Bad age of onset label: \"%s\" %s",entry.getAgeOfOnsetName(),entry.toString()));
+            System.exit(1);
         }
         if (! checkEvidence(entry.getEvidenceCode())) {
             errors.add(String.format("Bad evidence code: \"%s\" for entry %s",

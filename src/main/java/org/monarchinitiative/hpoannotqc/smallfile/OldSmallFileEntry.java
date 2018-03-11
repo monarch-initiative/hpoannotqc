@@ -281,6 +281,11 @@ public class OldSmallFileEntry {
             System.exit(1);
         }
         ageOfOnsetId = createHpoTermIdFromString(id);
+        TermId primaryOnsetId = ontology.getPrimaryTermId(ageOfOnsetId);
+        if (! ageOfOnsetId.equals(primaryOnsetId)) {
+            this.QCissues.add(UPDATING_ONSET_ALT_ID);
+            ageOfOnsetId=primaryOnsetId;
+        }
     }
 
     public void setAgeOfOnsetName(String name) {
@@ -385,6 +390,16 @@ public class OldSmallFileEntry {
             this.pub = diseaseID;
             this.QCissues.add(CORRECTED_PUBLICATION_WITH_DATABASE_BUT_NO_ID);
         }
+
+
+        if (ageOfOnsetId!=null) {
+            String expectedOnsetName = ontology.getTermMap().get(ageOfOnsetId).getName();
+            if (this.ageOfOnsetName==null) ageOfOnsetName=EMPTY_STRING;
+            if (!expectedOnsetName.equals(ageOfOnsetName)) {
+                this.QCissues.add(UPDATING_ONSET_LABEL);
+                ageOfOnsetName = expectedOnsetName;
+            }
+        }
         // we need to call some additional functions that the V2SmallFileEntry constructor will
         // call in order to get a complete tally of the Q/C issues.
         String dummy=getThreeWayFrequencyString();
@@ -396,13 +411,6 @@ public class OldSmallFileEntry {
         return QCissues;
     }
 
-
-
-/*
-if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("common") || frequencyMod.equalsIgnoreCase("variable")
-					|| frequencyMod.equalsIgnoreCase("frequent") || frequencyMod.equalsIgnoreCase("FREQUENT(79-30%)")) {
-				frequencyMod = OntologyConstants.frequency_Frequent;
- */
 
     void setFrequencyString(String freq) {
         if (freq == null || freq.length() == 0) return; // not required!
@@ -707,6 +715,11 @@ if (frequencyMod.equalsIgnoreCase("typical") || frequencyMod.equalsIgnoreCase("c
     }
 
     public String getAgeOfOnsetName() {
+        if (ageOfOnsetName!=null && ! ageOfOnsetName.equals(EMPTY_STRING)) {
+            return ageOfOnsetName;
+        } else if (ageOfOnsetId!=null) {
+            return ontology.getTermMap().get(ageOfOnsetId).getName();
+        }
         return ageOfOnsetName;
     }
 
