@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
@@ -33,7 +34,7 @@ public class V2BigFile {
     private static final TermId phenotypeRoot= ImmutableTermId.constructWithPrefix("HP:0000118");
     private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");
     private static final TermId CLINICAL_COURSE_ID =ImmutableTermId.constructWithPrefix("HP:0031797");
-    private static final TermId ONSET_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0003674");
+    private static final TermId CLINICAL_MODIFIER_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
     /** These are the objects that represent the diseases contained in the V2 small files. */
     private final List<V2SmallFile> v2SmallFileList;
 
@@ -76,6 +77,13 @@ public class V2BigFile {
     }
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
     String transformEntry2BigFileLineV2(V2SmallFileEntry entry) {
+
+        String Aspect = getAspectV2(entry.getPhenotypeId());
+        if (Aspect.equalsIgnoreCase("?")) {
+            System.out.println("BAD ASPECT FOR " + entry.getRow());
+            System.exit(1);
+        }
+
         String [] elems = {
                 entry.getDB(), //DB
                 entry.getDB_Object_ID(), //DB_Object_ID
@@ -109,11 +117,15 @@ public class V2BigFile {
         } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
             v2qualityController.incrementGoodAspect();
             return "I";
-        } else if (existsPath(ontology, tid, ONSET_TERM_ID)) {
+        } else if (existsPath(ontology, tid, CLINICAL_COURSE_ID)) {
             v2qualityController.incrementGoodAspect();
             return "C";
+        } else if (existsPath(ontology,tid,CLINICAL_MODIFIER_ID)) {
+            v2qualityController.incrementGoodAspect();
+            return "M";
         } else {
             this.v2qualityController.incrementBadAspect();
+            System.exit(1);
             return "?";
         }
     }

@@ -29,7 +29,7 @@ public class Orphanet2BigFile {
     private static final TermId phenotypeRoot= ImmutableTermId.constructWithPrefix("HP:0000118");
     private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");
     private static final TermId CLINICAL_COURSE_ID =ImmutableTermId.constructWithPrefix("HP:0031797");
-    private static final TermId ONSET_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0003674");
+    private static final TermId CLINICAL_MODIFIER_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
     private final HpoOntology ontology;
 
 
@@ -86,6 +86,12 @@ public class Orphanet2BigFile {
         logger.trace("We output a total of " + n + " orphanet annotations");
     }
 
+    /**
+     * This is identical to the analogous function in {@link V2BigFile} except that it does not use
+     * the Q/C function of that function.
+     * @param tid
+     * @return
+     */
     private String getAspectV2(TermId tid) {
         HpoTerm term = ontology.getTermMap().get(tid);
         if (term==null) {
@@ -97,9 +103,12 @@ public class Orphanet2BigFile {
             return "P"; // organ/phenotype abnormality
         } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
             return "I";
-        } else if (existsPath(ontology, tid, ONSET_TERM_ID)) {
+        } else if (existsPath(ontology, tid, CLINICAL_COURSE_ID)) {
             return "C";
+        } else if (existsPath(ontology,tid,CLINICAL_MODIFIER_ID)) {
+            return "M";
         } else {
+            System.exit(1);
             return "?";
         }
     }
@@ -177,14 +186,14 @@ public class Orphanet2BigFile {
         return Arrays.stream(elems).collect(Collectors.joining("\t"));
     }
 
-    /** We are using this to supply a date created value for the Orphanet annotations. TODO is there a better
-     * way of doing this
+    /** We are using this to supply a date created value for the Orphanet annotations.
+     * After some research, no better way of getting the current date was found.
      * @return A String such as 2018-02-22
      */
     public String getTodaysDate() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
         Date date = new Date();
-        return dateFormat.format(date); //2016/11/16 12:08:43
+        String modifiedDate= new SimpleDateFormat("yyyy-MM-dd").format(date);
+        return modifiedDate;
     }
 
 

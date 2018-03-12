@@ -91,7 +91,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         if (! ontology.getTermMap().containsKey(tid)) {
             logger.error("[ERROR] Could not find TermId for Orphanet HPO ID \""+ id + "\"");
             n_could_not_find_orphanet_HpoId++;
-            return tid; // probably an obsolete term.
+            return null; // probably an obsolete term.
         }
         TermId currentId =  ontology.getTermMap().get(tid).getId();
         if (!currentId.equals(tid)) {
@@ -103,7 +103,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private String getCurrentHpoLabel(TermId tid, String orphalabel) {
 
         if (! ontology.getTermMap().containsKey(tid)) {
-            logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s]", tid.getIdWithPrefix(),orphalabel));
+            logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s] -- will skip this annotation", tid.getIdWithPrefix(),orphalabel));
             n_could_not_find_orphanet_HpoId++;
             return orphalabel; // probably an obsolete term.
         }
@@ -153,6 +153,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     xmlEvent = xmlEventReader.nextEvent();
                     if (currentHpoId!=null) {
                         TermId tid = currentNotAltHpoId(currentHpoId);
+                        if (tid==null) continue;
                         String termLabel = getCurrentHpoLabel(tid, xmlEvent.asCharacters().getData());
                         disorder.setHPO(tid,termLabel);
                     }
