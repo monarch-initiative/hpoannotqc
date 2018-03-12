@@ -3,10 +3,10 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
 import org.monarchinitiative.hpoannotqc.bigfile.HpoOntologyParser;
 import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.obo.hpo.HpoDiseaseAnnotationParser;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 
 
@@ -38,8 +38,8 @@ public class Compare2Diseases  implements Command {
             parser.parseOntology();
             ontology = parser.getOntology();
             Objects.requireNonNull(ontology);
-            HpoAnnotation2DiseaseParser annotationParser = new HpoAnnotation2DiseaseParser(phenotype_annotation_path, ontology);
-            diseaseMap = annotationParser.getDiseaseMap();
+            HpoDiseaseAnnotationParser annotationParser = new HpoDiseaseAnnotationParser(phenotype_annotation_path, ontology);
+            diseaseMap = annotationParser.parse();
             logger.error("Done parsing");
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,11 +3,13 @@ package org.monarchinitiative.hpoannotqc.mondo;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.monarchinitiative.hpoannotqc.bigfile.HpoAnnotation2DiseaseParser;
+
+import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 
+
+import org.monarchinitiative.phenol.io.obo.hpo.HpoDiseaseAnnotationParser;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.*;
 
@@ -30,7 +32,7 @@ public class MergerTest {
 
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() throws IOException, PhenolException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
         hpOboPath =classLoader.getResource("hp.obo").getFile();
         annotationPath =classLoader.getResource("phenotype_annotation.tab").getFile();
@@ -44,11 +46,11 @@ public class MergerTest {
 
 
 
-        HpoAnnotation2DiseaseParser parser = new HpoAnnotation2DiseaseParser(annotationPath,
+        HpoDiseaseAnnotationParser parser = new HpoDiseaseAnnotationParser(annotationPath,
                 ontology);
 
         Objects.requireNonNull(parser);
-        diseaseMap=parser.getDiseaseMap();
+        diseaseMap=parser.parse();
 
         omim=diseaseMap.get("167210");
         orpha=diseaseMap.get("2309");
