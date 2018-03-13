@@ -25,7 +25,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  * {@code phenotype.hpoa}.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson </a>
  */
-public class V2BigFile {
+class V2BigFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
@@ -43,7 +43,7 @@ public class V2BigFile {
      * @param ont Reference to the HPO Ontology
      * @param v2SmallFiles List of V2 small files to be converted to the bigfile.
      */
-    public V2BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
+    V2BigFile(HpoOntology ont, List<V2SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
         v2qualityController=new V2LineQualityController(this.ontology);
@@ -59,7 +59,7 @@ public class V2BigFile {
         v2qualityController=new V2LineQualityController(this.ontology);
     }
 
-    public void outputBigFileV2(BufferedWriter writer) throws IOException {
+    void outputBigFileV2(BufferedWriter writer) throws IOException {
         int n = 0;
         V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
         writer.write(getHeaderV2() + "\n");
@@ -72,7 +72,7 @@ public class V2BigFile {
                 n++;
             }
         }
-        logger.trace("We output a total of " + n + " big file lines");
+        System.out.println("We output a total of " + n + " big file lines");
         v2qc.dumpQCtoShell();
     }
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
@@ -132,7 +132,7 @@ public class V2BigFile {
     /**
      * @return Header line for the new V2 small files.
      */
-    static String getHeaderV2() {
+    private static String getHeaderV2() {
         String []fields={"#DB",
                 "DB_Object_ID",
                 "DB_Name",

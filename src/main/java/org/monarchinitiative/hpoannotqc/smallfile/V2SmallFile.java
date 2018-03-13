@@ -59,6 +59,8 @@ public class V2SmallFile {
         return entryList;
     }
 
+    public int getNumberOfAnnotations() { return entryList.size(); }
+
 
     /**
      * This is the header of the V2 small files.

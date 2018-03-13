@@ -3,19 +3,18 @@ HPO Annotation File Formats
 
 
 The HPO annotations files are created by editing one file per disease entries (which we will call "small" files here for brevity).
-These files are merged into a single file that has been called phenotype_annotation.tab.
+These files are merged into a single file that has been called ``phenotype_annotation.tab``.
 
 
-Previous big file format
-~~~~~~~~~~~~~~~~~~~~~~~~
-THe HPO project has used the file format described `Here <http://human-phenotype-ontology.github.io/documentation.html#annot>_`
-for annotation data. Owing to the development of the project, it was decided to update the format. We will be transitioning
-to the new format in 2018.
-
-
-
-Proposed new big file format
+New and old big file formats
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+THe HPO project has used the file format described `here <http://human-phenotype-ontology.github.io/documentation.html#annot>`_
+for annotation data. The original format is showing its age, and so we will be transitioning
+to the new format in 2018. The new file will be called ``phenotype.hpoa``. During a transition time
+whose duration will be determined by the needs of our users, we will continue to offer the
+``phenotype_annotation.tab`` file.
+
+The following table explains the format of the ``phenotype.hpoa`` file.
 
 
 +----+-------------------+---------+--------------------------------+
@@ -43,7 +42,7 @@ Proposed new big file format
 +----+-------------------+------------------------------------------+
 | 11 |Modifier           |    No   | HP:0025257 (";"-separated list)|
 +----+-------------------+------------------------------------------+
-| 12 |Aspect             |    Yes  | "P" or "C" or "I"              |
+| 12 |Aspect             |    Yes  | "P" or "C" or "I" or "M"       |
 +----+-------------------+------------------------------------------+
 | 13 |Date_Created       |    Yes  | YYYY-MM-DD                     |
 +----+-------------------+------------------------------------------+
@@ -71,15 +70,12 @@ This field is mandatory, cardinality 1.
 6. **DB_Reference**: This required field indicates the source of the information used for the annotation.
 This may be the clinical experience of the annotator or may be taken from an article as indicated by a pubmed id. Each collaborating center of the Human Phenotype Ontology consortium is assigned a HPO:Ref id. In addition, if appropriate, a pubmed id for an article describing the clinical abnormality may be used.
 
-7. **Evidence**: This required field indicates the level of evidence supporting the annotation.
-Annotations  extracted by parsing the Clinical Features sections of the Online Mendelian Inheritance in Man resource
-are assigned the evidence code “IEA” (inferred from electronic annotation). Other codes include “PCS” for published clinical study.
-This should be used for information extracted from articles in the medical literature. Generally, annotations of this type will
-include the pubmed id of the published study in the ``DB_Reference`` field. Finally, “ICE” can be used for annotations based on
-individual clinical experience. This may be appropriate for disorders with a limited amount of published data.
-This must be accompanied by an entry in the DB:Reference field denoting the individual or center performing the annotation
-together with an identifier. For instance, GH:007 might be used to refer to the seventh such annotation made by a specialist
-from Gotham Hospital. (assuming the prefix GH has been registered with the HPO).
+7. **Evidence**: This required field indicates the level of evidence supporting the annotation. The HPO project currently
+uses three evidence codes.
+
+* **IEA** (inferred from electronic annotation): Annotations  extracted by parsing the Clinical Features sections of the Online Mendelian Inheritance in Man resource are assigned the evidence code “IEA”.
+* **PCS** (published clinical study) is used for used for information extracted from articles in the medical literature. Generally, annotations of this type will include the pubmed id of the published study in the ``DB_Reference`` field.
+* **TAS** (traceable author statement) is used for information gleaned from knowledge bases such as OMIM or Orphanet that have derived the information frm a published source..
 
 8. **Onset**: A term-id from the HPO-sub-ontology below the term
 “Age of onset” (HP:0003674). Note that if an HPO onset term is used in this field, it refers to the onset of the
@@ -97,17 +93,19 @@ refered to by the DB_Reference; **(C)** A percentage value such as 17%.
 10. **Sex**: This field contains the strings MALE or FEMALE if the annotation in question is limited to
 males or females. This field refers to the phenotypic (and not the chromosomal) sex, and does not intend to capture
 the further complexities of sex determination. If a phenotype is limited to one or the other sex, then the corresponding
-term for the "Clinical modifier" subontology should also be used in the Modifier field. TODO
+term for the "Clinical modifier" subontology should also be used in the Modifier field.
 
 11. **Modifier**: A term-id from the HPO-sub-ontology below the
 term "Clinical modifier".
 
 
-12. **Aspect**: one of P (Phenotypic abnormality), I (inheritance), C (onset and clinical course).
-This field is mandatory; cardinality 1. Terms with the ``P`` aspect are located in the Phenotypic abnormality
-subontology. Terms with the ``I`` aspect are from the Inheritance subontology. Terms with the ``C`` aspect
-are located in the Clinical course subontology, which includes onset, mortality, and other terms related to the
-temporal aspects of disease.
+12. **Aspect**: one of P (Phenotypic abnormality), I (inheritance), C (onset and clinical course), M (clinical modifier).
+This field is mandatory; cardinality 1.
+
+* Terms with the ``P`` aspect are located in the Phenotypic abnormality subontology.
+* Terms with the ``I`` aspect are from the Inheritance subontology.
+* Terms with the ``C`` aspect are located in the Clinical course subontology, which includes onset, mortality, and other terms related to the temporal aspects of disease.
+* Terms with the ``M`` aspect are located in the Clinical Modifier subontology.
 
 
 13. **Date_Created**: Date on which the annotation was made; format is YYYY.MM.DD this field is mandatory,

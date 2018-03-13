@@ -66,7 +66,7 @@ public class BigFileCommand implements Command {
            // writer.outputBigFileV1();
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
-
+            debugPrintOrphanetDisorders(orphanetDisorders);
             if (doV1bigfileOutput) {
                 writer.initializeV1filehandle();
                 writer.outputBigFileV1();
@@ -76,7 +76,7 @@ public class BigFileCommand implements Command {
                 /// now output the V2 version of the file
                 writer.initializeV2filehandle();
                 writer.outputBigFileV2();
-                writer.appendOrphanetV2(orphanetDisorders);
+               writer.appendOrphanetV2(orphanetDisorders);
                 writer.closeFileHandle();
             }
 
@@ -88,5 +88,12 @@ public class BigFileCommand implements Command {
 
 
 
+   private void debugPrintOrphanetDisorders(List<OrphanetDisorder> orphanetDisorders){
+        int n_annot=0;
+        for (OrphanetDisorder od : orphanetDisorders) {
+            n_annot += od.getHpoIds().size();
+        }
+        System.out.println(String.format("We extracted %d orphanet disorders with %d annotations ",orphanetDisorders.size(),n_annot));
+   }
 
 }

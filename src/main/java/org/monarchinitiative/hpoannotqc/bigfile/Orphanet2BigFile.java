@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
@@ -46,7 +47,7 @@ public class Orphanet2BigFile {
 
 
 
-    public void writeOrphanetV1() {
+    void writeOrphanetV1() {
         int n=0;
         try {
             for (OrphanetDisorder disorder : orphanetDisorders) {
@@ -66,33 +67,43 @@ public class Orphanet2BigFile {
         logger.trace("We output a total of " + n + " orphanet annotations");
     }
 
-    public void writeOrphanetV2() {
+    void writeOrphanetV2() {
         int n=0;
+        System.out.println("V2 orph about to write this many od"+ orphanetDisorders.size());
         try {
             for (OrphanetDisorder disorder : orphanetDisorders) {
                 List<TermId> hpoIds = disorder.getHpoIds();
                 for (TermId tid: hpoIds) {
-                    String line = transformOrphanetEntry2BigFileLineV2(disorder,tid);
-                    writer.write(line + "\n");
-                    n++;
+                    try {
+                        String line = transformOrphanetEntry2BigFileLineV2(disorder, tid);
+                        writer.write(line + "\n");
+                        n++;
+                    } catch (HPOException hpoe) {
+                        logger.error(String.format("Could not make annotation for term %s of disorder %s ",tid.getIdWithPrefix(),disorder.getName()));
+                        logger.error("Will skip this line: "+hpoe.getMessage());
+                        // just go to next one.
+                    }
                 }
             }
+            System.out.println(String.format("We output a total of %d orphanet annotations from %d diseases",n,orphanetDisorders.size()));
         } catch (IOException e) {
             logger.fatal(e);
+            System.err.println("Exception trying to write orphnaet");
+            e.printStackTrace();
             logger.fatal("Could not write orphanet disorder ", e);
             logger.fatal("No choice but to terminate program, sorry....");
             System.exit(1);
         }
-        logger.trace("We output a total of " + n + " orphanet annotations");
+
     }
 
     /**
      * This is identical to the analogous function in {@link V2BigFile} except that it does not use
      * the Q/C function of that function.
-     * @param tid
-     * @return
+     * @param tid An HPO term id for which we want to get the aspect
+     * @return A one-letter String representing the aspect (P,I,C,M).
      */
-    private String getAspectV2(TermId tid) {
+    private String getAspectV2(TermId tid) throws HPOException {
         HpoTerm term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
@@ -108,8 +119,9 @@ public class Orphanet2BigFile {
         } else if (existsPath(ontology,tid,CLINICAL_MODIFIER_ID)) {
             return "M";
         } else {
-            System.exit(1);
-            return "?";
+            String label=term.getName();
+            String msg=String.format("Could not get aspect for term %s [%s]",label,tid.getIdWithPrefix());
+            throw new HPOException(msg);
         }
     }
 
@@ -140,7 +152,7 @@ public class Orphanet2BigFile {
 
 
     /** Output a line of an Orphanet entry to the V2 big file, phenotype.hpoa. */
-    private String transformOrphanetEntry2BigFileLineV2(OrphanetDisorder entry, TermId hpoId) throws IOException {
+    private String transformOrphanetEntry2BigFileLineV2(OrphanetDisorder entry, TermId hpoId) throws HPOException {
         String diseaseID=String.format("%s:%d", ORPHANET_DB,entry.getOrphaNumber());
         String [] elems = {
                 ORPHANET_DB, // DB
@@ -190,10 +202,9 @@ public class Orphanet2BigFile {
      * After some research, no better way of getting the current date was found.
      * @return A String such as 2018-02-22
      */
-    public String getTodaysDate() {
+    private String getTodaysDate() {
         Date date = new Date();
-        String modifiedDate= new SimpleDateFormat("yyyy-MM-dd").format(date);
-        return modifiedDate;
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
 
 
