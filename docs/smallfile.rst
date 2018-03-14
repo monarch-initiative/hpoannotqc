@@ -96,11 +96,11 @@ Proposed new small file format
 +--------+-----------------+--------------------------------+
 | 2      | diseaseName     | e.g., Neurofibromatosis type 1 |
 +--------+-----------------+--------------------------------+
-| 3      | phenotypeId     | e.g., HP:0000123               |
+| 3      | phenotypeID     | e.g., HP:0000123               |
 +--------+-----------------+--------------------------------+
 | 4      | phenotypeName   | e.g., Scoliosis                |
 +--------+-----------------+--------------------------------+
-| 5      | onsetId         | e.g., HP:0003581               |
+| 5      | onsetID         | e.g., HP:0003581               |
 +--------+-----------------+--------------------------------+
 | 6      | onsetName       | e.g., Adult onset              |
 +--------+-----------------+--------------------------------+
@@ -138,10 +138,10 @@ labels of affected annotations to be updated after manual inspection by the user
 4. **phenotypeName**. The label of the HPO term refered to by the phenotypeId field, e.g.,
 ``Arachnodactyly``.
 
-5. **ageOfOnsetId**. The HPO id of a term from the ``Onset`` subhierarchy of the HPO. This must be the primary id (not the
+5. **onsetID**. The age of onset ID, being an HPO id of a term from the ``Onset`` subhierarchy of the HPO. This must be the primary id (not the
 alt_id). This field can be left empty, in which case, the ageOfOnsetName field must also be empty.
 
-6. **ageOfOnsetName**. The label corresponding to the ageOfOnsetId.
+6. **onsetName**. The label corresponding to the ageOfOnsetId.
 This field can be left empty, in which case, the ageOfOnsetId field must also be empty.
 
 7. **frequency**. This column can be one of three formats: A valid HPO term from the frequency subontology, a fractional

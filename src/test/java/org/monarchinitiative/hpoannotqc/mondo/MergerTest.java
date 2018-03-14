@@ -5,7 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.monarchinitiative.phenol.base.PhenolException;
-import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 
@@ -25,10 +25,10 @@ public class MergerTest {
     private static String hpOboPath;
     private static String annotationPath;
     private static HpoOntology ontology;
-    private static Map<String,HpoDiseaseWithMetadata> diseaseMap;
+    private static Map<String,HpoDisease> diseaseMap;
 
-    private static HpoDiseaseWithMetadata omim;
-    private static HpoDiseaseWithMetadata orpha;
+    private static HpoDisease omim;
+    private static HpoDisease orpha;
 
 
     @BeforeClass
@@ -72,7 +72,7 @@ public class MergerTest {
     }
 
 
-    private void debugPrintDisease(HpoDiseaseWithMetadata disease) {
+    private void debugPrintDisease(HpoDisease disease) {
         System.out.println(disease);
     }
 

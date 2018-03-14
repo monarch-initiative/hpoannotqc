@@ -4,7 +4,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.HpoOntologyParser;
-import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoDiseaseAnnotationParser;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class Compare2Diseases  implements Command {
     private static final Logger logger = LogManager.getLogger();
     private HpoOntology ontology=null;
-    private static Map<String,HpoDiseaseWithMetadata> diseaseMap;
+    private static Map<String,HpoDisease> diseaseMap;
     private final String phenotype_annotation_path;
     private final String hpOboPath;
 

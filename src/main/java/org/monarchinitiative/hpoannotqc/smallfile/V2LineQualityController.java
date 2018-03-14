@@ -32,7 +32,7 @@ public class V2LineQualityController {
 
     private final Set<TermId> onsetTerms;
 
-    private Map<String,Integer> assignedByMap = new HashMap();
+    private Map<String,Integer> assignedByMap = new HashMap<>();
 
     private int n_good_DB=0;
     private int n_bad_DB=0;
@@ -190,6 +190,14 @@ public class V2LineQualityController {
             return false;
         }
         if (pub.contains("::")) { // should only be one colon separating prefix and id
+            n_bad_publication++;
+            return false;
+        }
+        if (pub.startsWith("HPO")) {
+            n_bad_publication++;
+            return false;
+        }
+        if (pub.contains(" ")) {
             n_bad_publication++;
             return false;
         }

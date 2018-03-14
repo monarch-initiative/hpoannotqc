@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.mondo;
 
 
 
-import org.monarchinitiative.phenol.formats.hpo.HpoDiseaseWithMetadata;
+import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
  */
 public class Merger {
 
-    private final HpoDiseaseWithMetadata disease_1;
-    private final HpoDiseaseWithMetadata disease_2;
+    private final HpoDisease disease_1;
+    private final HpoDisease disease_2;
     private final HpoOntology ontology;
 
-    public Merger(HpoDiseaseWithMetadata disease1, HpoDiseaseWithMetadata disease2, HpoOntology ontology) {
+    public Merger(HpoDisease disease1, HpoDisease disease2, HpoOntology ontology) {
         this.disease_1=disease1;
         this.disease_2=disease2;
         this.ontology=ontology;
@@ -35,7 +35,7 @@ public class Merger {
     }
 
 
-    public HpoDiseaseWithMetadata merge() {
+    public HpoDisease merge() {
         System.err.println("##########  D1 to D2  ###########");
         mergeDirection1();
         System.err.println("##########  D2 to D1  ###########");

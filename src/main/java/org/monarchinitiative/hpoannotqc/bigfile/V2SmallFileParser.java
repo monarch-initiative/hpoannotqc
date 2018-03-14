@@ -128,9 +128,9 @@ public class V2SmallFileParser {
     private static final String[] expectedFields = {
             "#diseaseID",
             "diseaseName",
-            "phenotypeId",
+            "phenotypeID",
             "phenotypeName",
-            "onsetId",
+            "onsetID",
             "onsetName",
             "frequency",
             "sex",
@@ -145,7 +145,7 @@ public class V2SmallFileParser {
      * This method checks that the nead has the expected number and order of lines.
      * If it doesn't, then a serious error has occured somewhere and it is better to
      * die and figure out what is wrong than to attempt error correction
-     * @param line
+     * @param line a header line of a V2 small file
      */
     private void qcHeaderLine(String line) {
         String fields[] = line.split("\t");

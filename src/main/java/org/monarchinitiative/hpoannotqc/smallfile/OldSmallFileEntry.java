@@ -264,7 +264,7 @@ public class OldSmallFileEntry {
         phenotypeName = name;
     }
     /** Sets the age of onset id (HPO term) and checks it is a valid term. */
-    public void setAgeOfOnsetId(String id) throws HPOException {
+    void setAgeOfOnsetId(String id) throws HPOException {
         if (id == null || id.length() == 0) {
             return;
         }// no age of onset
@@ -288,7 +288,7 @@ public class OldSmallFileEntry {
         }
     }
 
-    public void setAgeOfOnsetName(String name) {
+    void setAgeOfOnsetName(String name) {
         if (name == null || name.length() == 0) return; // no age of onset (not required)
         this.ageOfOnsetName = name;
     }
@@ -592,38 +592,44 @@ public class OldSmallFileEntry {
         if (p==null || p.isEmpty()) {
             return; // we will try to fix this in the doQCcheck function/
         }
-        p=p.trim(); // remove extraneous white space
-        int index=p.indexOf(":");
-        if (index <= 0) {
-            if (p.startsWith("OMIM")) {
-                // somebody forgot the ":"
-                p=p.replaceAll("OMIM","OMIM:");
-                QCissues.add(ADDED_FORGOTTEN_COLON);
-            } else if (p.startsWith("MIM")) {
-                p=p.replaceAll("MIM","OMIM:");
-                QCissues.add(ADDED_FORGOTTEN_COLON);
+        p=p.replaceAll(" ",EMPTY_STRING); // remove extraneous white space
+        // There may be multiple entries separated by ";"
+        String F[]=p.split(";");
+        Set<String>results=new HashSet<>(); // put cleaned up items here
+        for (String f:F) {
+            String myResult="";
+            int index = p.indexOf(":");
+            if (index <= 0) {                 // somebody forgot the ":"
+                if (p.startsWith("OMIM")) {
+
+                    p = p.replaceAll("OMIM", "OMIM:");
+                    QCissues.add(ADDED_FORGOTTEN_COLON);
+                } else if (p.startsWith("MIM")) {
+                    p = p.replaceAll("MIM", "OMIM:");
+                    QCissues.add(ADDED_FORGOTTEN_COLON);
+                }
+                myResult = p;
+            } else if (p.startsWith("http")) { // accept URLs.
+                myResult = p;
+            } else {  // if we get here, we have prefix:number. Fix problems in prefix if necessary
+                String prefix = p.substring(0, index);
+                String ucPrefix = prefix.toUpperCase();
+                if (!prefix.equals(ucPrefix)) {
+                    this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
+                    prefix = ucPrefix;
+                }
+                if (prefix.equals("MIM")) {
+                    this.QCissues.add(CHANGED_MIM_TO_OMIM);
+                    prefix = "OMIM";
+                } else if (prefix.equals("PUBMED")) {
+                    this.QCissues.add(CHANGED_PUBMED_TO_PMID);
+                    prefix = "PMID";
+                }
+                myResult = prefix + p.substring(index);
             }
-            pub = p;
-            return;
+            results.add(myResult);
         }
-        if (p.startsWith("http")) { // accept URLs.
-            pub=p;
-            return;
-        }
-        String prefix = p.substring(0,index);
-        String ucPrefix = prefix.toUpperCase();
-        if (!prefix.equals(ucPrefix)) {
-            this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
-            prefix = ucPrefix;
-        }
-        if (prefix.equals("MIM")) {
-            this.QCissues.add(CHANGED_MIM_TO_OMIM);
-            prefix = "OMIM";
-        } else if (prefix.equals("PUBMED")) {
-            this.QCissues.add(CHANGED_PUBMED_TO_PMID);
-            prefix = "PMID";
-        }
-        this.pub = prefix + p.substring(index);
+        this.pub = results.stream().collect(Collectors.joining(";"));
     }
 
     public void setAssignedBy(String ab) {
@@ -700,7 +706,7 @@ public class OldSmallFileEntry {
         else throw new HPOException("Did not recognize sex code \"" + s + "\"");
     }
 
-    public String getDatabase() {
+    String getDatabase() {
         return database.toString();
     }
 
@@ -722,11 +728,11 @@ public class OldSmallFileEntry {
         return phenotypeName;
     }
 
-    public TermId getAgeOfOnsetId() {
+    TermId getAgeOfOnsetId() {
         return ageOfOnsetId;
     }
 
-    public String getAgeOfOnsetName() {
+    String getAgeOfOnsetName() {
         if (ageOfOnsetName!=null && ! ageOfOnsetName.equals(EMPTY_STRING)) {
             return ageOfOnsetName;
         } else if (ageOfOnsetId!=null) {
@@ -747,7 +753,7 @@ public class OldSmallFileEntry {
         return evidence;
     }
 
-    public String getFrequencyString() {
+    String getFrequencyString() {
         return frequencyString;
     }
 
