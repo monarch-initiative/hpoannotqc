@@ -103,6 +103,11 @@ public class OldSmallFile {
     private int n_converted_n_of_m=0;
     private int n_lineHasQcIssue=0;
     private int n_updating_onset_label=0;
+    private int n_hpo_publication_code=0;
+
+    public int getN_hpo_publication_code() {
+        return n_hpo_publication_code;
+    }
 
     public int getN_publication_had_no_db_part() {
         return n_publication_had_no_db_part;
@@ -473,7 +478,10 @@ public class OldSmallFile {
                 case PUBLICATION_HAD_NO_DB_PART:
                     n_publication_had_no_db_part++;
                     LOGGER.trace(String.format("%s:%s",PUBLICATION_HAD_NO_DB_PART.name(),line));
-                    System.exit(1);
+                    break;
+                case HPO_PUBLICATION_CODE:
+                    n_hpo_publication_code++;
+                    LOGGER.trace(String.format("%s:%s",HPO_PUBLICATION_CODE.name(),line));
                     break;
             }
         }

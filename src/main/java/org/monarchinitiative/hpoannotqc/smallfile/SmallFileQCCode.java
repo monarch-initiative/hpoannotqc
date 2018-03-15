@@ -28,6 +28,7 @@ public enum SmallFileQCCode {
     ASSIGNED_BY_ONLY_HPO("assigned by code has only \"HPO\""),
     ASSIGNED_BY_EMPTY("assigned by code is empty"),
     UNINITIALIZED_DISEASE_NAME("disease name not initialized"),
+    HPO_PUBLICATION_CODE("HPO code in publication field"),
     PUBLICATION_HAD_NO_DB_PART("publication had not database (e.g., OMIM)"),
     GOT_EQ_ITEM("Found and discarded EQ items");
 

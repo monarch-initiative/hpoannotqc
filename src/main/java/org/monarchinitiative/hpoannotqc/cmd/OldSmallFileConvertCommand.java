@@ -62,6 +62,7 @@ public class OldSmallFileConvertCommand implements Command {
     private int n_onset_alt_id=0;
     private int n_updating_onset_label=0;
     private int n_publication_had_no_db_part=0;
+    private int n_hpo_publication_code=0;
 
 
 
@@ -144,6 +145,7 @@ public class OldSmallFileConvertCommand implements Command {
             n_onset_alt_id           += osf.getN_onset_alt_id();
             n_updating_onset_label   += osf.getN_updating_onset_label();
             n_publication_had_no_db_part += osf.getN_publication_had_no_db_part();
+            n_hpo_publication_code   += osf.getN_hpo_publication_code();
             osfList.add(osf);
         }
 
@@ -179,6 +181,7 @@ public class OldSmallFileConvertCommand implements Command {
                 +n_publication_had_no_db_part);
         System.out.println("\tNumber of lines where we changed MIM to OMIM (prefix): " + n_changed_MIM_to_OMIM);
         System.out.println("\tNumber of lines where we changed PUBMED to PMID: " + n_changed_PUBMED_to_PMID);
+        System.out.println("\tNumber of lines where we removed a HPO:xyz publication code: " + n_hpo_publication_code);
         System.out.println("\tNumber of lines where we added a forgotten colon to the publication id: " + n_added_forgotten_colon);
         System.out.println("\tNumber of lines with a dash in the frequency data: " +  n_frequency_with_dash);
         System.out.println("\tNumber of lines where we removed extra frequency whitespace: "+ n_frequency_removed_whitespace);

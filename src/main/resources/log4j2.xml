@@ -19,7 +19,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="error">
+        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="trace">
             <AppenderRef ref="Console" level="trace"/>
             <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" /> -->
@@ -30,8 +30,8 @@
         </Logger>
 
         <Root level="trace">
-            <AppenderRef ref="Console" level="error"/>
-            <AppenderRef ref="MyLog" level="error"/>
+            <AppenderRef ref="Console" level="trace"/>
+            <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" additivity="false" /> -->
         </Root>
     </Loggers>

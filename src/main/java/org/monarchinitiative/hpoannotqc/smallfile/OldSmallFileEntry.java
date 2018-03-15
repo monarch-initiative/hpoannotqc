@@ -179,7 +179,7 @@ public class OldSmallFileEntry {
             this.database = OMIM;
             this.diseaseID = id.substring(5);
             if (diseaseID.length()!=6) {
-                LOGGER.error(String.format("Malformed OMIM id: %s. Length of numerical part was %d. Terminating....", id, diseaseID.length()));
+                LOGGER.fatal(String.format("Malformed OMIM id: %s. Length of numerical part was %d. Terminating....", id, diseaseID.length()));
                 System.exit(1); // serious error. Better to figure out what is going on and then redo
             }
         } else if (id.startsWith("ORPHA")) {
@@ -199,7 +199,7 @@ public class OldSmallFileEntry {
                 LOGGER.error("Malformed DECIPHER id: %s. Could not parse numerical part", id, e);
             }
         } else {
-            LOGGER.error("Did not recognize disease database for " + id +". Terminating program....");
+            LOGGER.fatal("Did not recognize disease database for " + id +". Terminating program....");
             System.exit(1);//serious error. Figure out what is going on
         }
     }
@@ -207,7 +207,7 @@ public class OldSmallFileEntry {
     void addDiseaseName(String n) {
         this.diseaseName = n;
         if (diseaseName.length() < 1) {
-            LOGGER.trace("Error zero length name ");
+            LOGGER.fatal("Error zero length name ");
             System.exit(1);
         }
     }
@@ -269,15 +269,15 @@ public class OldSmallFileEntry {
             return;
         }// no age of onset
         if (!id.startsWith("HP:")) {
-            LOGGER.error("Bad phenotype id prefix: " + id);
+            LOGGER.fatal("Bad phenotype id prefix: " + id);
             System.exit(1);
         }
         if (!(id.length() == 10)) {
-            LOGGER.error("Bad length for id:  " + id);
+            LOGGER.fatal("Bad length for id:  " + id);
             System.exit(1);
         }
         if (!isValidInheritanceTerm(id)) {
-            LOGGER.error("Not a valid inheritance term....terminating program");
+            LOGGER.fatal("Not a valid inheritance term....terminating program");
             System.exit(1);
         }
         ageOfOnsetId = createHpoTermIdFromString(id);
@@ -596,23 +596,27 @@ public class OldSmallFileEntry {
         // There may be multiple entries separated by ";"
         String F[]=p.split(";");
         Set<String>results=new HashSet<>(); // put cleaned up items here
-        for (String f:F) {
+        for (String field:F) {
             String myResult="";
-            int index = p.indexOf(":");
+            int index = field.indexOf(":");
             if (index <= 0) {                 // somebody forgot the ":"
-                if (p.startsWith("OMIM")) {
+                if (field.startsWith("OMIM")) {
 
-                    p = p.replaceAll("OMIM", "OMIM:");
+                   field = field.replaceAll("OMIM", "OMIM:");
                     QCissues.add(ADDED_FORGOTTEN_COLON);
-                } else if (p.startsWith("MIM")) {
-                    p = p.replaceAll("MIM", "OMIM:");
+                } else if (field.startsWith("MIM")) {
+                    field = field.replaceAll("MIM", "OMIM:");
                     QCissues.add(ADDED_FORGOTTEN_COLON);
                 }
-                myResult = p;
-            } else if (p.startsWith("http")) { // accept URLs.
-                myResult = p;
+                myResult = field;
+            } else if (field.startsWith("http")) { // accept URLs.
+                myResult = field;
+            } else if (field.startsWith("HPO:")) {
+                // we have a very few annotations that are like HPO:sdoelken--these is not the place to put createdBy fields, just skip it
+                QCissues.add(HPO_PUBLICATION_CODE);
+                // do nothing else
             } else {  // if we get here, we have prefix:number. Fix problems in prefix if necessary
-                String prefix = p.substring(0, index);
+                String prefix = field.substring(0, index);
                 String ucPrefix = prefix.toUpperCase();
                 if (!prefix.equals(ucPrefix)) {
                     this.QCissues.add(PUBLICATION_PREFIX_IN_LOWER_CASE);
@@ -625,7 +629,7 @@ public class OldSmallFileEntry {
                     this.QCissues.add(CHANGED_PUBMED_TO_PMID);
                     prefix = "PMID";
                 }
-                myResult = prefix + p.substring(index);
+                myResult = prefix + field.substring(index);
             }
             results.add(myResult);
         }
