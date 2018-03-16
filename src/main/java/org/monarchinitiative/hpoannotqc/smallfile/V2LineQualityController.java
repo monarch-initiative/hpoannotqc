@@ -83,11 +83,6 @@ public class V2LineQualityController {
 
         this.ontology=onto;
         this.onsetTerms = getDescendents(ontology,ONSET_ROOT);
-        logger.trace("Onset terms : n = "+onsetTerms.size());
-        for (TermId tid:onsetTerms) {
-            String name = ontology.getTermMap().get(tid).getName();
-            logger.trace(name + ": " + tid.getIdWithPrefix());
-        }
     }
 
 
@@ -426,28 +421,31 @@ public class V2LineQualityController {
 
 
 
-    public void dumpQCtoShell() {
-        System.out.println("#####   V2 Conversion Quality Control   #####");
-        System.out.println("#####   Lines with errors   #####");
+    public void dumpQCtoLog() {
+        logger.info("#####   V2 Conversion Quality Control   #####");
+        logger.info("#####   Lines with errors   #####");
+        if (errors.size()>0) {
         for (String err : errors) {
-            System.out.println(err);
+            logger.error(err);
         }
-        System.out.println("#####   Q/C Summary   #####");
-        System.out.println(qcDB());
-        System.out.println(qcDiseasename());
-        System.out.println(qcNegation());
-        System.out.println(qcPhenotypeID());
-        System.out.println(qcPhenotypeLabel());
-        System.out.println(qcPublication());
-        System.out.println(qcAgeOfOnsetID());
-        System.out.println(qcAgeOfOnsetLabel());
-        System.out.println(qcEvidence());
-        System.out.println(qcDateCreated());
-        System.out.println(qcAssignedBy());
-        System.out.println(qcFrequency());
-        System.out.println(qcAspect());
+        } else {
+            logger.info("No errors detected");
+        }
 
-
+        logger.info("#####   Q/C Summary   #####");
+        logger.info(qcDB());
+        logger.info(qcDiseasename());
+        logger.info(qcNegation());
+        logger.info(qcPhenotypeID());
+        logger.info(qcPhenotypeLabel());
+        logger.info(qcPublication());
+        logger.info(qcAgeOfOnsetID());
+        logger.info(qcAgeOfOnsetLabel());
+        logger.info(qcEvidence());
+        logger.info(qcDateCreated());
+        logger.info(qcAssignedBy());
+        logger.info(qcFrequency());
+        logger.info(qcAspect());
     }
 
 }

@@ -78,7 +78,7 @@ class V1BigFile {
             }
         }
         logger.trace("We output a total of " + n + " big file lines");
-        v2qc.dumpQCtoShell();
+        v2qc.dumpQCtoLog();
         v2qc.dumpAssignedByMap();
     }
 

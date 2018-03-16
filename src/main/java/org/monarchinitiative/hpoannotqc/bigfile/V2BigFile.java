@@ -1,6 +1,5 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
@@ -73,14 +72,14 @@ class V2BigFile {
             }
         }
         System.out.println("We output a total of " + n + " big file lines");
-        v2qc.dumpQCtoShell();
+        v2qc.dumpQCtoLog();
     }
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
     String transformEntry2BigFileLineV2(V2SmallFileEntry entry) {
 
         String Aspect = getAspectV2(entry.getPhenotypeId());
         if (Aspect.equalsIgnoreCase("?")) {
-            System.out.println("BAD ASPECT FOR " + entry.getRow());
+            logger.fatal("BAD ASPECT FOR " + entry.getRow());
             System.exit(1);
         }
 
