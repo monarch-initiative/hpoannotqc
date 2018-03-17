@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.mondo;
 
 
 
+import org.monarchinitiative.phenol.formats.hpo.HpoAnnotation;
 import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoTermId;
@@ -26,9 +27,9 @@ public class Merger {
         this.ontology=ontology;
     }
 
-    public Set<TermId> getSetOfPhenotypicAbnormalities(List<HpoTermId> timdlist) {
+    public Set<TermId> getSetOfPhenotypicAbnormalities(List<HpoAnnotation> timdlist) {
         Set<TermId> set = new HashSet<>();
-        for (HpoTermId tmd : timdlist) {
+        for (HpoAnnotation tmd : timdlist) {
             set.add(tmd.getTermId());
         }
         return set;
@@ -55,14 +56,14 @@ public class Merger {
         String name=String.format("%s/%s(merged)",disease_1.getName(),disease_2.getName() );
         String dbase="MONDO";
         String dbId="000042"; // need to get real MONDO id!
-        List<HpoTermId> phenotypicAbnormalities = new ArrayList<>();
+        List<HpoAnnotation> phenotypicAbnormalities = new ArrayList<>();
         List<TermId> modesOfInheritance  = new ArrayList<>();
         List<TermId> notTerms  = new ArrayList<>();
         List<HpoTermId> termIn1not2 = new ArrayList<>();
         List<HpoTermId> termIn2not1 = new ArrayList<>();
-        for (HpoTermId tiwm : disease_2.getPhenotypicAbnormalities()) {
+        for (HpoAnnotation tiwm : disease_2.getPhenotypicAbnormalities()) {
             String label = ontology.getTermMap().get(tiwm.getTermId()).getName();
-            if (disease_1.isDirectlyAnnotatedTo(tiwm)) {
+            if (disease_1.isDirectlyAnnotatedTo(tiwm.getTermId())) {
                 phenotypicAbnormalities.add(tiwm);
                 System.err.println(String.format("D1 & D2: %s[%s]" ,label, tiwm.getIdWithPrefix()));
             } else {
@@ -75,7 +76,6 @@ public class Merger {
                 System.err.println(labels);
             }
         }
-        return;
     }
     private void mergeDirection2() {
         ClosestMatch closestMatch1 = new ClosestMatch( ontology, getSetOfPhenotypicAbnormalities(disease_2.getPhenotypicAbnormalities()));
@@ -84,14 +84,14 @@ public class Merger {
         String name=String.format("%s/%s(merged)",disease_2.getName(),disease_1.getName() );
         String dbase="MONDO";
         String dbId="000042"; // need to get real MONDO id!
-        List<HpoTermId> phenotypicAbnormalities = new ArrayList<>();
+        List<HpoAnnotation> phenotypicAbnormalities = new ArrayList<>();
         List<TermId> modesOfInheritance  = new ArrayList<>();
         List<TermId> notTerms  = new ArrayList<>();
         List<HpoTermId> termIn1not2 = new ArrayList<>();
         List<HpoTermId> termIn2not1 = new ArrayList<>();
-        for (HpoTermId tiwm : disease_1.getPhenotypicAbnormalities()) {
+        for (HpoAnnotation tiwm : disease_1.getPhenotypicAbnormalities()) {
             String label = ontology.getTermMap().get(tiwm.getTermId()).getName();
-            if (disease_2.isDirectlyAnnotatedTo(tiwm)) {
+            if (disease_2.isDirectlyAnnotatedTo(tiwm.getTermId())) {
                 phenotypicAbnormalities.add(tiwm);
                 System.err.println(String.format("D1 & D2: %s[%s]" ,label, tiwm.getIdWithPrefix()));
             } else {
@@ -104,7 +104,6 @@ public class Merger {
                 System.err.println(labels);
             }
         }
-        return;
     }
 
 
