@@ -6,7 +6,7 @@ package org.monarchinitiative.hpoannotqc.mondo;
 import org.monarchinitiative.phenol.formats.hpo.HpoAnnotation;
 import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTermId;
+import org.monarchinitiative.phenol.formats.hpo.HpoAnnotation;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
@@ -59,8 +59,8 @@ public class Merger {
         List<HpoAnnotation> phenotypicAbnormalities = new ArrayList<>();
         List<TermId> modesOfInheritance  = new ArrayList<>();
         List<TermId> notTerms  = new ArrayList<>();
-        List<HpoTermId> termIn1not2 = new ArrayList<>();
-        List<HpoTermId> termIn2not1 = new ArrayList<>();
+        List<HpoAnnotation> termIn1not2 = new ArrayList<>();
+        List<HpoAnnotation> termIn2not1 = new ArrayList<>();
         for (HpoAnnotation tiwm : disease_2.getPhenotypicAbnormalities()) {
             String label = ontology.getTermMap().get(tiwm.getTermId()).getName();
             if (disease_1.isDirectlyAnnotatedTo(tiwm.getTermId())) {
@@ -87,8 +87,8 @@ public class Merger {
         List<HpoAnnotation> phenotypicAbnormalities = new ArrayList<>();
         List<TermId> modesOfInheritance  = new ArrayList<>();
         List<TermId> notTerms  = new ArrayList<>();
-        List<HpoTermId> termIn1not2 = new ArrayList<>();
-        List<HpoTermId> termIn2not1 = new ArrayList<>();
+        List<TermId> termIn1not2 = new ArrayList<>();
+        List<TermId> termIn2not1 = new ArrayList<>();
         for (HpoAnnotation tiwm : disease_1.getPhenotypicAbnormalities()) {
             String label = ontology.getTermMap().get(tiwm.getTermId()).getName();
             if (disease_2.isDirectlyAnnotatedTo(tiwm.getTermId())) {

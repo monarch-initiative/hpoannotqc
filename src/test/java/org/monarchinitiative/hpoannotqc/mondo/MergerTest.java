@@ -45,17 +45,17 @@ public class MergerTest {
         TermId inheritId = new ImmutableTermId(pref,"0000005");
 
 
-
-        HpoDiseaseAnnotationParser parser = new HpoDiseaseAnnotationParser(annotationPath,
-                ontology);
-
-        // We need to use the new big file format!!
-
-        Objects.requireNonNull(parser);
-        diseaseMap=parser.parse();
-
-        omim=diseaseMap.get("167210");
-        orpha=diseaseMap.get("2309");
+//
+//        HpoDiseaseAnnotationParser parser = new HpoDiseaseAnnotationParser(annotationPath,
+//                ontology);
+//
+//        // We need to use the new big file format!!
+//
+//        Objects.requireNonNull(parser);
+//        diseaseMap=parser.parse();
+//
+//        omim=diseaseMap.get("167210");
+//        orpha=diseaseMap.get("2309");
     }
 
     /** We put the ORPHA and OMIM versions of the same disease into the annotation file. */
@@ -67,8 +67,8 @@ public class MergerTest {
 //        assertNotNull(orpha);
 //        debugPrintDisease(omim);
 //        debugPrintDisease(orpha);
-        Merger m = new Merger(omim,orpha,ontology);
-        m.merge();
+//        Merger m = new Merger(omim,orpha,ontology);
+//        m.merge();
     }
 
 

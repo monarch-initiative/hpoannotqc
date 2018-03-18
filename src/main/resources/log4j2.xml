@@ -30,7 +30,7 @@
         </Logger>
 
         <Root level="trace">
-            <AppenderRef ref="Console" level="trace"/>
+            <AppenderRef ref="Console" level="warn"/>
             <AppenderRef ref="MyLog" level="trace"/>
             <!-- <AppenderRef ref="MyRollingFile" additivity="false" /> -->
         </Root>
