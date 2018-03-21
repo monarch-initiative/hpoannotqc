@@ -28,3 +28,9 @@ v2files/
 phenotype_annotation2.tab
 BLA
 phenotype.hpoa
+checkDate.pl
+checkDate.pl~
+src/scripts/Makefile~
+src/scripts/curator-statistics.tab
+src/scripts/data_version.txt
+v2.tab

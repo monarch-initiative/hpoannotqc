@@ -57,9 +57,11 @@ public class Commandline {
     private String oldSmallFileAnnotationPath = null;
     private String termid = null;
     private String bigFileVersion = null;
+    private String orphanetXmlPath = null;
+    private String smallFileDirectory = null;
+    /** Depending on the command, path to output directory or output file. */
+    private String outputPath = null;
 
-    private String outputFilePath = null;
-    private String outputDirectory = null;
 
 
 
@@ -69,10 +71,8 @@ public class Commandline {
         org.apache.commons.cli.CommandLine commandLine;
 
         String mycommand = null;
-        String clstring = Arrays.stream(args).collect(Collectors.joining(" "));;
+        String clstring = Arrays.stream(args).collect(Collectors.joining(" "));
         if (args == null || args.length ==0) {
-            String msg = String.format("You need to pass a command (with optional arguments)");
-            logger.trace(msg);
             printUsage("[ERROR] Failed to pass a command");
         }
         try {
@@ -90,6 +90,9 @@ public class Commandline {
                 logger.error("no arguments pas");
                 return;
             }
+            if (commandLine.hasOption("a")) {
+                oldSmallFileAnnotationPath = commandLine.getOptionValue("a");
+            }
             if (commandLine.hasOption("d")) {
                 this.downloadDirectory = commandLine.getOptionValue("d");
             } else {
@@ -100,8 +103,13 @@ public class Commandline {
             } else {
                 this.hpoOboPath=DEFAULT_HPO_OBOPATH;
             }
-            if (commandLine.hasOption("a")) {
-                oldSmallFileAnnotationPath = commandLine.getOptionValue("a");
+            if (commandLine.hasOption("o")) {
+                this.outputPath=commandLine.getOptionValue("o");
+            }
+            if (commandLine.hasOption("s")) {
+                this.smallFileDirectory= commandLine.getOptionValue("s");
+            } else {
+                this.smallFileDirectory = DEFAULT_V2_SMALL_FILE_DIRECTORY;
             }
             if (commandLine.hasOption("t")) {
                 this.termid = commandLine.getOptionValue("t");
@@ -110,6 +118,11 @@ public class Commandline {
                 this.bigFileVersion = commandLine.getOptionValue("v");
             } else {
                 this.bigFileVersion = DEFAULT_BIG_FILE_VERSION;
+            }
+            if (commandLine.hasOption("x")) {
+                this.orphanetXmlPath= commandLine.getOptionValue("x");
+            } else {
+                this.orphanetXmlPath = DEFAULT_ORPHANET_XML_FILE;
             }
         } catch (ParseException parseException)  // checked exception
         {
@@ -125,7 +138,10 @@ public class Commandline {
             }
             this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
         } else if (mycommand.equals("big-file")) {
-            this.command=new BigFileCommand(hpoOboPath,DEFAULT_V2_SMALL_FILE_DIRECTORY,DEFAULT_ORPHANET_XML_FILE,bigFileVersion);
+            if (outputPath==null) {
+                outputPath="phenotype.hpoa";
+            }
+            this.command=new BigFileCommand(hpoOboPath,smallFileDirectory,orphanetXmlPath,bigFileVersion, outputPath);
         } else {
             printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
         }
@@ -142,14 +158,16 @@ public class Commandline {
      *
      * @return Options expected from command-line of GNU form.
      */
-    public static Options constructGnuOptions() {
+    private static Options constructGnuOptions() {
         final Options options = new Options();
-        options.addOption("o", "out", true, "name/path of output file/directory")
+        options .addOption("a", "annot", true, "path to HPO annotation directory (old small files")
                 .addOption("d", "download", true, "directory to download HPO data (default \"data\")")
-                .addOption("t", "term", true, "HPO id (e.g., HP:0000123)")
-                .addOption("a", "annot", true, "path to HPO annotation directory (old small files")
                 .addOption("h", "hpo", true, "path to hp.obo")
-                .addOption("v","bigfile-version",true,"descriptn big-file version (v1 or v2 [default])");
+                .addOption("o", "out", true, "name/path of output file/directory")
+                .addOption("s","small-files",true,"small file directory")
+                .addOption("t", "term", true, "HPO id (e.g., HP:0000123)")
+                .addOption("x","orphadata",true,"Orphanet XML file path")
+                .addOption("v","bigfile-version",true,"big-file version (v1 or v2 [default])");
         return options;
     }
 
@@ -167,7 +185,7 @@ public class Commandline {
     /**
      * Print usage information to provided OutputStream.
      */
-    public static void printUsage(String message) {
+    private static void printUsage(String message) {
 
 
         String version = getVersion();
@@ -192,7 +210,9 @@ public class Commandline {
         System.out.println(String.format("\t<outfile>: optional name of output file (Default: \"%s.bam\")", DEFAULT_OUTPUT_BAM_NAME));
         System.out.println();
         System.out.println("big-file:");
-        System.out.println("\tjava -jar HPOWorkbench.jar big-file ");
+        System.out.println("\tjava -jar HPOWorkbench.jar big-file [-s <small>] [-x <xml>]");
+        System.out.println("\t<small>: path to directory with small files");
+        System.out.println("\t<xml>: path to Orphanet XML file");
         System.out.println();
 
         System.exit(0);

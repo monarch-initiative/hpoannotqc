@@ -45,7 +45,7 @@ public class V2SmallFileParser {
     }
 
 
-    public V2SmallFile getV2eEntry() { return v2smallfile;}
+    V2SmallFile getV2eEntry() { return v2smallfile;}
 
 
     /** This is called once by client code before we start parsing. Not pretty design but it woirks fine for thuis one-off app. */
@@ -73,8 +73,8 @@ public class V2SmallFileParser {
                 String diseaseName=A[1];
                 TermId phenotypeId = ImmutableTermId.constructWithPrefix(A[2]);
                 if (! termMap.containsKey(phenotypeId)) {
-                    logger.error("FATAL could not find term for " + A[2]);
-                    System.exit(1);
+                    logger.error("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
+                    continue;
                 }
                 String phenotypeName=A[3];
                 TermId ageOfOnsetId=null;

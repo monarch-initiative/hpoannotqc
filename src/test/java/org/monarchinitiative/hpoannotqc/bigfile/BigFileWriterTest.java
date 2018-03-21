@@ -47,32 +47,6 @@ public class BigFileWriterTest {
         entry = builder.build();
     }
 
-    /**
-     * Test emitting a line of the V1 (2009-2018) big file from a V2 small file line.
-     */
-    @Test
-    public void testV1line() {
-        String [] v1bigFileFields = {
-                "OMIM", //DB
-                "154700",//DB_Object_ID
-                 "MARFAN SYNDROME", // DB_Name
-                "",//Qualifier
-                "HP:0004872", // HPO ID,
-                "OMIM:154700",//DB:Reference
-                "IEA", // Evidence code
-                "HP:0040283",//onset modifier
-                "", // frequency modifier
-                "", // with
-                "O",// Aspect
-                "", //synonym
-                "2015-07-26", // date
-                "HPO:skoehler" // assigned by
-        };
-        String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
-        V1BigFile v1b = new V1BigFile(ontology);
-        String line = v1b.transformEntry2BigFileLineV1(entry);
-        assertEquals(expected,line);
-    }
 
 
     /**
@@ -102,16 +76,11 @@ public class BigFileWriterTest {
         assertEquals(expected,line);
     }
 
-    @Test
-    public void testV1Header() {
-        String expected="#DB\tDB_Object_ID\tDB_Name\tQualifier\tHPO ID\tDB:Reference\tEvidence code\tOnset modifier\tFrequency modifier\tWith\tAspect\tSynonym\tDate\tAssigned by";
-        assertEquals(expected,V1BigFile.getHeaderV1());
-    }
 
     @Test
     public void testV2Header() {
-
         String expected="#DB\tDB_Object_ID\tDB_Name\tQualifier\tHPO_ID\tDB_Reference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tDate_Created\tAssigned_By";
+        assertEquals(expected,V2BigFile.getHeaderV2());
     }
 
 }

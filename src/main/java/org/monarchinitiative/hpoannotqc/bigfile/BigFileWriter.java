@@ -24,26 +24,23 @@ public class BigFileWriter {
     private final List<String> v2smallFilePaths;
     /** List of all of the {@link V2SmallFile} objects, which represent annotated diseases. */
     private List<V2SmallFile> v2SmallFileList =new ArrayList<>();
-    /** Representation of the version 1 Big file and all its data for export. */
-    private V1BigFile v1BigFile;
     /** Representation of the version 2 Big file and all its data for export. */
     private V2BigFile v2BigFile;
     /** Total number of annotations of all of the annotation files. */
     private int n_total_annotation_lines=0;
-
-    private final static String bigFileOutputNameV1="phenotype_annotation2.tab";
-    private final static String bigFileOutputNameV2="phenotype.hpoa";
+    /**Usually "phenotype.hpoa", but may also include path. */
+    private final String bigFileOutputNameV2;
     private BufferedWriter writer;
     private final HpoOntology ontology;
 
 
-    public BigFileWriter(HpoOntology ont, String directoryPath) {
+    public BigFileWriter(HpoOntology ont, String directoryPath, String outpath) {
         this.v2smallFilePaths = getListOfV2SmallFiles(directoryPath);
         this.ontology=ont;
         V2SmallFileParser.setOntology(ont);
         inputV2files();
+        this.bigFileOutputNameV2=outpath;
         System.out.println(String.format("We finished with the input of %d V2 small files with a total of %d annotation lines", v2SmallFileList.size(),n_total_annotation_lines));
-        this.v1BigFile=new V1BigFile(ont, v2SmallFileList);
         this.v2BigFile=new V2BigFile(ont,v2SmallFileList);
     }
 
@@ -53,43 +50,20 @@ public class BigFileWriter {
     }
 
 
-    public void initializeV1filehandle() throws IOException {
-        this.writer = new BufferedWriter(new FileWriter(bigFileOutputNameV1));
-    }
-
     public void initializeV2filehandle() throws IOException {
         this.writer = new BufferedWriter(new FileWriter(bigFileOutputNameV2));
     }
 
 
 
-    public void outputBigFileV1() throws IOException {
-       this.v1BigFile.outputBigFileV1(this.writer);
-    }
-
     public void outputBigFileV2() throws IOException {
         this.v2BigFile.outputBigFileV2(this.writer);
-    }
-
-    public void appendOrphanetV1(List<OrphanetDisorder> orphanetDisorders) throws IOException {
-        Orphanet2BigFile orph2big = new Orphanet2BigFile(orphanetDisorders, writer,this.ontology);
-        orph2big.writeOrphanetV1();
     }
 
     public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) throws IOException {
         Orphanet2BigFile orph2big = new Orphanet2BigFile(orphanetDisorders, writer,this.ontology);
         orph2big.writeOrphanetV2();
     }
-
-
-
-
-
-
-
-
-
-
 
 
 

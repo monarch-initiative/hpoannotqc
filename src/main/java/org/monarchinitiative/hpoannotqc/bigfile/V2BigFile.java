@@ -131,7 +131,7 @@ class V2BigFile {
     /**
      * @return Header line for the new V2 small files.
      */
-    private static String getHeaderV2() {
+    static String getHeaderV2() {
         String []fields={"#DB",
                 "DB_Object_ID",
                 "DB_Name",
