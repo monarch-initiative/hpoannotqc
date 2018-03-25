@@ -4,6 +4,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -62,7 +63,7 @@ public class BigFileCommand implements Command {
             writer.outputBigFileV2();
             writer.appendOrphanetV2(orphanetDisorders);
             writer.closeFileHandle();
-        } catch (IOException e) {
+        } catch (IOException | HPOException e) {
             logger.fatal("[ERROR] Could not output V2 big file",e);
         }
     }

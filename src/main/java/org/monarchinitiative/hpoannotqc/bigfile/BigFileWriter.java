@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -50,8 +51,13 @@ public class BigFileWriter {
     }
 
 
-    public void initializeV2filehandle() throws IOException {
-        this.writer = new BufferedWriter(new FileWriter(bigFileOutputNameV2));
+    public void initializeV2filehandle() throws HPOException {
+        try {
+            this.writer = new BufferedWriter(new FileWriter(bigFileOutputNameV2));
+        } catch (IOException ioe) {
+            String msg = String.format("IOException encountered while trying to create BufferedWriter for bigfile at file %s",bigFileOutputNameV2);
+            throw new HPOException(msg);
+        }
     }
 
 
