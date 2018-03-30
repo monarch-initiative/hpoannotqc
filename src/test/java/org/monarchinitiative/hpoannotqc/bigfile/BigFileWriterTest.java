@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.mondo.MergerTest;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -53,7 +54,7 @@ public class BigFileWriterTest {
      * Test emitting a line of the V2 (2018-?) big file from a V2 small file line.
      */
     @Test
-    public void testV2line() {
+    public void testV2line() throws HPOException {
         String [] v1bigFileFields = {
                 "OMIM", //DB
                 "154700",//DB_Object_ID

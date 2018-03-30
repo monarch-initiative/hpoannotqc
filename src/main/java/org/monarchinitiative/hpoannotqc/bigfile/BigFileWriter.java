@@ -35,7 +35,7 @@ public class BigFileWriter {
     private final HpoOntology ontology;
 
 
-    public BigFileWriter(HpoOntology ont, String directoryPath, String outpath) {
+    public BigFileWriter(HpoOntology ont, String directoryPath, String outpath) throws HPOException {
         this.v2smallFilePaths = getListOfV2SmallFiles(directoryPath);
         this.ontology=ont;
         V2SmallFileParser.setOntology(ont);
@@ -90,7 +90,7 @@ public class BigFileWriter {
 
 
 
-    private List<String> getListOfV2SmallFiles(String v2smallFileDirectory) {
+    private List<String> getListOfV2SmallFiles(String v2smallFileDirectory) throws HPOException {
         List<String> fileNames = new ArrayList<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(v2smallFileDirectory))) {
             for (Path path : directoryStream) {
@@ -99,12 +99,10 @@ public class BigFileWriter {
                 }
             }
         } catch (IOException ex) {
-            logger.error(String.format("Could not get list of small v2smallFilePaths from %s. Terminating...",v2smallFileDirectory),ex);
-            System.exit(1);
+            throw new HPOException(String.format("Could not get list of small v2smallFilePaths from %s [%s]. Terminating...",
+                    v2smallFileDirectory,ex));
         }
         return fileNames;
     }
-
-
 
 }

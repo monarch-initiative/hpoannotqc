@@ -52,9 +52,9 @@ public class BigFileCommand implements Command {
             logger.fatal("Unable to recover, stopping execution");
             return;
         }
-        BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory, outputFilePath);
+
         try {
-           // writer.outputBigFileV1();
+            BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory, outputFilePath);
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
             debugPrintOrphanetDisorders(orphanetDisorders);

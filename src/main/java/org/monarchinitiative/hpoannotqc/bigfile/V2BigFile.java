@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
@@ -66,8 +67,12 @@ class V2BigFile {
             List<V2SmallFileEntry> entryList = v2.getEntryList();
             for (V2SmallFileEntry entry : entryList) {
                 v2qc.checkV2entry(entry);
-                String bigfileLine = transformEntry2BigFileLineV2(entry);
-                writer.write(bigfileLine + "\n");
+                try {
+                    String bigfileLine = transformEntry2BigFileLineV2(entry);
+                    writer.write(bigfileLine + "\n");
+                } catch (HPOException e) {
+                    e.printStackTrace();
+                }
                 n++;
             }
         }
@@ -75,13 +80,7 @@ class V2BigFile {
         v2qc.dumpQCtoLog();
     }
     /** Construct one line for the V1 big file that was in use from 2009-2018. */
-    String transformEntry2BigFileLineV2(V2SmallFileEntry entry) {
-
-        String Aspect = getAspectV2(entry.getPhenotypeId());
-        if (Aspect.equalsIgnoreCase("?")) {
-            logger.fatal("BAD ASPECT FOR " + entry.getRow());
-            System.exit(1);
-        }
+    String transformEntry2BigFileLineV2(V2SmallFileEntry entry) throws HPOException{
 
         String [] elems = {
                 entry.getDB(), //DB
@@ -103,29 +102,28 @@ class V2BigFile {
     }
 
 
-    private String getAspectV2(TermId tid) {
+    private String getAspectV2(TermId tid) throws HPOException {
         HpoTerm term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
             return "?";
         }
-        tid = term.getId(); // update in case term is an alt_id
-        if (existsPath(ontology, tid, phenotypeRoot)) {
+        TermId primaryTid = term.getId(); // update in case term is an alt_id
+        if (existsPath(ontology, primaryTid, phenotypeRoot)) {
             v2qualityController.incrementGoodAspect();//
             return "P"; // organ/phenotype abnormality
-        } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
+        } else if (existsPath(ontology, primaryTid, INHERITANCE_TERM_ID)) {
             v2qualityController.incrementGoodAspect();
             return "I";
-        } else if (existsPath(ontology, tid, CLINICAL_COURSE_ID)) {
+        } else if (existsPath(ontology, primaryTid, CLINICAL_COURSE_ID)) {
             v2qualityController.incrementGoodAspect();
             return "C";
-        } else if (existsPath(ontology,tid,CLINICAL_MODIFIER_ID)) {
+        } else if (existsPath(ontology,primaryTid,CLINICAL_MODIFIER_ID)) {
             v2qualityController.incrementGoodAspect();
             return "M";
         } else {
             this.v2qualityController.incrementBadAspect();
-            System.exit(1);
-            return "?";
+           throw new HPOException("Could not determine aspect of TermId "+tid.getIdWithPrefix());
         }
     }
     /**
