@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
@@ -43,29 +43,6 @@ public class Orphanet2BigFile {
         this.ontology=ont;
     }
 
-
-
-
-
-    void writeOrphanetV1() {
-        int n=0;
-        try {
-            for (OrphanetDisorder disorder : orphanetDisorders) {
-                List<TermId> hpoIds = disorder.getHpoIds();
-                for (TermId tid: hpoIds) {
-                    String line = transformOrphanetEntry2BigFileLine(disorder,tid);
-                    writer.write(line + "\n");
-                    n++;
-                }
-            }
-        } catch (IOException e) {
-            logger.fatal(e);
-            logger.fatal("Could not write orphanet disorder ", e);
-            logger.fatal("No choice but to terminate program, sorry....");
-            System.exit(1);
-        }
-        logger.trace("We output a total of " + n + " orphanet annotations");
-    }
 
     void writeOrphanetV2() {
         int n=0;
@@ -104,7 +81,7 @@ public class Orphanet2BigFile {
      * @return A one-letter String representing the aspect (P,I,C,M).
      */
     private String getAspectV2(TermId tid) throws HPOException {
-        HpoTerm term = ontology.getTermMap().get(tid);
+        Term term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
             return "?";
@@ -125,30 +102,6 @@ public class Orphanet2BigFile {
         }
     }
 
-    /**
-     * Figure out the Aspect of this line (O,I, or C) based on the location of the term in the ontology.
-     * @param tid Term for which we want to calculate the Aspect
-     * @return One-letter String representing the Aspect (O, I, or C).
-     */
-    private String getAspectV1(TermId tid) {
-        HpoTerm term = ontology.getTermMap().get(tid);
-        if (term==null) {
-            logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
-            return "?";
-        }
-        tid = term.getId(); // update in case term is an alt_id
-        if (existsPath(ontology, tid, phenotypeRoot)) {
-            return "O"; // organ/phenotype abnormality
-        } else if (existsPath(ontology, tid, INHERITANCE_TERM_ID)) {
-            return "I";
-        } else if (existsPath(ontology, tid, CLINICAL_COURSE_ID)) {
-            return "C";
-        }  else {
-//            logger.error("Could not identify aspect for entry with term id " + entry.getPhenotypeId().getIdWithPrefix() + "(+" +
-//                    entry.getPhenotypeName()+")");
-            return "?";
-        }
-    }
 
 
     /** Output a line of an Orphanet entry to the V2 big file, phenotype.hpoa. */
@@ -167,31 +120,6 @@ public class Orphanet2BigFile {
                 EMPTY_STRING, // Sex (not used)
                 EMPTY_STRING, // Modifier (not used)
                 getAspectV2(hpoId),
-                getTodaysDate(), // Date
-                ASSIGNED_BY // Assigned by
-        };
-        return Arrays.stream(elems).collect(Collectors.joining("\t"));
-    }
-
-
-
-
-
-    private String transformOrphanetEntry2BigFileLine(OrphanetDisorder entry, TermId hpoId) throws IOException {
-        String diseaseID=String.format("%s:%d", ORPHANET_DB,entry.getOrphaNumber());
-        String [] elems = {
-                ORPHANET_DB, // DB
-                String.valueOf(entry.getOrphaNumber()), // DB_Object_ID
-                entry.getName(), // DB_Name
-                EMPTY_STRING, // Qualifier
-                hpoId.getIdWithPrefix(), // HPO ID
-                diseaseID, // DB:Reference
-                ORPHA_EVIDENCE_CODE, // Evidence code
-                NO_ONSET_CODE_AVAILABLE, // Onset modifier
-                entry.getFrequency().getIdWithPrefix(),// Frequency modifier (An HPO TermId, always)
-                EMPTY_STRING, // With (not used)
-                getAspectV1(hpoId),
-                EMPTY_STRING, // Synonym (not used)
                 getTodaysDate(), // Date
                 ASSIGNED_BY // Assigned by
         };

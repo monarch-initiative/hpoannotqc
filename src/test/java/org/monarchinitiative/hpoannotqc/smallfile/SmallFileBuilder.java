@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
  * of Strings are equivalent to a small file that we can test. Most of the entries are defaults, and the code from
  * the test class can set those entries that it wants to test.
  * The intended use is something like this
+ * TODO develop this test to make V2 small file entries for testing.
  * <pre>
  * List<String> annots=new ArrayList<>();
  * annots.add(SmallFileBuilder.getHeader());

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,27 +27,6 @@ public class V2SmallFile {
         return basename;
     }
 
-    public V2SmallFile(OldSmallFile osf) {
-        List<OldSmallFileEntry> oldlist = osf.getEntrylist();
-        basename=osf.getBasename();
-
-        for (OldSmallFileEntry oldentry : oldlist) {
-            try {
-                V2SmallFileEntry v2entry = new V2SmallFileEntry(oldentry);
-                if (v2entry.getRow().contains("null") && ! v2entry.getRow().contains("Rhnull")) {
-                    // note "Rhnull" is a part of a valid disease name -- it is OK!
-                    logger.error("Detected the String \"null\" for {}", v2entry.getRow());
-                    logger.error("Fix this error upstream before continuing!");
-                    System.exit(1); // if we wrote the string "null" to file, something is wrong and we
-                    // need to fix it before we go on!
-                }
-                entryList.add(v2entry);
-            } catch (HPOException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
 
     public V2SmallFile(String name, List<V2SmallFileEntry> entries) {
         basename=name;

@@ -13,10 +13,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
-import org.monarchinitiative.hpoannotqc.cmd.OldSmallFileConvertCommand;
+
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -132,11 +131,6 @@ public class Commandline {
         }
         if (mycommand.equals("download")) {
             this.command = new DownloadCommand(this.downloadDirectory);
-        } else if (mycommand.equals("convert")) {
-            if (oldSmallFileAnnotationPath==null) {
-                printUsage("[ERROR] Need to pass path to old small files as -a /path-to/.../hpo-annotation-data");
-            }
-            this.command=new OldSmallFileConvertCommand(this.hpoOboPath,this.oldSmallFileAnnotationPath);
         } else if (mycommand.equals("big-file")) {
             if (outputPath==null) {
                 outputPath="phenotype.hpoa";
@@ -202,12 +196,6 @@ public class Commandline {
         System.out.println("download:");
         System.out.println("\tjava -jar HPOWorkbench.jar download  [-d <directory>]");
         System.out.println("\t<directory>: name of directory to which HPO data will be downloaded (default:\"data\")");
-        System.out.println();
-        System.out.println("convert:");
-        System.out.println("\tjava -jar HPOWorkbench.jar convert -h <hpo> -d <directory> ");
-        System.out.println("\t<hpo>: path to hp.obo file");
-        System.out.println("\t<directory>: path to directory with RD annotation files");
-        System.out.println(String.format("\t<outfile>: optional name of output file (Default: \"%s.bam\")", DEFAULT_OUTPUT_BAM_NAME));
         System.out.println();
         System.out.println("big-file:");
         System.out.println("\tjava -jar HPOWorkbench.jar big-file [-s <small>] [-x <xml>]");

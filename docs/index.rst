@@ -3,8 +3,8 @@ HPO Annotation Q/C
 
 
 
-HPO Workbench
-===============================
+HPOannotQC
+==========
 .. toctree::
     :maxdepth: 2
     :caption: Contents:
@@ -15,8 +15,7 @@ HPO Workbench
 
 
 
-This application is designed to perform Q/C of the HPO annotation data. It will also transform the "old" small files into
-the new small file format.
+This application is designed to perform Q/C of the HPO annotation data.
 
 
 

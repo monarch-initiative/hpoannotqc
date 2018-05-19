@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 
 public class V2SmallFileEntryTest {
 
@@ -26,7 +25,6 @@ public class V2SmallFileEntryTest {
         try {
             HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
             ontology = oboparser.parse();
-            OldSmallFileEntry.setOntology(ontology);
         } catch (Exception e) {
             e.printStackTrace();
         }

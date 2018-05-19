@@ -1,13 +1,10 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
 
-
-
-import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
+
 
 import org.monarchinitiative.phenol.ontology.data.*;
 

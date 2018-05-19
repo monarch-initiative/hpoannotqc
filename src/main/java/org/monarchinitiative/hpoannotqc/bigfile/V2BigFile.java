@@ -7,8 +7,8 @@ import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
@@ -103,7 +103,7 @@ class V2BigFile {
 
 
     private String getAspectV2(TermId tid) throws HPOException {
-        HpoTerm term = ontology.getTermMap().get(tid);
+        Term term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
             return "?";

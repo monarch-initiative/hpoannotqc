@@ -254,44 +254,6 @@ public class V2SmallFileEntry {
 
     }
 
-    V2SmallFileEntry(OldSmallFileEntry oldEntry) throws HPOException {
-        diseaseID=oldEntry.getDatabase() +":"+oldEntry.getDiseaseID();
-        diseaseName=oldEntry.getDiseaseName();
-        phenotypeId=oldEntry.getPhenotypeId();
-        phenotypeName=oldEntry.getPhenotypeName();
-        ageOfOnsetId=oldEntry.getAgeOfOnsetId();
-        ageOfOnsetName=oldEntry.getAgeOfOnsetName();
-        String evi=oldEntry.getEvidenceID();
-        if (evi==null) {
-            evi=oldEntry.getEvidenceName();
-        }
-        if (evi==null) {
-            evi=oldEntry.getEvidence();
-        }
-        if (evi==null) {
-           logger.error("Could not get valid evidence code");
-           evidenceCode="UNKNOWN";
-        } else
-            evidenceCode=evi;
-        if (evidenceCode.equals("HPO")) {
-            System.exit(1); // should never happen--sanity check
-        }
-        frequencyModifier =oldEntry.getThreeWayFrequencyString();
-        sex=oldEntry.getSex();
-        negation=oldEntry.getNegation().equals("null")?EMPTY_STRING:oldEntry.getNegation();
-        Set<TermId> modifierSet=oldEntry.getModifierSet();
-        if (modifierSet==null || modifierSet.isEmpty()) {
-            modifier=EMPTY_STRING;
-        } else {
-            modifier=modifierSet.stream().map(TermId::getIdWithPrefix).collect(Collectors.joining(";")); }
-        description=oldEntry.getDescription();
-        publication=oldEntry.getPub();
-        assignedBy=oldEntry.getAssignedBy();
-        dateCreated=oldEntry.getDateCreated();
-    }
-
-
-
     /** @return the row that will be written to the V2 file for this entry. */
     @Override public String toString() { return getRow();}
 

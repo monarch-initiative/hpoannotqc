@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.formats.hpo.HpoTerm;
 import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedReader;
@@ -29,7 +29,7 @@ public class V2SmallFileParser {
 
     private static HpoOntology ontology = null;
 
-    private static Map<TermId,HpoTerm> termMap;
+    private static Map<TermId,Term> termMap;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
 

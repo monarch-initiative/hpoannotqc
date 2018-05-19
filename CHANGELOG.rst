@@ -4,6 +4,13 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.0.0`_ (2018-05-19)
+---------------------
+* Refactor to use phenol 1.0.0
+* Removal of code related to old-smallfile conversion. From now on, HpoAnnotQC will concentrate on the Q/C and
+conversion of V2 small files to V2 bigfile.
+
+
 
 `0.2.1`_ (2018-03-13)
 ---------------------
