@@ -7,7 +7,7 @@ import org.monarchinitiative.hpoannotqc.smallfile.V2LineQualityController;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -31,10 +31,10 @@ class V2BigFile {
     private final HpoOntology ontology;
     private final V2LineQualityController v2qualityController;
     private final static String EMPTY_STRING="";
-    private static final TermId phenotypeRoot= ImmutableTermId.constructWithPrefix("HP:0000118");
-    private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");
-    private static final TermId CLINICAL_COURSE_ID =ImmutableTermId.constructWithPrefix("HP:0031797");
-    private static final TermId CLINICAL_MODIFIER_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
+    private static final TermId phenotypeRoot= TermId.constructWithPrefix("HP:0000118");
+    private static final TermId INHERITANCE_TERM_ID =TermId.constructWithPrefix("HP:0000005");
+    private static final TermId CLINICAL_COURSE_ID =TermId.constructWithPrefix("HP:0031797");
+    private static final TermId CLINICAL_MODIFIER_ID =TermId.constructWithPrefix("HP:0012823");
     /** These are the objects that represent the diseases contained in the V2 small files. */
     private final List<V2SmallFile> v2SmallFileList;
 

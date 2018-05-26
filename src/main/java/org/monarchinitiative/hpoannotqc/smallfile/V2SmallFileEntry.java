@@ -202,7 +202,7 @@ public class V2SmallFileEntry {
         public Builder description(String d) { this.description=d; return this;}
 
         public V2SmallFileEntry build() {
-            V2SmallFileEntry entry=new V2SmallFileEntry(diseaseID,
+            return new V2SmallFileEntry(diseaseID,
                      diseaseName,
                      phenotypeId,
                      phenotypeName,
@@ -217,7 +217,6 @@ public class V2SmallFileEntry {
                      publication,
                      assignedBy,
                      dateCreated);
-            return entry;
         }
     }
 

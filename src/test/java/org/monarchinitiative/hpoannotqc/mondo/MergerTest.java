@@ -41,8 +41,8 @@ public class MergerTest {
         HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
         Objects.requireNonNull(ontology);
-        TermPrefix pref = new ImmutableTermPrefix("HP");
-        TermId inheritId = new ImmutableTermId(pref,"0000005");
+        TermPrefix pref = new TermPrefix("HP");
+        TermId inheritId = new TermId(pref,"0000005");
 
 
 //

@@ -27,10 +27,10 @@ public class FileDownloader {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static class ProxyOptions {
-        public String host = null;
-        public int port = -1;
-        public String user = null;
-        public String password = null;
+        String host = null;
+        int port = -1;
+        String user = null;
+        String password = null;
     }
 
     /**
@@ -44,7 +44,7 @@ public class FileDownloader {
     }
 
     /** configuration for the downloader */
-    Options options;
+    private Options options;
 
     /** Initializer FileDownloader with the given options string */
     public FileDownloader(Options options) {
@@ -95,8 +95,6 @@ public class FileDownloader {
                 throw new IOException("Could not login with anonymous:anonymous@example.com");
             if (!ftp.isConnected())
                 LOGGER.error("Weird, not connected!");
-        } catch (SocketException e) {
-            throw new FileDownloadException("ERROR: problem connecting when downloading file.", e);
         } catch (IOException e) {
             throw new FileDownloadException("ERROR: problem connecting when downloading file.", e);
         }
@@ -221,8 +219,8 @@ public class FileDownloader {
         setProxyProperties();
 
         // actually copy the file
-        BufferedInputStream in = null;
-        FileOutputStream out = null;
+        BufferedInputStream in;
+        FileOutputStream out;
         try {
             URLConnection connection =  src.openConnection();
             final int fileSize = connection.getContentLength();

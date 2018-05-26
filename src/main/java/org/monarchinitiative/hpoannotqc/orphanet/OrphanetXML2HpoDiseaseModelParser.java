@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.FileInputStream;
@@ -87,7 +87,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     }
 
     private TermId currentNotAltHpoId(String id) {
-        TermId tid = ImmutableTermId.constructWithPrefix(id);
+        TermId tid = TermId.constructWithPrefix(id);
         if (! ontology.getTermMap().containsKey(tid)) {
             logger.error("[ERROR] Could not find TermId for Orphanet HPO ID \""+ id + "\"");
             n_could_not_find_orphanet_HpoId++;

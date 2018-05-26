@@ -8,7 +8,7 @@ import org.monarchinitiative.hpoannotqc.mondo.MergerTest;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
-import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
@@ -37,13 +37,13 @@ public class BigFileWriterTest {
         // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:154700";
         String diseaseName="MARFAN SYNDROME";
-        TermId hpoId= ImmutableTermId.constructWithPrefix("HP:0004872");
+        TermId hpoId= TermId.constructWithPrefix("HP:0004872");
         String hpoName="Incisional hernia";
         String evidenceCode="IEA";
         String pub="OMIM:154700";
         String assignedBy="HPO:skoehler";
         String dateCreated="2015-07-26";
-        TermId onsetModifier=ImmutableTermId.constructWithPrefix("HP:0040283");
+        TermId onsetModifier=TermId.constructWithPrefix("HP:0040283");
         V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,assignedBy,dateCreated).ageOfOnsetId(onsetModifier);
         entry = builder.build();
     }

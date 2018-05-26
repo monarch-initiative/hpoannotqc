@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -71,7 +70,7 @@ public class V2SmallFileParser {
                 }
                 String diseaseID=A[0];
                 String diseaseName=A[1];
-                TermId phenotypeId = ImmutableTermId.constructWithPrefix(A[2]);
+                TermId phenotypeId = TermId.constructWithPrefix(A[2]);
                 if (! termMap.containsKey(phenotypeId)) {
                     logger.error("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
                     continue;
@@ -79,7 +78,7 @@ public class V2SmallFileParser {
                 String phenotypeName=A[3];
                 TermId ageOfOnsetId=null;
                 if (A[4]!=null && A[4].startsWith("HP")) {
-                    ageOfOnsetId=ImmutableTermId.constructWithPrefix(A[4]);
+                    ageOfOnsetId=TermId.constructWithPrefix(A[4]);
                 }
                 String ageOfOnsetName=A[5];
                 String frequencyString=A[6];

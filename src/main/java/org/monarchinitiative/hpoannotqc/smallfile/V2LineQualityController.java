@@ -73,8 +73,8 @@ public class V2LineQualityController {
     private String qcFrequency() { return String.format("%d good and %d bad frequency entries",n_good_frequency,n_bad_frequency);}
 
     /** Todo get from phenol */
-    private final TermId ONSET_ROOT = ImmutableTermId.constructWithPrefix("HP:0003674");
-    private static final TermId FREQUENCY_ROOT = ImmutableTermId.constructWithPrefix("HP:0040279");
+    private final TermId ONSET_ROOT = TermId.constructWithPrefix("HP:0003674");
+    private static final TermId FREQUENCY_ROOT = TermId.constructWithPrefix("HP:0040279");
 
     public V2LineQualityController(HpoOntology onto) {
 
@@ -347,7 +347,7 @@ public class V2LineQualityController {
         }
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
-        TermId id = ImmutableTermId.constructWithPrefix(freq);
+        TermId id = TermId.constructWithPrefix(freq);
         //boolean OK = frequencySubontology.getTermMap().containsKey(id);
         if (existsPath(ontology,id,FREQUENCY_ROOT)) {
             n_good_frequency++;

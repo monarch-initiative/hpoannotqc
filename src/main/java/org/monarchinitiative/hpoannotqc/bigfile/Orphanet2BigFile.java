@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.ImmutableTermId;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -27,10 +27,10 @@ public class Orphanet2BigFile {
     private final static String ORPHA_EVIDENCE_CODE="TAS";
     private final static String NO_ONSET_CODE_AVAILABLE=EMPTY_STRING;
     private final static String ASSIGNED_BY="ORPHA:orphadata";
-    private static final TermId phenotypeRoot= ImmutableTermId.constructWithPrefix("HP:0000118");
-    private static final TermId INHERITANCE_TERM_ID =ImmutableTermId.constructWithPrefix("HP:0000005");
-    private static final TermId CLINICAL_COURSE_ID =ImmutableTermId.constructWithPrefix("HP:0031797");
-    private static final TermId CLINICAL_MODIFIER_ID =ImmutableTermId.constructWithPrefix("HP:0012823");
+    private static final TermId phenotypeRoot= TermId.constructWithPrefix("HP:0000118");
+    private static final TermId INHERITANCE_TERM_ID =TermId.constructWithPrefix("HP:0000005");
+    private static final TermId CLINICAL_COURSE_ID =TermId.constructWithPrefix("HP:0031797");
+    private static final TermId CLINICAL_MODIFIER_ID =TermId.constructWithPrefix("HP:0012823");
     private final HpoOntology ontology;
 
 

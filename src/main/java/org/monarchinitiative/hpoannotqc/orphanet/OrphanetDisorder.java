@@ -21,7 +21,7 @@ public class OrphanetDisorder {
     /** Disease name */
     private String name;
     /** HPO Ids of the phenotype annotation */
-    private List<TermId> hpoIdList;
+    private final List<TermId> hpoIdList;
     /** HPO Labels of the phenotype annotation. Note that these are in the same order as the Ids, but since we only
      * output the TermIds in the big file, they will get ignored anyway.*/
     private List<String> hpoLabelList;
