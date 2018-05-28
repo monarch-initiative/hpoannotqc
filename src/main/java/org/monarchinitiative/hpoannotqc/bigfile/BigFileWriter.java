@@ -4,6 +4,7 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -21,8 +22,6 @@ import java.util.List;
 
 public class BigFileWriter {
     private static final Logger logger = LogManager.getLogger();
-    /** The paths to all of the v2 small files. */
-    private final List<String> v2smallFilePaths;
     /** List of all of the {@link V2SmallFile} objects, which represent annotated diseases. */
     private List<V2SmallFile> v2SmallFileList =new ArrayList<>();
     /** Representation of the version 2 Big file and all its data for export. */
@@ -35,13 +34,10 @@ public class BigFileWriter {
     private final HpoOntology ontology;
 
 
-    public BigFileWriter(HpoOntology ont, String directoryPath, String outpath) throws HPOException {
-        this.v2smallFilePaths = getListOfV2SmallFiles(directoryPath);
+    public BigFileWriter(HpoOntology ont, List<V2SmallFile> v2list, String outpath) throws HPOException {
         this.ontology=ont;
-        V2SmallFileParser.setOntology(ont);
-        inputV2files();
+        this.v2SmallFileList=v2list;
         this.bigFileOutputNameV2=outpath;
-        System.out.println(String.format("We finished with the input of %d V2 small files with a total of %d annotation lines", v2SmallFileList.size(),n_total_annotation_lines));
         this.v2BigFile=new V2BigFile(ont,v2SmallFileList);
     }
 
@@ -71,38 +67,5 @@ public class BigFileWriter {
         orph2big.writeOrphanetV2();
     }
 
-
-
-    private void inputV2files() {
-        logger.trace("We found " + v2smallFilePaths.size() + " small files.");
-        int i=0;
-        for (String path : v2smallFilePaths) {
-            if (++i%1000==0) {
-                logger.trace(String.format("Inputting %d-th file at %s",i,path));
-            }
-            V2SmallFileParser parser=new V2SmallFileParser(path);
-            V2SmallFile v2sf = parser.getV2eEntry();
-            n_total_annotation_lines += v2sf.getNumberOfAnnotations();
-            v2SmallFileList.add(parser.getV2eEntry());
-        }
-        logger.trace(String.format("Done with input of %d files",i));
-    }
-
-
-
-    private List<String> getListOfV2SmallFiles(String v2smallFileDirectory) throws HPOException {
-        List<String> fileNames = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(v2smallFileDirectory))) {
-            for (Path path : directoryStream) {
-                if (path.toString().endsWith(".tab")) {
-                    fileNames.add(path.toString());
-                }
-            }
-        } catch (IOException ex) {
-            throw new HPOException(String.format("Could not get list of small v2smallFilePaths from %s [%s]. Terminating...",
-                    v2smallFileDirectory,ex));
-        }
-        return fileNames;
-    }
 
 }

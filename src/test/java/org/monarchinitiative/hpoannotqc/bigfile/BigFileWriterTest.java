@@ -1,10 +1,12 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.mondo.MergerTest;
+import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
@@ -14,6 +16,7 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -72,7 +75,8 @@ public class BigFileWriterTest {
                 "HPO:skoehler" // Assigned_By
         };
         String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
-        V2BigFile v1b = new V2BigFile(ontology);
+        List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
+        V2BigFile v1b = new V2BigFile(ontology, emptyList);
         String line = v1b.transformEntry2BigFileLineV2(entry);
         assertEquals(expected,line);
     }

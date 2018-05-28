@@ -51,13 +51,13 @@ class V2BigFile {
 
     /**
      * This constructor is intended for testing.
-     * @param ont Reference to the HPO Ontology
+     * ont Reference to the HPO Ontology
      */
-    V2BigFile(HpoOntology ont) {
-        this.ontology=ont;
-        v2SmallFileList=new ArrayList<>();
-        v2qualityController=new V2LineQualityController(this.ontology);
-    }
+//    V2BigFile(HpoOntology ont) {
+//        this.ontology=ont;
+//        v2SmallFileList=new ArrayList<>();
+//        v2qualityController=new V2LineQualityController(this.ontology);
+//    }
 
     void outputBigFileV2(BufferedWriter writer) throws IOException {
         int n = 0;

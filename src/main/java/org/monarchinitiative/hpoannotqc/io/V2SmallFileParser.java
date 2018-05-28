@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.bigfile;
+package org.monarchinitiative.hpoannotqc.io;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -26,9 +26,7 @@ import java.util.Map;
 public class V2SmallFileParser {
     private static final Logger logger = LogManager.getLogger();
 
-    private static HpoOntology ontology = null;
-
-    private static Map<TermId,Term> termMap;
+    private final HpoOntology ontology;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
 
@@ -38,20 +36,15 @@ public class V2SmallFileParser {
 
     private static final int NUMBER_OF_FIELDS=15;
 
-    public V2SmallFileParser(String path) {
+    public V2SmallFileParser(String path, HpoOntology ontology) {
         pathToV2File=path;
+        this.ontology=ontology;
         parse();
     }
 
 
     V2SmallFile getV2eEntry() { return v2smallfile;}
 
-
-    /** This is called once by client code before we start parsing. Not pretty design but it woirks fine for thuis one-off app. */
-    public static void setOntology(HpoOntology ont) {
-        ontology = ont;
-        termMap=ontology.getTermMap();
-    }
     private void parse() {
         String basename=(new File(pathToV2File).getName());
         List<V2SmallFileEntry> entryList=new ArrayList<>();
@@ -71,7 +64,7 @@ public class V2SmallFileParser {
                 String diseaseID=A[0];
                 String diseaseName=A[1];
                 TermId phenotypeId = TermId.constructWithPrefix(A[2]);
-                if (! termMap.containsKey(phenotypeId)) {
+                if (! ontology.getTermMap().containsKey(phenotypeId)) {
                     logger.error("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
                     continue;
                 }

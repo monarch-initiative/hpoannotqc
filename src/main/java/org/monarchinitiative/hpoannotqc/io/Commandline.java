@@ -36,26 +36,18 @@ public class Commandline {
     private final static String DEFAULT_HPO_OBOPATH = String.format("%s%s%s",
             DEFAULT_DOWNLOAD_DIRECTORY, File.separator,"hp.obo");
 
-    private final static String DEFAULT_ANNOTATION_OBOPATH = String.format("%s%s%s",
-            DEFAULT_DOWNLOAD_DIRECTORY, File.separator,"phenotype_annotation.tab");
-
-
-    private final static String DEFAULT_TRUNCATION_SUFFIX = "truncated";
-
-    private final static String DEFAULT_OUTPUT_BAM_NAME = "diachromatic-processed";
+    private final static String DEFAULT_ANNOTATION_PATH = String.format("%s%s%s",
+            DEFAULT_DOWNLOAD_DIRECTORY, File.separator,"phenotype.hpoa");
 
     private final static String DEFAULT_V2_SMALL_FILE_DIRECTORY="v2files";
 
     private final static String DEFAULT_ORPHANET_XML_FILE="data/en_product4_HPO.xml";
 
-    private final static String DEFAULT_BIG_FILE_VERSION="v2";
 
 
     private String downloadDirectory;
     private String hpoOboPath = null;
-    private String oldSmallFileAnnotationPath = null;
-    private String termid = null;
-    private String bigFileVersion = null;
+    private String omitFilePath = null;
     private String orphanetXmlPath = null;
     private String smallFileDirectory = null;
     /** Depending on the command, path to output directory or output file. */
@@ -89,8 +81,8 @@ public class Commandline {
                 logger.error("no arguments pas");
                 return;
             }
-            if (commandLine.hasOption("a")) {
-                oldSmallFileAnnotationPath = commandLine.getOptionValue("a");
+            if (commandLine.hasOption("omit")) {
+                omitFilePath = commandLine.getOptionValue("omit");
             }
             if (commandLine.hasOption("d")) {
                 this.downloadDirectory = commandLine.getOptionValue("d");
@@ -110,14 +102,6 @@ public class Commandline {
             } else {
                 this.smallFileDirectory = DEFAULT_V2_SMALL_FILE_DIRECTORY;
             }
-            if (commandLine.hasOption("t")) {
-                this.termid = commandLine.getOptionValue("t");
-            }
-            if (commandLine.hasOption("v")) {
-                this.bigFileVersion = commandLine.getOptionValue("v");
-            } else {
-                this.bigFileVersion = DEFAULT_BIG_FILE_VERSION;
-            }
             if (commandLine.hasOption("x")) {
                 this.orphanetXmlPath= commandLine.getOptionValue("x");
             } else {
@@ -135,7 +119,7 @@ public class Commandline {
             if (outputPath==null) {
                 outputPath="phenotype.hpoa";
             }
-            this.command=new BigFileCommand(hpoOboPath,smallFileDirectory,orphanetXmlPath,bigFileVersion, outputPath);
+            this.command=new BigFileCommand(hpoOboPath,smallFileDirectory, orphanetXmlPath, outputPath);
         } else {
             printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
         }

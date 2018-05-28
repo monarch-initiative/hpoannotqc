@@ -5,13 +5,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.monarchinitiative.hpoannotqc.io.V2SmallFileIngestor;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetXML2HpoDiseaseModelParser;
+import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 
 import java.io.*;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -31,14 +34,22 @@ public class BigFileCommand implements Command {
     private HpoOntology ontology;
     /** Should usually be phenotype.hpoa, may also include path */
     private final String outputFilePath;
+    /** path to the omit-list.txt file, which is located with the small files in the same directory */
+    private final String omitPath;
 
-
-    public BigFileCommand(String hpopath, String dir, String orphaXML, String bfVersion, String outpath) {
+    /**
+     * Command to create the V2 bigfile from the various small files
+     * @param hpopath path to hp.obo
+     * @param dir directory with the small files
+     * @param orphaXML path to the Orphanet XML file
+     * @param outpath path to the new output file (phenotype.hpoa)
+     */
+    public BigFileCommand(String hpopath, String dir, String orphaXML, String outpath) {
         hpOboPath=hpopath;
         v2smallFileDirectory =dir;
         orphanetXMLpath=orphaXML;
         outputFilePath=outpath;
-
+        omitPath=String.format("%s%s%s",v2smallFileDirectory,File.separator,"omit-list.txt");
     }
 
     @Override
@@ -54,7 +65,9 @@ public class BigFileCommand implements Command {
         }
 
         try {
-            BigFileWriter writer = new BigFileWriter(ontology, v2smallFileDirectory, outputFilePath);
+            V2SmallFileIngestor v2ingestor = new V2SmallFileIngestor(v2smallFileDirectory,omitPath,ontology);
+            List<V2SmallFile> v2entries = v2ingestor.getV2SmallFileEntries();
+            BigFileWriter writer = new BigFileWriter(ontology, v2entries, outputFilePath);
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
             debugPrintOrphanetDisorders(orphanetDisorders);
