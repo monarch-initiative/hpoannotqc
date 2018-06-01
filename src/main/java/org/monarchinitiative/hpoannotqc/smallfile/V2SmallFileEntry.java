@@ -250,7 +250,24 @@ public class V2SmallFileEntry {
         this.publication=publication;
         this.assignedBy=assignedBy;
         this.dateCreated=dateCreated;
+    }
 
+    public V2SmallFileEntry clone() {
+        return new V2SmallFileEntry(this.diseaseID,
+                this.diseaseName,
+                this.phenotypeId,
+                this.phenotypeName,
+                this.ageOfOnsetId,
+                this.ageOfOnsetName,
+                this.evidenceCode,
+                this.frequencyModifier,
+                this.sex,
+                this.negation,
+                this.modifier,
+                this.description,
+                this.publication,
+                this.assignedBy,
+                this.dateCreated);
     }
 
     /** @return the row that will be written to the V2 file for this entry. */
@@ -260,7 +277,7 @@ public class V2SmallFileEntry {
      * Return the row that will be used to write the V2 small files entries to a file. Note that
      * we replace null strings (which are a signal for no data available) with the empty string
      * to avoid the string "null" being written.
-     * @return
+     * @return One row of the "big" file corresponding to this entry
      */
     public String getRow() {
         return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",

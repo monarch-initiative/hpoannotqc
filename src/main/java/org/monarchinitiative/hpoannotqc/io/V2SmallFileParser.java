@@ -6,17 +6,14 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
+
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Parse of V2 small file into a {@link org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile} object
@@ -29,23 +26,20 @@ public class V2SmallFileParser {
     private final HpoOntology ontology;
     /** key -- all lower-case label of a modifer term. Value: corresponding TermId .*/
     private static Map<String, TermId> modifier2TermId = new HashMap<>();
-
+    /** Path to a file such as "OMIM-600123.tab" containing data about the phenotypes of a disease. */
     private final String pathToV2File;
-
+    /** Computational disease model contained in the small file. */
     private V2SmallFile v2smallfile=null;
-
+    /** Number of tab-separated fields in a valid small file. */
     private static final int NUMBER_OF_FIELDS=15;
 
     public V2SmallFileParser(String path, HpoOntology ontology) {
         pathToV2File=path;
         this.ontology=ontology;
-        parse();
     }
 
 
-    V2SmallFile getV2eEntry() { return v2smallfile;}
-
-    private void parse() {
+    public Optional<V2SmallFile> parse() {
         String basename=(new File(pathToV2File).getName());
         List<V2SmallFileEntry> entryList=new ArrayList<>();
 
@@ -110,11 +104,11 @@ public class V2SmallFileParser {
                 entryList.add(builder.build());
             }
             br.close();
-            this.v2smallfile = new V2SmallFile(basename,entryList);
-
+            return  Optional.of(new V2SmallFile(basename,entryList));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return Optional.empty();
     }
 
     private static final String[] expectedFields = {

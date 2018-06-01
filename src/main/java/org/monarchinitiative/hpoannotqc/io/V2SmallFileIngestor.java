@@ -12,10 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class coordinates the input of all the V2 small files. If an
@@ -26,7 +23,7 @@ import java.util.Set;
 public class V2SmallFileIngestor {
     private static final Logger logger = LogManager.getLogger();
     /** Reference to the HPO object. */
-    private HpoOntology ontology = null;
+    private HpoOntology ontology;
     /** The paths to all of the v2 small files. */
     private final List<String> v2smallFilePaths;
     /** List of all of the {@link V2SmallFile} objects, which represent annotated diseases. */
@@ -60,9 +57,14 @@ public class V2SmallFileIngestor {
                 logger.trace(String.format("Inputting %d-th file at %s",i,path));
             }
             V2SmallFileParser parser=new V2SmallFileParser(path,ontology);
-            V2SmallFile v2sf = parser.getV2eEntry();
-            n_total_annotation_lines += v2sf.getNumberOfAnnotations();
-            v2SmallFileList.add(parser.getV2eEntry());
+            Optional<V2SmallFile> v2sfOpt = parser.parse();
+            if (v2sfOpt.isPresent()) {
+                V2SmallFile v2sf = v2sfOpt.get();
+                n_total_annotation_lines += v2sf.getNumberOfAnnotations();
+                v2SmallFileList.add(v2sf);
+            } else {
+                logger.error("Could not parse V2 small file for {}",path);
+            }
         }
         logger.error("Finished with input of {} files with {} annotations",i,n_total_annotation_lines);
         logger.error("A total of {} entries found in the small file directory were omitted.",n_total_omitted_entries);

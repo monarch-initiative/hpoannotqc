@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <phenol.version>1.0.2</phenol.version>
+        <phenol.version>1.0.3</phenol.version>
         <guava.version>24.1-jre</guava.version>
     </properties>
 
@@ -67,6 +67,18 @@
         <dependency>
             <groupId>org.monarchinitiative.phenol</groupId>
             <artifactId>phenol-io</artifactId>
+            <version>${phenol.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.monarchinitiative.phenol</groupId>
+            <artifactId>phenol-core</artifactId>
             <version>${phenol.version}</version>
             <exclusions>
                 <exclusion>
