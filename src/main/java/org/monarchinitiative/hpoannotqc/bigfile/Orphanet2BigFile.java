@@ -5,13 +5,11 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
-public class Orphanet2BigFile {
+class Orphanet2BigFile {
     private static final Logger logger = LogManager.getLogger();
     private final static String ORPHANET_DB ="ORPHA";
     private final static String EMPTY_STRING="";

@@ -10,7 +10,6 @@ import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
 
 
 import java.io.*;
-import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -26,9 +25,9 @@ import java.net.URLConnection;
 public class FileDownloader {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static class ProxyOptions {
-        String host = null;
-        int port = -1;
+    static class ProxyOptions {
+        final String host = null;
+        final int port = -1;
         String user = null;
         String password = null;
     }
@@ -36,11 +35,11 @@ public class FileDownloader {
     /**
      * Configuration for the {@link FileDownloader}.
      */
-    public static class Options {
-        public boolean printProgressBar = false;
-        public ProxyOptions http = new ProxyOptions();
-        public ProxyOptions https = new ProxyOptions();
-        public ProxyOptions ftp = new ProxyOptions();
+    static class Options {
+        boolean printProgressBar = false;
+        ProxyOptions http = new ProxyOptions();
+        ProxyOptions https = new ProxyOptions();
+        ProxyOptions ftp = new ProxyOptions();
     }
 
     /** configuration for the downloader */
@@ -123,9 +122,9 @@ public class FileDownloader {
             // Try to get file size.
             FTPFile[] files = ftp.listFiles(fileName);
             long fileSize = -1;
-            for (int i = 0; i < files.length; ++i)
-                if (files[i].getName().equals(fileName))
-                    fileSize = files[i].getSize();
+            for (FTPFile ftpfile : files)
+                if (ftpfile.getName().equals(fileName))
+                    fileSize = ftpfile.getSize();
             ftp.pwd();
             ProgressBar pb = null;
             if (fileSize != -1)
@@ -157,19 +156,6 @@ public class FileDownloader {
             // if (!ftp.completePendingCommand())
             // throw new IOException("Could not finish download!");
 
-        } catch (FileNotFoundException e) {
-            dest.delete();
-            try {
-                ftp.logout();
-            } catch (IOException e1) {
-                // swallow, nothing we can do about it
-            }
-            try {
-                ftp.disconnect();
-            } catch (IOException e1) {
-                // swallow, nothing we can do about it
-            }
-            throw new FileDownloadException("ERROR: problem downloading file.", e);
         } catch (IOException e) {
             dest.delete();
             try {

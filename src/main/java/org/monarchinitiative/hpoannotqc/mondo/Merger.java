@@ -3,7 +3,6 @@ package org.monarchinitiative.hpoannotqc.mondo;
 
 
 
-import org.monarchinitiative.phenol.formats.hpo.HpoAnnotation;
 import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.formats.hpo.HpoAnnotation;

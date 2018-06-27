@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
 import java.nio.file.Path;

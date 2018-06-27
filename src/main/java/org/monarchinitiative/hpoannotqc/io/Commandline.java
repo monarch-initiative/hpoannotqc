@@ -149,7 +149,7 @@ public class Commandline {
         return options;
     }
 
-    public static String getVersion() {
+    private static String getVersion() {
         String version = "0.1.7";// default, should be overwritten by the following.
         try {
             Package p = Commandline.class.getPackage();

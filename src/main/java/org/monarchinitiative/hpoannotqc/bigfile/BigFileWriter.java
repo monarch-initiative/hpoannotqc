@@ -4,7 +4,6 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -12,10 +11,6 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +20,7 @@ public class BigFileWriter {
     /** List of all of the {@link V2SmallFile} objects, which represent annotated diseases. */
     private List<V2SmallFile> v2SmallFileList =new ArrayList<>();
     /** Representation of the version 2 Big file and all its data for export. */
-    private V2BigFile v2BigFile;
+    private final V2BigFile v2BigFile;
     /** Total number of annotations of all of the annotation files. */
     private int n_total_annotation_lines=0;
     /**Usually "phenotype.hpoa", but may also include path. */

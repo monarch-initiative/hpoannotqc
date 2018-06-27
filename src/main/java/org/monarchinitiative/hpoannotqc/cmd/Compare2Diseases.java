@@ -7,6 +7,7 @@ import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoDiseaseAnnotationParser;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 
 import java.io.File;
@@ -22,7 +23,7 @@ import java.util.Objects;
 public class Compare2Diseases  implements Command {
     private static final Logger logger = LogManager.getLogger();
     private HpoOntology ontology=null;
-    private static Map<String,HpoDisease> diseaseMap;
+    private static Map<TermId,HpoDisease> diseaseMap;
     private final String phenotype_annotation_path;
     private final String hpOboPath;
 

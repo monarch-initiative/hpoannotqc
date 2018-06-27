@@ -88,7 +88,7 @@ class V2BigFile {
                 entry.getPhenotypeId().getIdWithPrefix(), // HPO_ID
                 entry.getPublication(), // DB_Reference
                 entry.getEvidenceCode(), // Evidence_Code
-                entry.getAgeOfOnsetId()==null?"":entry.getAgeOfOnsetId().getIdWithPrefix(), // Onset
+                entry.getAgeOfOnsetId()!=null?entry.getAgeOfOnsetId():EMPTY_STRING, // Onset
                 entry.getFrequencyModifier()!=null?entry.getFrequencyModifier():EMPTY_STRING, // Frequency
                 entry.getSex(), // Sex
                 entry.getModifier(), // Modifier

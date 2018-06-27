@@ -23,7 +23,7 @@ public class  V2SmallFileEntry {
     /** Field #4 */
     private final String phenotypeName;
     /** Field #5 */
-    private final TermId ageOfOnsetId;
+    private final String ageOfOnsetId;
     /** Field #6 */
     private final String ageOfOnsetName;
     /** Field #7 */
@@ -79,7 +79,7 @@ public class  V2SmallFileEntry {
         return phenotypeName;
     }
 
-    public TermId getAgeOfOnsetId() {
+    public String getAgeOfOnsetId() {
         return ageOfOnsetId;
     }
 
@@ -143,7 +143,7 @@ public class  V2SmallFileEntry {
     }
 
     boolean isFrequencyTerm() {
-        String regex="HP:\\d{7,7}";
+        String regex="HP:\\d{7}";
         return this.frequencyModifier.matches(regex);
     }
 
@@ -166,7 +166,7 @@ public class  V2SmallFileEntry {
         /** Field #4 */
         private  final String phenotypeName;
         /** Field #5 */
-        private  TermId ageOfOnsetId=null;
+        private  String ageOfOnsetId=EMPTY_STRING;
         /** Field #6 */
         private  String ageOfOnsetName=EMPTY_STRING;
         /** Field #7 */
@@ -217,7 +217,7 @@ public class  V2SmallFileEntry {
             return this;
         }
 
-        public Builder ageOfOnsetId(TermId t) {
+        public Builder ageOfOnsetId(String t) {
             this.ageOfOnsetId=t;
             return this;
         }
@@ -258,7 +258,7 @@ public class  V2SmallFileEntry {
             String diseaseName,
             TermId phenotypeId,
             String phenotypeName,
-            TermId ageOfOnsetId,
+            String ageOfOnsetId,
             String ageOfOnsetName,
             String evidenceCode,
             String frequencyString,
@@ -319,7 +319,7 @@ public class  V2SmallFileEntry {
                 diseaseName,
                 phenotypeId.getIdWithPrefix(),
                 phenotypeName,
-                ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
+                ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING,
                 ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
                 frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
                 sex!=null?sex:EMPTY_STRING,

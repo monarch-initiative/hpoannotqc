@@ -25,11 +25,11 @@ public class V2LineQualityController {
     private final HpoOntology ontology;
 
 
-    private List<String> errors=new ArrayList<>();
+    private final List<String> errors=new ArrayList<>();
 
     private final Set<TermId> onsetTerms;
 
-    private Map<String,Integer> assignedByMap = new HashMap<>();
+    private final Map<String,Integer> assignedByMap = new HashMap<>();
 
     private int n_good_DB=0;
     private int n_bad_DB=0;
@@ -213,27 +213,28 @@ public class V2LineQualityController {
      * @param id A term id that should be from the Onset subhierarchy
      * @return true if the HPO id is a valid onset term id.
      */
-    private boolean checkAgeOfOnsetId(TermId id) {
-        if (id==null ) {
+    private boolean checkAgeOfOnsetId(String id) {
+        if (id==null || id.isEmpty() ) {
             n_good_ageOfOnset_ID++;
             return true;
         }
-        if (! ontology.getTermMap().containsKey(id)) {
-            errors.add("Attempt to add onset ID that was not in graph: "+id.getIdWithPrefix());
-            System.err.println("Attempt to add onset ID that was not in graph: "+id.getIdWithPrefix());
+        TermId tid = TermId.constructWithPrefix(id);
+        if (! ontology.getTermMap().containsKey(tid)) {
+            errors.add("Attempt to add onset ID that was not in graph: "+id);
+            System.err.println("Attempt to add onset ID that was not in graph: "+id);
             return false;
         }
-        if (! checkIsNotAltId(id)) {
-            errors.add("Attempt to use alt_id for onset term: " + id.getIdWithPrefix());
+        if (! checkIsNotAltId(tid)) {
+            errors.add("Attempt to use alt_id for onset term: " + id);
             return false;
         }
-        if (this.onsetTerms.contains(id)) {
+        if (this.onsetTerms.contains(tid)) {
             n_good_ageOfOnset_ID++;
             return true;
         } else {
             n_bad_ageOfOnset_ID++;
-            errors.add("Malformed age of onset ID: \""+id.toString()+"\"");
-            System.err.println("Malformed age of onset ID: \""+id.toString()+"\"");
+            errors.add("Malformed age of onset ID: \""+tid.toString()+"\"");
+            System.err.println("Malformed age of onset ID: \""+tid.toString()+"\"");
             return false;
         }
     }
@@ -254,7 +255,7 @@ public class V2LineQualityController {
 
 
     /** Check that the label is the current label that matches the term id. */
-    private boolean checkAgeOfOnsetLabel(TermId id, String label) {
+    private boolean checkAgeOfOnsetLabel(String id, String label) {
         if (id==null && (label==null||label.isEmpty())){
             n_good_ageOfOnsetLabel++;
             return true;
@@ -263,12 +264,13 @@ public class V2LineQualityController {
             n_bad_ageOfOnsetLabel++;
             return false;
         }
-        String currentLabel = ontology.getTermMap().get(id).getName();
+        TermId tid = TermId.constructWithPrefix(id);
+        String currentLabel = ontology.getTermMap().get(tid).getName();
         if (! currentLabel.equals(label)) {
             String errmsg = String.format("Found usage of wrong age of onset label %s instead of %s for %s: see following line",
                     label,
                     currentLabel,
-                    ontology.getTermMap().get(id).getId().getIdWithPrefix());
+                    ontology.getTermMap().get(tid).getId().getIdWithPrefix());
             errors.add(errmsg);
             n_bad_ageOfOnsetLabel++;
             return false;

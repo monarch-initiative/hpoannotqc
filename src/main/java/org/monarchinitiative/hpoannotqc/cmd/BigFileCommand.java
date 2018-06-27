@@ -14,7 +14,6 @@ import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
 
 import java.io.*;
 import java.util.List;
-import java.util.Optional;
 
 
 /**

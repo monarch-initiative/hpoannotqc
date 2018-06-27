@@ -8,6 +8,7 @@ import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
 import org.monarchinitiative.hpoannotqc.io.FileDownloader;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 
@@ -71,10 +72,8 @@ public final class DownloadCommand implements Command {
             } else {
                 LOGGER.error("Could not download en_product4_HPO.xml to " + downloadLocation);
             }
-        } catch (FileDownloadException fde) {
+        } catch (FileDownloadException | MalformedURLException fde) {
             fde.printStackTrace();
-        } catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -151,10 +150,8 @@ public final class DownloadCommand implements Command {
             } else {
                 LOGGER.error("Could not download hp.obo to " + downloadLocation);
             }
-        } catch (FileDownloadException fde) {
+        } catch (FileDownloadException | MalformedURLException fde) {
             fde.printStackTrace();
-        } catch (Exception e){
-            e.printStackTrace();
         }
     }
 

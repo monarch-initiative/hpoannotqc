@@ -67,7 +67,8 @@ public class V2SmallFileParser {
                 if (ageOfOnsetId!=null &&
                         ageOfOnsetId.length()>0 &&
                         (!ageOfOnsetId.startsWith("HP:"))) {
-                    //TODO
+                    logger.error(String.format("Malformed age of onset termid: \"%s\"",ageOfOnsetId ));
+                    continue;
                 }
                 String ageOfOnsetName=A[5];
                 String frequencyString=A[6];

@@ -7,10 +7,8 @@ import org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -29,7 +26,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private static final Logger logger = LogManager.getLogger();
     private final String orphanetXmlPath;
     /** A list of diseases parsed from Orphanet. */
-    private List<OrphanetDisorder> disorders;
+    private final List<OrphanetDisorder> disorders;
 
 
     private final HpoOntology ontology;

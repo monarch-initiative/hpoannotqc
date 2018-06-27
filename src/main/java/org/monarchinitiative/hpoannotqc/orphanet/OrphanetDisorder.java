@@ -24,7 +24,7 @@ public class OrphanetDisorder {
     private final List<TermId> hpoIdList;
     /** HPO Labels of the phenotype annotation. Note that these are in the same order as the Ids, but since we only
      * output the TermIds in the big file, they will get ignored anyway.*/
-    private List<String> hpoLabelList;
+    private final List<String> hpoLabelList;
     /** HPO TermId of the frequency of the phenotype in the disease. */
     private TermId frequency;
     /** Flag to indicate if this is an Orphanet Diagnostic Criterion. */

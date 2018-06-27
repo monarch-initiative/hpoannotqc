@@ -39,7 +39,7 @@ public class ClosestMatch {
             matchingTerms.put(query, 0);
             return matchingTerms;
         }
-        Stack<TermId> stack=new Stack();
+        Stack<TermId> stack=new Stack<>();
         Map<TermId, Integer> seen = new HashMap<>();
         stack.push(query);
         seen.put(query,0);
