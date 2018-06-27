@@ -9,11 +9,9 @@ import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,7 +62,7 @@ class V2BigFile {
         V2LineQualityController v2qc = new V2LineQualityController(this.ontology);
         writer.write(getHeaderV2() + "\n");
         for (V2SmallFile v2 : v2SmallFileList) {
-            List<V2SmallFileEntry> entryList = v2.getEntryList();
+            List<V2SmallFileEntry> entryList = v2.getOriginalEntryList();
             for (V2SmallFileEntry entry : entryList) {
                 v2qc.checkV2entry(entry);
                 try {

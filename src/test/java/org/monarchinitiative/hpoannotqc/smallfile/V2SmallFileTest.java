@@ -46,7 +46,7 @@ public class V2SmallFileTest {
      */
     @Test
     public void testMergeFrequencies() {
-        List<V2SmallFileEntry> entrylist= v2sf.getEntryList();
+        List<V2SmallFileEntry> entrylist= v2sf.getOriginalEntryList();
         assertEquals(3,entrylist.size());
     }
 

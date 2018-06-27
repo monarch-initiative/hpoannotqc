@@ -2,17 +2,18 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 
 import org.apache.logging.log4j.LogManager;
-import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * Created by peter on 1/20/2018.
+ * This class represents the contents of a single annotation line.
  */
-public class V2SmallFileEntry {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
+public class  V2SmallFileEntry {
+    private static final Logger logger = LogManager.getLogger();
+
     /** Field #1 */
     private final String diseaseID;
     /** Field #2 */
@@ -121,6 +122,39 @@ public class V2SmallFileEntry {
     public String getDateCreated() {
         return dateCreated;
     }
+
+
+    /** @return true iff this entry has an N/M style frequency entry */
+    boolean isNofM() {
+        int i = this.frequencyModifier.indexOf('/');
+        int len=this.frequencyModifier.length();
+        // 1. The string must contain the character '/'
+        // 2. The / cannot be on the first (0th) position of the string
+        // 3. The / cannot be the last character of the string
+        return (i>0 && i<len-1);
+    }
+
+    boolean isPercentage() {
+        int i=this.frequencyModifier.indexOf('%');
+        // percentage symbol must be present and cannot be at the first (0th) position
+        if (i<1) return false;
+        String regex="\\d{1,3}\\.?\\d?%";
+        return this.frequencyModifier.matches(regex);
+    }
+
+    boolean isFrequencyTerm() {
+        String regex="HP:\\d{7,7}";
+        return this.frequencyModifier.matches(regex);
+    }
+
+
+
+    public void merge(String freq, List<V2SmallFileEntry> annotlist ) {
+
+
+    }
+
+
 
     public static class Builder {
         /** Field #1 */
@@ -288,11 +322,11 @@ public class V2SmallFileEntry {
                 ageOfOnsetId!=null?ageOfOnsetId.getIdWithPrefix():EMPTY_STRING,
                 ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
                 frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
-                sex!=null?sex:"",
+                sex!=null?sex:EMPTY_STRING,
                 negation!=null?negation:EMPTY_STRING,
                 modifier!=null?modifier:EMPTY_STRING,
                 description!=null?description:EMPTY_STRING,
-                publication,
+                publication!=null?publication:EMPTY_STRING,
                 evidenceCode!=null?evidenceCode:"",
                 assignedBy!=null?assignedBy:EMPTY_STRING,
                 dateCreated);

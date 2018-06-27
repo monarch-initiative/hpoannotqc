@@ -63,9 +63,11 @@ public class V2SmallFileParser {
                     continue;
                 }
                 String phenotypeName=A[3];
-                TermId ageOfOnsetId=null;
-                if (A[4]!=null && A[4].startsWith("HP")) {
-                    ageOfOnsetId=TermId.constructWithPrefix(A[4]);
+                String ageOfOnsetId=A[4];
+                if (ageOfOnsetId!=null &&
+                        ageOfOnsetId.length()>0 &&
+                        (!ageOfOnsetId.startsWith("HP:"))) {
+                    //TODO
                 }
                 String ageOfOnsetName=A[5];
                 String frequencyString=A[6];

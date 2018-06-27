@@ -132,9 +132,6 @@
                 <filtering>true</filtering>
             </resource>
             <resource>
-                <directory>src/main/resources/data</directory>
-            </resource>
-            <resource>
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.properties</include>
