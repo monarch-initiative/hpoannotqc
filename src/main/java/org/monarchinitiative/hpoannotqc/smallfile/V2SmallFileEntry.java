@@ -5,7 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by peter on 1/20/2018.
@@ -152,6 +154,30 @@ public class  V2SmallFileEntry {
     public void merge(String freq, List<V2SmallFileEntry> annotlist ) {
 
 
+    }
+
+
+    /**
+     * This is the header of the V2 small files.
+     * @return V2 small file header.
+     */
+    public static String getHeaderV2() {
+        String []fields={"#diseaseID",
+                "diseaseName",
+                "phenotypeID",
+                "phenotypeName",
+                "onsetID",
+                "onsetName",
+                "frequency",
+                "sex",
+                "negation",
+                "modifier",
+                "description",
+                "publication",
+                "evidence",
+                "assignedBy",
+                "dateCreated"};
+        return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
 

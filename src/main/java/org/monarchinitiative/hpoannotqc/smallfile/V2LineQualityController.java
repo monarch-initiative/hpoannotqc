@@ -328,7 +328,8 @@ public class V2LineQualityController {
         }
     }
 
-    /** There are 3 correct formats for frequency */
+    /** There are 3 correct formats for frequency. For example, 4/7, 32% (or 32.6%), or
+     * an HPO term from the frequency subontology. */
     private boolean checkFrequency(String freq) {
         // it is ok not to have frequency data
         if (freq==null || freq.isEmpty()) {
@@ -338,10 +339,13 @@ public class V2LineQualityController {
         if (freq.matches("\\d+/\\d+")) {
             n_good_frequency++;
             return true;
-        } else if (freq.matches("\\d{1,3}\\%")) {
+        } else if (freq.matches("\\d{1,3}%")) {
             n_good_frequency++;
             return true;
-        } else if (! freq.matches("HP:\\d{7,7}")) {
+        }else if (freq.matches("\\d{1,3}\\.\\d+%")) {
+            n_good_frequency++;
+            return true;
+        } else if (! freq.matches("HP:\\d{7}")) {
             // cannot be a valid frequency term
             errors.add("Invalid frequency term (see next line): " + freq);
             n_bad_frequency++;
@@ -373,48 +377,66 @@ public class V2LineQualityController {
     }
 
 
+    public List<String> getErrors() {
+        return this.errors;
+    }
 
-    public void checkV2entry(V2SmallFileEntry entry) {
+
+
+    public boolean checkV2entry(V2SmallFileEntry entry) {
+        boolean clean=true;
         if (! checkDB(entry.getDB())) {
             errors.add(String.format("Bad DB: %s",entry.toString()));
+            clean = false;
         }
         if (! checkDiseaseName(entry.getDiseaseName())) {
             errors.add(String.format("Bad disease name: %s",entry.toString()));
+            clean = false;
         }
         if (! checkNegation(entry.getNegation())) {
             errors.add(String.format("Bad negation: %s",entry.toString()));
+        clean = false;
         }
         if (! checkPhenotypeId(entry.getPhenotypeId())) {
             errors.add(String.format("Bad phenotypeId: %s",entry.toString()));
+            clean = false;
         }
         if (! checkPhenotypeLabel(entry.getPhenotypeId(),entry.getPhenotypeName())) {
             errors.add(String.format("Bad phenotype label: %s",entry.toString()));
+            clean = false;
         }
         if (! checkPublication(entry.getPublication())) {
             errors.add(String.format("Bad publication: %s",entry.toString()));
+            clean = false;
         }
         if (! checkAgeOfOnsetId(entry.getAgeOfOnsetId())) {
             errors.add(String.format("Bad age of onset id: %s",entry.toString()));
+            clean = false;
         }
         if (! checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetName())) {
             errors.add(String.format("Bad age of onset label: %s",entry.toString()));
+            clean = false;
         }
         if (! checkEvidence(entry.getEvidenceCode())) {
             errors.add(String.format("Bad evidence code: \"%s\" for entry %s",
                     entry.getEvidenceCode(),entry.toString()));
             logger.error(String.format("Bad evidence code: \"%s\" for entry %s",
                     entry.getEvidenceCode(),entry.toString()));
-            System.exit(1);
+            clean = false;
         }
         if (! checkDateCreated(entry.getDateCreated())) {
             errors.add(String.format("Bad data created: %s",entry.toString()));
+            clean = false;
         }
         if (! checkAssignBy(entry.getAssignedBy())) {
             errors.add(String.format("Bad assigned-by: %s",entry.toString()));
+            clean = false;
         }
         if (! checkFrequency(entry.getFrequencyModifier())) {
             errors.add(String.format("Bad frequency: %s",entry.toString()));
+            clean = false;
         }
+        return clean; // returns true if there were zero errors with this line
     }
 
 

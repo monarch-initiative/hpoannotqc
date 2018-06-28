@@ -56,7 +56,7 @@ public class V2SmallFile {
                         .collect(Collectors.groupingBy(V2SmallFileEntry::getPhenotypeId, counting()));
         // first add the unique entries
         for (V2SmallFileEntry entry : originalEntryList) {
-            if (numberOfAnnotationsByTermId.get(entry.getPhenotypeId()).equals(1)) {
+            if (numberOfAnnotationsByTermId.get(entry.getPhenotypeId()) == 1) {
                 builder.add(entry);
             }
         }
@@ -146,28 +146,6 @@ public class V2SmallFile {
 
 
 
-    /**
-     * This is the header of the V2 small files.
-     * @return V2 small file header.
-     */
-    public static String getHeaderV2() {
-        String []fields={"#diseaseID",
-                "diseaseName",
-                "phenotypeID",
-                "phenotypeName",
-                "onsetID",
-                "onsetName",
-                "frequency",
-                "sex",
-                "negation",
-                "modifier",
-                "description",
-                "publication",
-                "evidence",
-                "assignedBy",
-                "dateCreated"};
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
-    }
 
 
 
