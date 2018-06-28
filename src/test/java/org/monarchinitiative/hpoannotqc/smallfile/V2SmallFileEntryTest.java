@@ -31,7 +31,7 @@ public class V2SmallFileEntryTest {
 
     @Test
     public void testEvidenceCodeNotEmpty() {
-       V2LineQualityController qc = new V2LineQualityController(ontology);
+       V2LineQualityControllerTest qc = new V2LineQualityControllerTest(ontology);
         String diseaseId="OMIM:216300";
         String diseasename="CLEFT PALATE, DEAFNESS, AND OLIGODONTIA";
         TermId phenoID= TermId.constructWithPrefix("HP:0000007");

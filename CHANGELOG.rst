@@ -4,6 +4,11 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.1.2`_(2018-07-01)
+--------------------
+* Refactor to enable merging of duplicated entries with different frequency data
+* Update documentation
+
 `1.0.0`_ (2018-05-19)
 ---------------------
 * Refactor to use phenol 1.0.0

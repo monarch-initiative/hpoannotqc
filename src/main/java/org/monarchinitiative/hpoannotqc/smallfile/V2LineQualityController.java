@@ -256,7 +256,7 @@ public class V2LineQualityController {
 
     /** Check that the label is the current label that matches the term id. */
     private boolean checkAgeOfOnsetLabel(String id, String label) {
-        if (id==null && (label==null||label.isEmpty())){
+        if ((id==null || id.isEmpty()) && (label==null||label.isEmpty())){
             n_good_ageOfOnsetLabel++;
             return true;
         }
