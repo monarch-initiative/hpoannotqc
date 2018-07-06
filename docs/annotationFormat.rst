@@ -29,33 +29,33 @@ The first few lines present metadata (comments) preceeded by hash signs (#) at t
 
 
 
-+----+-------------------+---------+--------------------------------+
-| Nr |   Content         | Required| Example                        |
-+====+===================+==========================================+
-| 1  | DatabaseId        |     Yes |MIM:154700                      |
-+----+-------------------+------------------------------------------+
-| 2  | DB_Name           |     Yes |Achondrogenesis, type IB        |
-+----+-------------------+------------------------------------------+
-| 3  | Qualifier         |     No  |NOT                             |
-+----+-------------------+------------------------------------------+
-| 4  | HPO_ID            |    Yes  |HP:0002487                      |
-+----+-------------------+------------------------------------------+
-| 5  | DB_Reference      |    Yes  |OMIM:154700 or PMID:15517394    |
-+----+-------------------+------------------------------------------+
-| 6  | Evidence          |    Yes  | IEA                            |
-+----+-------------------+------------------------------------------+
-| 7  | Onset             |    No   | HP:0003577                     |
-+----+-------------------+------------------------------------------+
-| 8  |Frequency          |    No   | HP:0003577 or 12/45 or 22%     |
-+----+-------------------+------------------------------------------+
-| 9  |Sex                |    No   | MALE or FEMALE                 |
-+----+-------------------+------------------------------------------+
-| 10 |Modifier           |    No   | HP:0025257 (";"-separated list)|
-+----+-------------------+------------------------------------------+
-| 11 |Aspect             |    Yes  | "P" or "C" or "I" or "M"       |
-+----+-------------------+------------------------------------------+
-| 12 |BiocurationBy      |    Yes  | HPO:skoehler[YYYY-MM-DD]       |
-+----+-------------------+------------------------------------------+
++----+-------------------+----------+--------------------------------+
+| Nr |   Content         | Required | Example                        |
++====+===================+===========================================+
+| 1  | DatabaseId        |     Yes  | MIM:154700                     |
++----+-------------------+----------+--------------------------------+
+| 2  | DB_Name           |     Yes  | Achondrogenesis, type IB       |
++----+-------------------+----------+--------------------------------+
+| 3  | Qualifier         |     No   | NOT                            |
++----+-------------------+----------+--------------------------------+
+| 4  | HPO_ID            |    Yes   | HP:0002487                     |
++----+-------------------+----------+--------------------------------+
+| 5  | DB_Reference      |    Yes   | OMIM:154700 or PMID:15517394   |
++----+-------------------+----------+--------------------------------+
+| 6  | Evidence          |    Yes   | IEA                            |
++----+-------------------+----------+--------------------------------+
+| 7  | Onset             |    No    | HP:0003577                     |
++----+-------------------+----------+--------------------------------+
+| 8  |Frequency          |    No    | HP:0003577 or 12/45 or 22%     |
++----+-------------------+----------+--------------------------------+
+| 9  |Sex                |    No    | MALE or FEMALE                 |
++----+-------------------+----------+--------------------------------+
+| 10 |Modifier           |    No    | HP:0025257 (";"-separated list)|
++----+-------------------+----------+--------------------------------+
+| 11 |Aspect             |    Yes   | "P" or "C" or "I" or "M"       |
++----+-------------------+----------+--------------------------------+
+| 12 |BiocurationBy      |    Yes   | HPO:skoehler[YYYY-MM-DD]       |
++----+-------------------+----------+--------------------------------+
 
 
 **Explanations**
@@ -116,9 +116,13 @@ This field is mandatory; cardinality 1.
 * Terms with the ``M`` aspect are located in the Clinical Modifier subontology.
 
 
-12. **Date_Created**: Date on which the annotation was made; format is YYYY.MM.DD this field is mandatory,
+12. **BiocurationBy**: This refers to the biocurator who made the
+annotation and the date on which the annotation was made; the date format is ``YYYY-MM-DD``.
+The first entry in this field refers to the creation date. Any additional biocuration is recorded
+following a semicolon. So, if Joseph curated on July 5, 2012, and Suzanna curated on December 7, 2015, one might
+have a field like this: ``HPO:Joseph[2012-07-05];HPO:Suzanna[2015-12-07]``. It is acceptable to use ORCID ids.
+This field is mandatory,
 cardinality 1
 
-13. **Assigned By**: This refers to the biocurator who made the
-annotation.
+13. **Assigned By**:
 
