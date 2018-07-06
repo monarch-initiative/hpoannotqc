@@ -17,14 +17,14 @@ whose duration will be determined by the needs of our users, we will continue to
 The following table explains the format of the ``phenotype.hpoa`` file.
 
 
-The first few lines present metadata (comments) preceeded by hash signs (#) at the beginning of the lines.
+The first few lines present metadata (comments) preceeded by hash signs (#) at the beginning of the lines. ::
 
-#description: HPO phenotype annotations for rare diseases
-#date: YYYY-MM-DD
-#version: YYYY-MM-DD
-#source_date: Human Phenotype Ontology (hp.obo) version from XXX
-#tracker: https://github.com/obophenotype/human-phenotype-ontology
-#contributor: list of biocurator IDs, and ORCIDs
+  #description: HPO phenotype annotations for rare diseases
+  #date: YYYY-MM-DD
+  #version: YYYY-MM-DD
+  #source_date: Human Phenotype Ontology (hp.obo) version from XXX
+  #tracker: https://github.com/obophenotype/human-phenotype-ontology
+  #contributor: list of biocurator IDs, and ORCIDs
 
 
 
