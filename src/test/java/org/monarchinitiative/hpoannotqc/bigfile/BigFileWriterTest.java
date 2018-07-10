@@ -41,10 +41,9 @@ public class BigFileWriterTest {
         String hpoName="Incisional hernia";
         String evidenceCode="IEA";
         String pub="OMIM:154700";
-        String assignedBy="HPO:skoehler";
-        String dateCreated="2015-07-26";
+        String biocuration="HPO:skoehler[2015-07-26]";
         String onsetModifier="HP:0040283";
-        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,assignedBy,dateCreated).ageOfOnsetId(onsetModifier);
+        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,biocuration).ageOfOnsetId(onsetModifier);
         entry = builder.build();
     }
 
@@ -56,9 +55,8 @@ public class BigFileWriterTest {
     @Test
     public void testV2line() throws HPOException {
         String [] v1bigFileFields = {
-                "OMIM", //DB
-                "154700",//DB_Object_ID
-                "MARFAN SYNDROME", // DB_Name
+                "OMIM:154700",//DiseaseID
+                "MARFAN SYNDROME", // Name
                 "",//Qualifier
                 "HP:0004872", // HPO_ID,
                 "OMIM:154700",//DB_Reference
@@ -68,8 +66,8 @@ public class BigFileWriterTest {
                 "", // Sex
                 "",//Modifier
                 "P",// Aspect
-                "2015-07-26", // Date_Created
-                "HPO:skoehler" // Assigned_By
+                "HPO:skoehler[2015-07-26]", // biocuration
+
         };
         String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
         List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
@@ -81,7 +79,7 @@ public class BigFileWriterTest {
 
     @Test
     public void testV2Header() {
-        String expected="#DB\tDB_Object_ID\tDB_Name\tQualifier\tHPO_ID\tDB_Reference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tDate_Created\tAssigned_By";
+        String expected="#databaseID\tName\tQualifier\tHPO_ID\tDB_Reference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
         assertEquals(expected,V2BigFile.getHeaderV2());
     }
 

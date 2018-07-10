@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 public class  V2SmallFileEntry {
     private static final Logger logger = LogManager.getLogger();
 
+    private final static String EMPTY_STRING="";
+
     /** Field #1 */
     private final String diseaseID;
     /** Field #2 */
@@ -43,11 +45,7 @@ public class  V2SmallFileEntry {
     /** Field #13 */
     private final String publication;
     /** Field #14 */
-    private final String assignedBy;
-    /** Field #15 */
-    private final String dateCreated;
-
-    private static final String EMPTY_STRING="";
+    private final String biocuration;
 
     public String getDiseaseID() {
         return diseaseID;
@@ -82,11 +80,11 @@ public class  V2SmallFileEntry {
     }
 
     public String getAgeOfOnsetId() {
-        return ageOfOnsetId;
+        return ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING;
     }
 
     public String getAgeOfOnsetName() {
-        return ageOfOnsetName;
+        return ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING;
     }
 
     public String getEvidenceCode() {
@@ -94,35 +92,30 @@ public class  V2SmallFileEntry {
     }
 
     public String getFrequencyModifier() {
-        return frequencyModifier;
+        return frequencyModifier!=null?frequencyModifier:EMPTY_STRING;
     }
 
     public String getSex() {
-        return sex;
+        return sex!=null?sex:EMPTY_STRING;
     }
 
     public String getNegation() {
-        return negation;
+        return negation!=null?negation:EMPTY_STRING;
     }
-
     public String getModifier() {
-        return modifier;
+        return modifier!=null?modifier:EMPTY_STRING;
     }
 
     public String getDescription() {
-        return description;
+        return description!=null?modifier:EMPTY_STRING;
     }
 
     public String getPublication() {
         return publication;
     }
 
-    public String getAssignedBy() {
-        return assignedBy;
-    }
-
-    public String getDateCreated() {
-        return dateCreated;
+    public String getBiocuration() {
+        return biocuration;
     }
 
 
@@ -175,12 +168,86 @@ public class  V2SmallFileEntry {
                 "description",
                 "publication",
                 "evidence",
-                "assignedBy",
-                "dateCreated"};
+                "biocuration"};
         return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
 
+
+
+    private V2SmallFileEntry(String disID,
+            String diseaseName,
+            TermId phenotypeId,
+            String phenotypeName,
+            String ageOfOnsetId,
+            String ageOfOnsetName,
+            String evidenceCode,
+            String frequencyString,
+            String sex,
+            String negation,
+            String modifier,
+            String description,
+            String publication,
+            String biocuration) {
+        this.diseaseID=disID;
+        this.diseaseName=diseaseName;
+        this.phenotypeId=phenotypeId;
+        this.phenotypeName=phenotypeName;
+        this.ageOfOnsetId=ageOfOnsetId;
+        this.ageOfOnsetName=ageOfOnsetName;
+        this.evidenceCode=evidenceCode;
+        this.frequencyModifier =frequencyString;
+        this.sex=sex;
+        this.negation=negation;
+        this.modifier=modifier;
+        this.description=description;
+        this.publication=publication;
+        this.biocuration=biocuration;
+    }
+
+    public V2SmallFileEntry makeDuplicate() {
+        return new V2SmallFileEntry(this.diseaseID,
+                this.diseaseName,
+                this.phenotypeId,
+                this.phenotypeName,
+                this.ageOfOnsetId,
+                this.ageOfOnsetName,
+                this.evidenceCode,
+                this.frequencyModifier,
+                this.sex,
+                this.negation,
+                this.modifier,
+                this.description,
+                this.publication,
+                this.biocuration);
+    }
+
+    /** @return the row that will be written to the V2 file for this entry. */
+    @Override public String toString() { return getRow();}
+
+    /**
+     * Return the row that will be used to write the V2 small files entries to a file. Note that
+     * we replace null strings (which are a signal for no data available) with the empty string
+     * to avoid the string "null" being written.
+     * @return One row of the "big" file corresponding to this entry
+     */
+    public String getRow() {
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
+                diseaseID,
+                diseaseName,
+                phenotypeId.getIdWithPrefix(),
+                phenotypeName,
+                ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING,
+                ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
+                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
+                sex!=null?sex:EMPTY_STRING,
+                negation!=null?negation:EMPTY_STRING,
+                modifier!=null?modifier:EMPTY_STRING,
+                description!=null?description:EMPTY_STRING,
+                publication!=null?publication:EMPTY_STRING,
+                evidenceCode!=null?evidenceCode:"",
+                biocuration!=null?biocuration:EMPTY_STRING);
+    }
 
     public static class Builder {
         /** Field #1 */
@@ -212,25 +279,21 @@ public class  V2SmallFileEntry {
         /** Field #14 */
         private  final String publication;
         /** Field #15 */
-        private  final String assignedBy;
-        /** Field #16 */
-        private  final String dateCreated;
+        private  final String biocuration;
         public Builder(String diseaseId,
                        String diseasename,
                        TermId phenoId,
                        String phenoName,
                        String evidence,
                        String pub,
-                       String ab,
-                       String date) {
+                       String biocuration) {
             this.diseaseID=diseaseId;
             this.diseaseName=diseasename;
             this.phenotypeId=phenoId;
             this.phenotypeName=phenoName;
             this.evidenceCode=evidence;
             this.publication=pub;
-            this.assignedBy=ab;
-            this.dateCreated=date;
+            this.biocuration=biocuration;
         }
 
         public Builder frequencyId(TermId f) {
@@ -263,101 +326,21 @@ public class  V2SmallFileEntry {
 
         public V2SmallFileEntry build() {
             return new V2SmallFileEntry(diseaseID,
-                     diseaseName,
-                     phenotypeId,
-                     phenotypeName,
-                     ageOfOnsetId,
-                     ageOfOnsetName,
-                     evidenceCode,
-                     frequencyString,
-                     sex,
-                     negation,
-                     modifier,
-                     description,
-                     publication,
-                     assignedBy,
-                     dateCreated);
+                    diseaseName,
+                    phenotypeId,
+                    phenotypeName,
+                    ageOfOnsetId,
+                    ageOfOnsetName,
+                    evidenceCode,
+                    frequencyString,
+                    sex,
+                    negation,
+                    modifier,
+                    description,
+                    publication,
+                    biocuration);
         }
     }
-
-    private V2SmallFileEntry(String disID,
-            String diseaseName,
-            TermId phenotypeId,
-            String phenotypeName,
-            String ageOfOnsetId,
-            String ageOfOnsetName,
-            String evidenceCode,
-            String frequencyString,
-            String sex,
-            String negation,
-            String modifier,
-            String description,
-            String publication,
-            String assignedBy,
-            String dateCreated) {
-        this.diseaseID=disID;
-        this.diseaseName=diseaseName;
-        this.phenotypeId=phenotypeId;
-        this.phenotypeName=phenotypeName;
-        this.ageOfOnsetId=ageOfOnsetId;
-        this.ageOfOnsetName=ageOfOnsetName;
-        this.evidenceCode=evidenceCode;
-        this.frequencyModifier =frequencyString;
-        this.sex=sex;
-        this.negation=negation;
-        this.modifier=modifier;
-        this.description=description;
-        this.publication=publication;
-        this.assignedBy=assignedBy;
-        this.dateCreated=dateCreated;
-    }
-
-    public V2SmallFileEntry clone() {
-        return new V2SmallFileEntry(this.diseaseID,
-                this.diseaseName,
-                this.phenotypeId,
-                this.phenotypeName,
-                this.ageOfOnsetId,
-                this.ageOfOnsetName,
-                this.evidenceCode,
-                this.frequencyModifier,
-                this.sex,
-                this.negation,
-                this.modifier,
-                this.description,
-                this.publication,
-                this.assignedBy,
-                this.dateCreated);
-    }
-
-    /** @return the row that will be written to the V2 file for this entry. */
-    @Override public String toString() { return getRow();}
-
-    /**
-     * Return the row that will be used to write the V2 small files entries to a file. Note that
-     * we replace null strings (which are a signal for no data available) with the empty string
-     * to avoid the string "null" being written.
-     * @return One row of the "big" file corresponding to this entry
-     */
-    public String getRow() {
-        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
-                diseaseID,
-                diseaseName,
-                phenotypeId.getIdWithPrefix(),
-                phenotypeName,
-                ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING,
-                ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
-                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
-                sex!=null?sex:EMPTY_STRING,
-                negation!=null?negation:EMPTY_STRING,
-                modifier!=null?modifier:EMPTY_STRING,
-                description!=null?description:EMPTY_STRING,
-                publication!=null?publication:EMPTY_STRING,
-                evidenceCode!=null?evidenceCode:"",
-                assignedBy!=null?assignedBy:EMPTY_STRING,
-                dateCreated);
-    }
-
 
 
 }

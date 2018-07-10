@@ -298,35 +298,16 @@ public class V2LineQualityController {
 
 
 
-    private boolean checkDateCreated(String date) {
-        boolean OK = date.matches("\\d{4,4}-\\d{2,2}-\\d{2,2}");
-        if (OK) {
-            n_good_dateCreated++;
-            return true;
-        } else {
-            errors.add(String.format("Could not parse date-created \"%s\"",date));
-            n_bad_dateCreated++;
+    private boolean checkBiocuration(String entrylist) {
+        if (entrylist==null || entrylist.isEmpty())
             return false;
-        }
+        List<BiocurationEntry> entries = BiocurationEntry.getBiocurationList(entrylist);
+        if (entries.size()<1)
+            return false;
+        else
+            return true;
     }
 
-
-
-    private boolean checkAssignBy(String assignedBy) {
-        int index = assignedBy.indexOf(":");
-        if (index<=0) {
-            n_bad_assignedBy++;
-            errors.add("Bad assigned-by string \""+assignedBy +"\"");
-            return false;
-        } else {
-            if (! assignedByMap.containsKey(assignedBy) ) {
-                assignedByMap.put(assignedBy,0);
-            }
-            assignedByMap.put(assignedBy,1 + assignedByMap.get(assignedBy)); // increment
-            n_good_assignedBy++;
-            return true;
-        }
-    }
 
     /** There are 3 correct formats for frequency. For example, 4/7, 32% (or 32.6%), or
      * an HPO term from the frequency subontology. */
@@ -424,12 +405,8 @@ public class V2LineQualityController {
                     entry.getEvidenceCode(),entry.toString()));
             clean = false;
         }
-        if (! checkDateCreated(entry.getDateCreated())) {
+        if (! checkBiocuration(entry.getBiocuration())) {
             errors.add(String.format("Bad data created: %s",entry.toString()));
-            clean = false;
-        }
-        if (! checkAssignBy(entry.getAssignedBy())) {
-            errors.add(String.format("Bad assigned-by: %s",entry.toString()));
             clean = false;
         }
         if (! checkFrequency(entry.getFrequencyModifier())) {

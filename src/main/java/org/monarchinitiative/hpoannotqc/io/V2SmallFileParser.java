@@ -30,8 +30,24 @@ public class V2SmallFileParser {
     private final String pathToV2File;
     /** Computational disease model contained in the small file. */
     private V2SmallFile v2smallfile=null;
+    private static final String[] expectedFields = {
+            "#diseaseID",
+            "diseaseName",
+            "phenotypeID",
+            "phenotypeName",
+            "onsetID",
+            "onsetName",
+            "frequency",
+            "sex",
+            "negation",
+            "modifier",
+            "description",
+            "publication",
+            "evidence",
+            "biocuration"};
+    /**
     /** Number of tab-separated fields in a valid small file. */
-    private static final int NUMBER_OF_FIELDS=15;
+    private static final int NUMBER_OF_FIELDS=expectedFields.length;
 
     public V2SmallFileParser(String path, HpoOntology ontology) {
         pathToV2File=path;
@@ -75,14 +91,12 @@ public class V2SmallFileParser {
                 String sex=A[7];
                 String negation=A[8];
                 String modifier=A[9];
-                // modifer is discarded here since it was not in the big file -- FOR NOW TODO
                 String description=A[10];
                 String publication=A[11];
                 String evidenceCode=A[12];
-                String assignedBy=A[13];
-                String dateCreated=A[14];
+                String biocuration=A[13];
 
-                V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,assignedBy,dateCreated);
+                V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
                 if (frequencyString!=null && ! frequencyString.isEmpty()) {
                     builder=builder.frequencyString(frequencyString);
                 }
@@ -114,24 +128,8 @@ public class V2SmallFileParser {
         return Optional.empty();
     }
 
-    private static final String[] expectedFields = {
-            "#diseaseID",
-            "diseaseName",
-            "phenotypeID",
-            "phenotypeName",
-            "onsetID",
-            "onsetName",
-            "frequency",
-            "sex",
-            "negation",
-            "modifier",
-            "description",
-            "publication",
-            "evidence",
-            "assignedBy",
-            "dateCreated"};
-    /**
-     * This method checks that the nead has the expected number and order of lines.
+
+     /* This method checks that the nead has the expected number and order of lines.
      * If it doesn't, then a serious error has occured somewhere and it is better to
      * die and figure out what is wrong than to attempt error correction
      * @param line a header line of a V2 small file

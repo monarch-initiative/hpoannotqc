@@ -38,8 +38,7 @@ public class V2SmallFileEntryTest {
         String phenoName="Autosomal recessive inheritance";
         String evidence="IEA";
         String pub="OMIM:216300";
-        String ab="HPO:iea";
-        String date="2009-02-17";
+        String ab="HPO:IEA[2009-02-17]";
 
         V2SmallFileEntry.Builder builder = new V2SmallFileEntry.Builder( diseaseId,
                  diseasename,
@@ -47,8 +46,8 @@ public class V2SmallFileEntryTest {
                  phenoName,
                  evidence,
                  pub,
-                 ab,
-                 date);
+                 ab
+                 );
         V2SmallFileEntry entry=builder.build();
         qc.checkV2entry(entry);
         assertEquals("IEA",entry.getEvidenceCode());

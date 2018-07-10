@@ -4,6 +4,10 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.2.1`_(2018-07-10)
+--------------------
+* Refactor for new biocuration format.
+
 `1.1.2`_(2018-07-01)
 --------------------
 * Refactor to enable merging of duplicated entries with different frequency data

@@ -60,8 +60,7 @@ public class V2LineQualityControllerTest {
                 "",
                 "PMID:9843983",
                 "PCS",
-                "HPO:probinson",
-                "2013-01-09"};
+                "HPO:probinson[2013-01-09]"};
         String line = Arrays.stream(fields).collect(Collectors.joining("\t"));
         File createdFile= folder.newFile("myfile.txt");
         BufferedWriter bw = new BufferedWriter(new FileWriter(createdFile));

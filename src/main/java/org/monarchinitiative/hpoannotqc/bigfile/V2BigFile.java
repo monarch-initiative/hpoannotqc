@@ -81,8 +81,7 @@ class V2BigFile {
     String transformEntry2BigFileLineV2(V2SmallFileEntry entry) throws HPOException{
 
         String [] elems = {
-                entry.getDB(), //DB
-                entry.getDB_Object_ID(), //DB_Object_ID
+                entry.getDiseaseID(), //DB_Object_ID
                 entry.getDiseaseName(), // DB_Name
                 entry.getNegation(), // Qualifier
                 entry.getPhenotypeId().getIdWithPrefix(), // HPO_ID
@@ -93,8 +92,7 @@ class V2BigFile {
                 entry.getSex(), // Sex
                 entry.getModifier(), // Modifier
                 getAspectV2(entry.getPhenotypeId()), // Aspect
-                entry.getDateCreated(), // Date
-                entry.getAssignedBy() // Assigned by
+                entry.getBiocuration() // Biocuration
         };
         return Arrays.stream(elems).collect(Collectors.joining("\t"));
     }
@@ -125,12 +123,11 @@ class V2BigFile {
         }
     }
     /**
-     * @return Header line for the new V2 small files.
+     * @return Header line for the V2 big file.
      */
     static String getHeaderV2() {
-        String []fields={"#DB",
-                "DB_Object_ID",
-                "DB_Name",
+        String []fields={"#databaseID",
+                "Name",
                 "Qualifier",
                 "HPO_ID",
                 "DB_Reference",
@@ -140,8 +137,7 @@ class V2BigFile {
                 "Sex",
                 "Modifier",
                 "Aspect",
-                "Date_Created",
-                "Assigned_By"};
+                "Biocuration"};
         return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 

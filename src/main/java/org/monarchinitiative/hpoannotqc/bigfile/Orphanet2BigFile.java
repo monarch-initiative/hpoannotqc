@@ -105,10 +105,11 @@ class Orphanet2BigFile {
     /** Output a line of an Orphanet entry to the V2 big file, phenotype.hpoa. */
     private String transformOrphanetEntry2BigFileLineV2(OrphanetDisorder entry, TermId hpoId) throws HPOException {
         String diseaseID=String.format("%s:%d", ORPHANET_DB,entry.getOrphaNumber());
+        String diseaseId = String.format("%s:%d",ORPHANET_DB,entry.getOrphaNumber());
+        String biocuration = String.format("%s[%s]",ASSIGNED_BY,getTodaysDate());
         String [] elems = {
-                ORPHANET_DB, // DB
-                String.valueOf(entry.getOrphaNumber()), // DB_Object_ID
-                entry.getName(), // DB_Name
+                diseaseId, // diseaseId, e.g., ORPHA:123
+                entry.getName(), // Name
                 EMPTY_STRING, // Qualifier
                 hpoId.getIdWithPrefix(), // HPO ID
                 diseaseID, // DB_Reference
@@ -118,8 +119,7 @@ class Orphanet2BigFile {
                 EMPTY_STRING, // Sex (not used)
                 EMPTY_STRING, // Modifier (not used)
                 getAspectV2(hpoId),
-                getTodaysDate(), // Date
-                ASSIGNED_BY // Assigned by
+                biocuration// Assigned by
         };
         return Arrays.stream(elems).collect(Collectors.joining("\t"));
     }
