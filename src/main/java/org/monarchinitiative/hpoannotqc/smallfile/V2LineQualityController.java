@@ -387,7 +387,9 @@ public class V2LineQualityController {
             clean = false;
         }
         if (! checkPublication(entry.getPublication())) {
-            errors.add(String.format("Bad publication: %s",entry.toString()));
+            errors.add(String.format("Bad publication [%s]: %s",
+                    entry.getPublication(),
+                    entry.toString()));
             clean = false;
         }
         if (! checkAgeOfOnsetId(entry.getAgeOfOnsetId())) {
@@ -410,7 +412,9 @@ public class V2LineQualityController {
             clean = false;
         }
         if (! checkFrequency(entry.getFrequencyModifier())) {
-            errors.add(String.format("Bad frequency: %s",entry.toString()));
+            errors.add(String.format("Bad frequency [%s]: %s",
+                    entry.getFrequencyModifier(),
+                    entry.toString()));
             clean = false;
         }
         return clean; // returns true if there were zero errors with this line

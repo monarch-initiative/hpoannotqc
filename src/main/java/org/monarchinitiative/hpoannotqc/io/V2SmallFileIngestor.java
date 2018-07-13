@@ -118,7 +118,7 @@ public class V2SmallFileIngestor {
                 if (path.toString().endsWith(".tab")) {
                     String basename=baseName(path);
                     if (omitEntries.contains(basename)) {
-                        logger.error("Skipping annotations for entry {}", basename);
+                        logger.trace("Skipping annotations for entry {}", basename);
                         n_total_omitted_entries++;
                         continue; // skip this one!
                     }
