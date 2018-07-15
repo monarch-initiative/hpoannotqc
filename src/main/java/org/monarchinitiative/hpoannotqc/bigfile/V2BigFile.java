@@ -47,15 +47,9 @@ class V2BigFile {
         v2qualityController=new V2LineQualityController(this.ontology);
     }
 
-    /**
-     * This constructor is intended for testing.
-     * ont Reference to the HPO Ontology
-     */
-//    V2BigFile(HpoOntology ont) {
-//        this.ontology=ont;
-//        v2SmallFileList=new ArrayList<>();
-//        v2qualityController=new V2LineQualityController(this.ontology);
-//    }
+
+
+
 
     void outputBigFileV2(BufferedWriter writer) throws IOException {
         int n = 0;
@@ -126,11 +120,11 @@ class V2BigFile {
      * @return Header line for the V2 big file.
      */
     static String getHeaderV2() {
-        String []fields={"#databaseID",
-                "Name",
+        String []fields={"DatabaseID",
+                "DiseaseName",
                 "Qualifier",
                 "HPO_ID",
-                "DB_Reference",
+                "Reference",
                 "Evidence",
                 "Onset",
                 "Frequency",

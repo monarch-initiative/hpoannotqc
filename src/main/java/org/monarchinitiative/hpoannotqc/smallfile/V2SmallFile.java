@@ -28,6 +28,10 @@ public class V2SmallFile {
     /** List of {@link V2SmallFileEntry} objects whereby multiple entries representing the same term are merged. */
     private List<V2SmallFileEntry> mergedEntryList;
 
+    private enum Database {OMIM,DECIPHER,UNKNOWN};
+    /** What is the source of this entry? */
+    private Database database;
+
     public String getBasename() {
         return basename;
     }
@@ -40,7 +44,16 @@ public class V2SmallFile {
     public V2SmallFile(String name, List<V2SmallFileEntry> entries) {
         basename=name;
         originalEntryList = ImmutableList.copyOf(entries);
+        if (basename.contains("OMIM")) this.database=Database.OMIM;
+        else if (basename.contains("DECIPHER")) this.database=Database.DECIPHER;
+        else this.database=Database.UNKNOWN;
     }
+
+
+    public boolean isOMIM(){ return this.database.equals(Database.OMIM); }
+    public boolean isDECIPHER() { return this.database.equals(Database.DECIPHER);}
+
+
 
     /** @return original {@link V2SmallFileEntry} objects -- one per line of the small file.*/
     public List<V2SmallFileEntry> getOriginalEntryList() {

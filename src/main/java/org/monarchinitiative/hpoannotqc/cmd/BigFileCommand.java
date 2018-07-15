@@ -67,11 +67,14 @@ public class BigFileCommand implements Command {
             V2SmallFileIngestor v2ingestor = new V2SmallFileIngestor(v2smallFileDirectory,omitPath,ontology);
             List<V2SmallFile> v2entries = v2ingestor.getV2SmallFileEntries();
             BigFileWriter writer = new BigFileWriter(ontology, v2entries, outputFilePath);
+
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
             debugPrintOrphanetDisorders(orphanetDisorders);
             /// output the V2 version of the big file
             writer.initializeV2filehandle();
+            writer.setNumberOfDiseasesForHeader(orphanetDisorders.size());
+            writer.setOntologyMetadata(ontology.getMetaInfo());
             writer.outputBigFileV2();
             writer.appendOrphanetV2(orphanetDisorders);
             writer.closeFileHandle();
