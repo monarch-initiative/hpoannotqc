@@ -79,7 +79,7 @@ public class BigFileWriterTest {
 
     @Test
     public void testV2Header() {
-        String expected="#databaseID\tName\tQualifier\tHPO_ID\tDB_Reference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
+        String expected="DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
         assertEquals(expected,V2BigFile.getHeaderV2());
     }
 
