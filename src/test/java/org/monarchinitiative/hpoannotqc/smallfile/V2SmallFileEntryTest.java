@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
@@ -22,8 +22,8 @@ public class V2SmallFileEntryTest {
         Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         try {
-            HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
-            ontology = oboparser.parse();
+            HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
+            ontology = oboparser.parse().get();
         } catch (Exception e) {
             e.printStackTrace();
         }

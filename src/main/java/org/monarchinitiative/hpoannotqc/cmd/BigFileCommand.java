@@ -10,7 +10,7 @@ import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.*;
 import java.util.List;
@@ -55,9 +55,9 @@ public class BigFileCommand implements Command {
     public void execute() {
         try {
             logger.trace("Parsing hp.obo ...");
-            HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
-            this.ontology = hpoOboParser.parse();
-        } catch (IOException e) {
+            HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
+            this.ontology = hpoOboParser.parse().get();
+        } catch (Exception e) {
             logger.fatal("Unable to parse hp.obo file at " + hpOboPath);
             logger.fatal("Unable to recover, stopping execution");
             return;

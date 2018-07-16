@@ -4,7 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
-import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +25,8 @@ public class V2SmallFileTest {
     public static void init() throws IOException  {
         Path hpOboPath = Paths.get("src","test","resources","hp.obo");
         String hpOboFile=hpOboPath.toAbsolutePath().toString();
-        HpoOboParser oboparser = new HpoOboParser(new File(hpOboFile));
-        ontology = oboparser.parse();
+        HpOboParser oboparser = new HpOboParser(new File(hpOboFile));
+        ontology = oboparser.parse().get();
         Path omim123456path = Paths.get("src","test","resources","smallfiles","OMIM-123456.tab");
         String omim123456file = omim123456path.toAbsolutePath().toString();
         V2SmallFileParser parser = new V2SmallFileParser(omim123456file,ontology);

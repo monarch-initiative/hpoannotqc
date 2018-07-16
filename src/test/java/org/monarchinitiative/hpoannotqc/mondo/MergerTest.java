@@ -9,7 +9,7 @@ import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 
-import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.*;
 
 import java.io.File;
@@ -37,8 +37,8 @@ public class MergerTest {
         annotationPath =classLoader.getResource("phenotype_annotation.tab").getFile();
         Objects.requireNonNull(hpOboPath);
         Objects.requireNonNull(annotationPath);
-        HpoOboParser oboparser = new HpoOboParser(new File(hpOboPath));
-        ontology = oboparser.parse();
+        HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
+        ontology = oboparser.parse().get();
         Objects.requireNonNull(ontology);
         TermPrefix pref = new TermPrefix("HP");
         TermId inheritId = new TermId(pref,"0000005");

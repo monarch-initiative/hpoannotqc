@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpoDiseaseAnnotationParser;
-import org.monarchinitiative.phenol.io.obo.hpo.HpoOboParser;
+import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 
@@ -33,9 +33,9 @@ public class Compare2Diseases  implements Command {
         hpOboPath=hpopath;
         phenotype_annotation_path = annotationPath;
         logger.trace(String.format("Compare %s and %s using HPO file %s and annotation file %s",disease1,disease2,hpopath,annotationPath ));
-        HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
+        HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
         try {
-            this.ontology = hpoOboParser.parse();
+            this.ontology = hpoOboParser.parse().get();
             Objects.requireNonNull(ontology);
             HpoDiseaseAnnotationParser annotationParser = new HpoDiseaseAnnotationParser(phenotype_annotation_path, ontology);
             diseaseMap = annotationParser.parse();
@@ -50,8 +50,8 @@ public class Compare2Diseases  implements Command {
     @Override
     public void execute()  {
         try {
-            HpoOboParser hpoOboParser = new HpoOboParser(new File(hpOboPath));
-            this.ontology = hpoOboParser.parse();
+            HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
+            this.ontology = hpoOboParser.parse().get();
 
         } catch (Exception e) {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
