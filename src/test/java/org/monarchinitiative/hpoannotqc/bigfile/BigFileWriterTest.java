@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -27,13 +28,13 @@ public class BigFileWriterTest {
     private static HpoOntology ontology;
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() throws PhenolException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath =classLoader.getResource("hp.obo").getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
-        ontology = oboparser.parse().get();
+        ontology = oboparser.parse();
         // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:154700";
         String diseaseName="MARFAN SYNDROME";

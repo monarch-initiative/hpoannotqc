@@ -56,7 +56,7 @@ public class BigFileCommand implements Command {
         try {
             logger.trace("Parsing hp.obo ...");
             HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
-            this.ontology = hpoOboParser.parse().get();
+            this.ontology = hpoOboParser.parse();
         } catch (Exception e) {
             logger.fatal("Unable to parse hp.obo file at " + hpOboPath);
             logger.fatal("Unable to recover, stopping execution");

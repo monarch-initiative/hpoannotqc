@@ -31,30 +31,15 @@ public class MergerTest {
 
 
     @BeforeClass
-    public static void init() throws IOException, PhenolException {
+    public static void init() throws PhenolException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
         hpOboPath =classLoader.getResource("hp.obo").getFile();
         annotationPath =classLoader.getResource("phenotype_annotation.tab").getFile();
         Objects.requireNonNull(hpOboPath);
         Objects.requireNonNull(annotationPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
-        ontology = oboparser.parse().get();
+        ontology = oboparser.parse();
         Objects.requireNonNull(ontology);
-        TermPrefix pref = new TermPrefix("HP");
-        TermId inheritId = new TermId(pref,"0000005");
-
-
-//
-//        HpoDiseaseAnnotationParser parser = new HpoDiseaseAnnotationParser(annotationPath,
-//                ontology);
-//
-//        // We need to use the new big file format!!
-//
-//        Objects.requireNonNull(parser);
-//        diseaseMap=parser.parse();
-//
-//        omim=diseaseMap.get("167210");
-//        orpha=diseaseMap.get("2309");
     }
 
     /** We put the ORPHA and OMIM versions of the same disease into the annotation file. */

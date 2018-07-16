@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriterTest;
 import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
+import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -32,13 +33,13 @@ public class V2LineQualityControllerTest {
     public TemporaryFolder folder= new TemporaryFolder();
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() throws PhenolException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath = classLoader.getResource("hp.obo").getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
-        ontology = oboparser.parse().get();
+        ontology = oboparser.parse();
         qc = new V2LineQualityController(ontology);
     }
 

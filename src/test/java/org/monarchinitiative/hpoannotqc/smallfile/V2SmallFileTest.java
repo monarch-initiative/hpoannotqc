@@ -3,11 +3,11 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
+import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -22,11 +22,11 @@ public class V2SmallFileTest {
 
 
     @BeforeClass
-    public static void init() throws IOException  {
+    public static void init() throws PhenolException {
         Path hpOboPath = Paths.get("src","test","resources","hp.obo");
         String hpOboFile=hpOboPath.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboFile));
-        ontology = oboparser.parse().get();
+        ontology = oboparser.parse();
         Path omim123456path = Paths.get("src","test","resources","smallfiles","OMIM-123456.tab");
         String omim123456file = omim123456path.toAbsolutePath().toString();
         V2SmallFileParser parser = new V2SmallFileParser(omim123456file,ontology);
