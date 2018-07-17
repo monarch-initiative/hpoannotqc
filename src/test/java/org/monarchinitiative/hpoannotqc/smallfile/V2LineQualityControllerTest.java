@@ -9,7 +9,6 @@ import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -36,7 +35,7 @@ public class V2LineQualityControllerTest {
     public static void init() throws PhenolException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
-        String hpOboPath = classLoader.getResource("hp.obo").getFile();
+        String hpOboPath = classLoader.getResource("hp_head.obo").getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
@@ -48,10 +47,10 @@ public class V2LineQualityControllerTest {
     @Test
     public void testFreq1() throws IOException {
         String[] fields={
-        "OMIM:609939",
-                "%609939 SYSTEMIC LUPUS ERYTHEMATOSUS, SUSCEPTIBILITY TO, 6; SLEB6",
-                "HP:0002725",
-                "Systemic lupus erythematosus",
+        "OMIM:123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
                 "",
                 "",
                 "76.3%",

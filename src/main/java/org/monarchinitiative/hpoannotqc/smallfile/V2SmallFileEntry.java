@@ -47,6 +47,21 @@ public class  V2SmallFileEntry {
     /** Field #14 */
     private final String biocuration;
 
+    private final static String []fields={"#diseaseID",
+            "diseaseName",
+            "phenotypeID",
+            "phenotypeName",
+            "onsetID",
+            "onsetName",
+            "frequency",
+            "sex",
+            "negation",
+            "modifier",
+            "description",
+            "publication",
+            "evidence",
+            "biocuration"};
+
     public String getDiseaseID() {
         return diseaseID;
     }
@@ -146,8 +161,8 @@ public class  V2SmallFileEntry {
 
     public void merge(String freq, List<V2SmallFileEntry> annotlist ) {
 
-
     }
+
 
 
     /**
@@ -155,20 +170,6 @@ public class  V2SmallFileEntry {
      * @return V2 small file header.
      */
     public static String getHeaderV2() {
-        String []fields={"#diseaseID",
-                "diseaseName",
-                "phenotypeID",
-                "phenotypeName",
-                "onsetID",
-                "onsetName",
-                "frequency",
-                "sex",
-                "negation",
-                "modifier",
-                "description",
-                "publication",
-                "evidence",
-                "biocuration"};
         return Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 

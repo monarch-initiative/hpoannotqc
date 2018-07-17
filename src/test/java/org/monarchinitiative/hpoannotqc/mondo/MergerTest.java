@@ -10,10 +10,8 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
-import org.monarchinitiative.phenol.ontology.data.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,8 +31,8 @@ public class MergerTest {
     @BeforeClass
     public static void init() throws PhenolException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
-        hpOboPath =classLoader.getResource("hp.obo").getFile();
-        annotationPath =classLoader.getResource("phenotype_annotation.tab").getFile();
+        hpOboPath =classLoader.getResource("hp_head.obo").getFile();
+        annotationPath =classLoader.getResource("smallfiles/OMIM-123456.tab").getFile();
         Objects.requireNonNull(hpOboPath);
         Objects.requireNonNull(annotationPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));

@@ -30,7 +30,7 @@ public class ClosestMatch {
 
     /**
      * Find the set of terms with the shortest path length to the query.
-     * @param query
+     * @param query the search term
      * @return set of terms that all have path length k to the query term whereby k is the smallest k of any matching term
      */
     public Map<TermId, Integer> closestTerms(TermId query) {

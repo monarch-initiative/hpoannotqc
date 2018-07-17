@@ -160,8 +160,7 @@ public final class DownloadCommand implements Command {
 
 
     /**
-     * Todo make robust
-     * @param dir
+     * @param dir Directory to which to download files.
      */
     private void createDownloadDir(String dir) {
         LOGGER.trace("creating download dir (and deleting previous version) at "+ dir);

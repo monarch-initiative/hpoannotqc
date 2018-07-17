@@ -30,7 +30,6 @@ public class BigFileCommand implements Command {
     private final String hpOboPath;
     /** Path to the downloaded Orphanet XML file */
     private final String orphanetXMLpath;
-    private HpoOntology ontology;
     /** Should usually be phenotype.hpoa, may also include path */
     private final String outputFilePath;
     /** path to the omit-list.txt file, which is located with the small files in the same directory */
@@ -53,10 +52,11 @@ public class BigFileCommand implements Command {
 
     @Override
     public void execute() {
+        HpoOntology ontology;
         try {
             logger.trace("Parsing hp.obo ...");
             HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
-            this.ontology = hpoOboParser.parse();
+            ontology = hpoOboParser.parse();
         } catch (Exception e) {
             logger.fatal("Unable to parse hp.obo file at " + hpOboPath);
             logger.fatal("Unable to recover, stopping execution");
@@ -64,11 +64,11 @@ public class BigFileCommand implements Command {
         }
 
         try {
-            V2SmallFileIngestor v2ingestor = new V2SmallFileIngestor(v2smallFileDirectory,omitPath,ontology);
+            V2SmallFileIngestor v2ingestor = new V2SmallFileIngestor(v2smallFileDirectory,omitPath, ontology);
             List<V2SmallFile> v2entries = v2ingestor.getV2SmallFileEntries();
             BigFileWriter writer = new BigFileWriter(ontology, v2entries, outputFilePath);
 
-            OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, this.ontology);
+            OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
             debugPrintOrphanetDisorders(orphanetDisorders);
             /// output the V2 version of the big file

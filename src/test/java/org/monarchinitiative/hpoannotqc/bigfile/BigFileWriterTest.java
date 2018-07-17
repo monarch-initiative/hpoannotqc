@@ -12,11 +12,11 @@ import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,17 +29,20 @@ public class BigFileWriterTest {
 
     @BeforeClass
     public static void init() throws PhenolException {
+       // ontology = mock(HpoOntology.class);
+
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
-        String hpOboPath =classLoader.getResource("hp.obo").getFile();
+        String hpOboPath =classLoader.getResource("hp_head.obo").getFile();
         Objects.requireNonNull(hpOboPath);
+//        hpOboPath="/home/peter/GIT/human-phenotype-ontology/hp.obo";
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
-        // Make a typical entry. All other fields are emtpy.
-        String diseaseID="OMIM:154700";
-        String diseaseName="MARFAN SYNDROME";
-        TermId hpoId= TermId.constructWithPrefix("HP:0004872");
-        String hpoName="Incisional hernia";
+//        // Make a typical entry. All other fields are emtpy.
+        String diseaseID="OMIM:123456";
+        String diseaseName="MADE-UP SYNDROME";
+        TermId hpoId= TermId.constructWithPrefix("HP:0000528");
+        String hpoName="Anophthalmia";
         String evidenceCode="IEA";
         String pub="OMIM:154700";
         String biocuration="HPO:skoehler[2015-07-26]";
@@ -56,10 +59,10 @@ public class BigFileWriterTest {
     @Test
     public void testV2line() throws HPOException {
         String [] v1bigFileFields = {
-                "OMIM:154700",//DiseaseID
-                "MARFAN SYNDROME", // Name
+                "OMIM:123456",//DiseaseID
+                "MADE-UP SYNDROME", // Name
                 "",//Qualifier
-                "HP:0004872", // HPO_ID,
+                "HP:0000528", // HPO_ID,
                 "OMIM:154700",//DB_Reference
                 "IEA", // Evidence_Code
                 "HP:0040283",//Onset
@@ -73,6 +76,7 @@ public class BigFileWriterTest {
         String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
         List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
         V2BigFile v1b = new V2BigFile(ontology, emptyList);
+      //  V2SmallFileEntry entry1 = V2SmallFileEntry.fromLine()
         String line = v1b.transformEntry2BigFileLineV2(entry);
         assertEquals(expected,line);
     }

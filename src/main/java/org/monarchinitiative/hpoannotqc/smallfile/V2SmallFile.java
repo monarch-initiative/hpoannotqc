@@ -28,7 +28,8 @@ public class V2SmallFile {
     /** List of {@link V2SmallFileEntry} objects whereby multiple entries representing the same term are merged. */
     private List<V2SmallFileEntry> mergedEntryList;
 
-    private enum Database {OMIM,DECIPHER,UNKNOWN};
+    private enum Database {OMIM,DECIPHER,UNKNOWN}
+
     /** What is the source of this entry? */
     private Database database;
 
@@ -97,7 +98,7 @@ public class V2SmallFile {
      * for instance 2/3 + 4/5 = 6/8. (2) The percentage entries have the next highest priority. If we have at least
      * one percentage entry, then we take the average percentage. (3) If we have only frequency terms, then take
      * the entry with the highest frequency and report an error of the terms disagree.
-     * @param annotationList
+     * @param annotationList List of HPO annotations
      */
     private V2SmallFileEntry mergeByFrequency(List <V2SmallFileEntry> annotationList) {
         List<V2SmallFileEntry> mOfNlist = annotationList.

@@ -20,7 +20,7 @@ public class V2SmallFileEntryTest {
 
     @BeforeClass
     public static void init() throws PhenolException{
-        Path resourceDirectory = Paths.get("src","test","resources","hp.obo");
+        Path resourceDirectory = Paths.get("src","test","resources","hp_head.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();

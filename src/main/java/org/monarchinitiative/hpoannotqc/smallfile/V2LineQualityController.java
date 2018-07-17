@@ -302,10 +302,7 @@ public class V2LineQualityController {
         if (entrylist==null || entrylist.isEmpty())
             return false;
         List<BiocurationEntry> entries = BiocurationEntry.getBiocurationList(entrylist);
-        if (entries.size()<1)
-            return false;
-        else
-            return true;
+        return entries.size() >= 1;
     }
 
 
