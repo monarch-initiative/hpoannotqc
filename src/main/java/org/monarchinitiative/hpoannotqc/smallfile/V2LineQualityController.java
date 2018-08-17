@@ -264,6 +264,7 @@ public class V2LineQualityController {
             n_bad_ageOfOnsetLabel++;
             return false;
         }
+        Objects.requireNonNull(id);
         TermId tid = TermId.constructWithPrefix(id);
         String currentLabel = ontology.getTermMap().get(tid).getName();
         if (! currentLabel.equals(label)) {

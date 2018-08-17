@@ -76,7 +76,6 @@ public class BigFileWriterTest {
         String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
         List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
         V2BigFile v1b = new V2BigFile(ontology, emptyList);
-      //  V2SmallFileEntry entry1 = V2SmallFileEntry.fromLine()
         String line = v1b.transformEntry2BigFileLineV2(entry);
         assertEquals(expected,line);
     }
