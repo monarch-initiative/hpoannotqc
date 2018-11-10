@@ -1,7 +1,9 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -18,7 +20,7 @@ public class V2SmallFileEntryTest {
     private static HpoOntology ontology;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws PhenolException{
         Path resourceDirectory = Paths.get("src","test","resources","hp_head.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
