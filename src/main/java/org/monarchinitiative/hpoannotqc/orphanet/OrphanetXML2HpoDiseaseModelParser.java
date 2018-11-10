@@ -39,6 +39,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private boolean inAssociationList = false;
     private boolean inFrequency = false;
     private boolean inAssociation = false;
+    private boolean inDiagnosticCriterion = false;
 
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, HpoOntology onto) {
@@ -133,7 +134,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         disorder = new OrphanetDisorder();
                         break;
                     case "OrphaNumber":
-                        if (inFrequency) {
+                        if (inFrequency || inDiagnosticCriterion) {
                             continue;
                         } // Orphanumbers are used for the Disorder but also for the Frequency nodes
                         xmlEvent = xmlEventReader.nextEvent();
@@ -141,7 +142,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         disorder.setOrphaNumber(Integer.parseInt(orphanumber));
                         break;
                     case "Name":
-                        if (inFrequency) {
+                        if (inFrequency || inDiagnosticCriterion) {
                             continue;
                         } // skip, we have no need to parse the name of the frequency element
                         // since we get the class from the attribute "id"
@@ -179,7 +180,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         inFrequency = true;
                         break;
                     case "DiagnosticCriteria":
-                        disorder.setDiagnosticCriterion();
+                        inDiagnosticCriterion=true;
                         break;
                     case "HPO":
                         // no-op, no need to get the id attribute from this node
@@ -201,7 +202,9 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     inAssociation = false;
                 }else if ( endElementName.equals("HPOFrequency")) {
                     inFrequency = false;
-                }  else if ( endElementName.equals("JDBOR")) {
+                } else if ( endElementName.equals("DiagnosticCriteria")) {
+                    inDiagnosticCriterion = false;
+                } else if ( endElementName.equals("JDBOR")) {
                     logger.trace("Done parsing Orphanet XML document");
                 } else if (endElementName.equals("Disorder")) {
                     if (disorder != null) {
