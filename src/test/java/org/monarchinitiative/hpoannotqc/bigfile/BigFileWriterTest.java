@@ -1,8 +1,8 @@
 package org.monarchinitiative.hpoannotqc.bigfile;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
 
 public class BigFileWriterTest {
 
@@ -27,7 +27,7 @@ public class BigFileWriterTest {
     private static V2SmallFileEntry entry;
     private static HpoOntology ontology;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws PhenolException {
        // ontology = mock(HpoOntology.class);
 
@@ -76,7 +76,6 @@ public class BigFileWriterTest {
         String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
         List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
         V2BigFile v1b = new V2BigFile(ontology, emptyList);
-      //  V2SmallFileEntry entry1 = V2SmallFileEntry.fromLine()
         String line = v1b.transformEntry2BigFileLineV2(entry);
         assertEquals(expected,line);
     }
@@ -84,7 +83,7 @@ public class BigFileWriterTest {
 
     @Test
     public void testV2Header() {
-        String expected="DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
+        String expected="#DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
         assertEquals(expected,V2BigFile.getHeaderV2());
     }
 

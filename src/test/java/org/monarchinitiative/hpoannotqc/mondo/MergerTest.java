@@ -1,9 +1,9 @@
 package org.monarchinitiative.hpoannotqc.mondo;
 
 
-import org.junit.BeforeClass;
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoDisease;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -28,7 +28,7 @@ public class MergerTest {
     private static HpoDisease orpha;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws PhenolException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
         hpOboPath =classLoader.getResource("hp_head.obo").getFile();

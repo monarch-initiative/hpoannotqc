@@ -4,6 +4,12 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+
+`1.2.3`_(2018-11-10)
+--------------------
+* Update to JUnit 5.
+* Add # to column headers in output file
+
 `1.2.1`_(2018-07-10)
 --------------------
 * Refactor for new biocuration format.

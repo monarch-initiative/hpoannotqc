@@ -113,15 +113,19 @@ public class Commandline {
             logger.error(msg);
             printUsage(msg);
         }
-        if (mycommand.equals("download")) {
-            this.command = new DownloadCommand(this.downloadDirectory);
-        } else if (mycommand.equals("big-file")) {
-            if (outputPath==null) {
-                outputPath="phenotype.hpoa";
-            }
-            this.command=new BigFileCommand(hpoOboPath,smallFileDirectory, orphanetXmlPath, outputPath);
-        } else {
-            printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
+        switch (mycommand) {
+            case "download":
+                this.command = new DownloadCommand(this.downloadDirectory);
+                break;
+            case "big-file":
+                if (outputPath == null) {
+                    outputPath = "phenotype.hpoa";
+                }
+                this.command = new BigFileCommand(hpoOboPath, smallFileDirectory, orphanetXmlPath, outputPath);
+                break;
+            default:
+                printUsage(String.format("[ERROR] Did not recognize command: %s", mycommand));
+                break;
         }
 
     }
@@ -173,16 +177,16 @@ public class Commandline {
         System.out.println("Program: HPO Annotation QC");
         System.out.println("Version: " + version);
         System.out.println();
-        System.out.println("Usage: java -jar HpoAnnotatQc.jar <command> [options]");
+        System.out.println("Usage: java -jar HpoAnnotQc.jar <command> [options]");
         System.out.println();
         System.out.println("Available commands:");
         System.out.println();
         System.out.println("download:");
-        System.out.println("\tjava -jar HPOWorkbench.jar download  [-d <directory>]");
+        System.out.println("\tjava -jar HpoAnnotQc.jar download  [-d <directory>]");
         System.out.println("\t<directory>: name of directory to which HPO data will be downloaded (default:\"data\")");
         System.out.println();
         System.out.println("big-file:");
-        System.out.println("\tjava -jar HPOWorkbench.jar big-file [-s <small>] [-x <xml>]");
+        System.out.println("\tjava -jar HpoAnnotQc.jar big-file [-s <small>] [-x <xml>]");
         System.out.println("\t<small>: path to directory with small files");
         System.out.println("\t<xml>: path to Orphanet XML file");
         System.out.println();

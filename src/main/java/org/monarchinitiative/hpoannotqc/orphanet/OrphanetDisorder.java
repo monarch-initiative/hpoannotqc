@@ -27,8 +27,6 @@ public class OrphanetDisorder {
     private final List<String> hpoLabelList;
     /** HPO TermId of the frequency of the phenotype in the disease. */
     private TermId frequency;
-    /** Flag to indicate if this is an Orphanet Diagnostic Criterion. */
-    private boolean isDiagnosticCriterion=false;
 
 
 
@@ -76,8 +74,6 @@ public class OrphanetDisorder {
     public TermId getFrequency() {
         return frequency;
     }
-
-    public void setDiagnosticCriterion() { isDiagnosticCriterion=true; }
 
 
     @Override

@@ -132,7 +132,7 @@ class V2BigFile {
                 "Modifier",
                 "Aspect",
                 "Biocuration"};
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
+        return "#" + Arrays.stream(fields).collect(Collectors.joining("\t"));
     }
 
 

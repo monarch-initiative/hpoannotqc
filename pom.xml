@@ -4,7 +4,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -15,7 +15,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <phenol.version>1.2.0</phenol.version>
-        <guava.version>24.1-jre</guava.version>
+        <guava.version>27.0-jre</guava.version>
+        <junit.version>5.1.0</junit.version>
     </properties>
 
     <dependencies>
@@ -102,13 +103,55 @@
             <version>1.4</version>
         </dependency>
 
-        <!-- JUnit testing -->
+        <!-- JUnit testing
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>[4.12]</version>
             <scope>test</scope>
+        </dependency>-->
+
+
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-surefire-provider -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <dependencyManagement>
@@ -250,21 +293,21 @@
                 </executions>
             </plugin>
 
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
-                <configuration>
-                    <forkCount>4</forkCount>
-                    <!--  <systemPropertyVariables>
-                          <log4j.configuration>file:${basedir}/resources/log/log4j.silent.xml</log4j.configuration>
-                      </systemPropertyVariables> -->
-                </configuration>
+                <version>2.19.1</version>
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>2.20</version>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.1.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.1.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

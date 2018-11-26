@@ -35,7 +35,7 @@ public class V2LineQualityControllerTest {
     public static void init() throws PhenolException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
-        String hpOboPath = classLoader.getResource("hp_head.obo").getFile();
+        String hpOboPath = Objects.requireNonNull(classLoader.getResource("hp_head.obo")).getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
