@@ -10,10 +10,7 @@ import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +29,7 @@ public class V2LineQualityControllerTest {
     public TemporaryFolder folder= new TemporaryFolder();
 
     @BeforeClass
-    public static void init() throws PhenolException {
+    public static void init() throws PhenolException, FileNotFoundException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath = Objects.requireNonNull(classLoader.getResource("hp_head.obo")).getFile();

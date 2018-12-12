@@ -3,7 +3,9 @@ Change Log
 ==========
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
-
+`1.2.4`_(2018-12-11)
+--------------------
+* Update/refactor for phenol 1.3.1
 
 `1.2.3`_(2018-11-10)
 --------------------

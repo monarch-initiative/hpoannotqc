@@ -85,7 +85,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     }
 
     private TermId currentNotAltHpoId(String id) {
-        TermId tid = TermId.constructWithPrefix(id);
+        TermId tid = TermId.of(id);
         if (! ontology.getTermMap().containsKey(tid)) {
             logger.error("[ERROR] Could not find TermId for Orphanet HPO ID \""+ id + "\"");
             n_could_not_find_orphanet_HpoId++;
@@ -101,7 +101,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private String getCurrentHpoLabel(TermId tid, String orphalabel) {
 
         if (! ontology.getTermMap().containsKey(tid)) {
-            logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s] -- will skip this annotation", tid.getIdWithPrefix(),orphalabel));
+            logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s] -- will skip this annotation", tid.getValue(),orphalabel));
             n_could_not_find_orphanet_HpoId++;
             return orphalabel; // probably an obsolete term.
         }

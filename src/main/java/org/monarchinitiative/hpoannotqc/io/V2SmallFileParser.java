@@ -74,7 +74,7 @@ public class V2SmallFileParser {
                 }
                 String diseaseID=A[0];
                 String diseaseName=A[1];
-                TermId phenotypeId = TermId.constructWithPrefix(A[2]);
+                TermId phenotypeId = TermId.of(A[2]);
                 if (! ontology.getTermMap().containsKey(phenotypeId)) {
                     logger.error("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
                     continue;

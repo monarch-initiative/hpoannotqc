@@ -25,10 +25,10 @@ class Orphanet2BigFile {
     private final static String ORPHA_EVIDENCE_CODE="TAS";
     private final static String NO_ONSET_CODE_AVAILABLE=EMPTY_STRING;
     private final static String ASSIGNED_BY="ORPHA:orphadata";
-    private static final TermId phenotypeRoot= TermId.constructWithPrefix("HP:0000118");
-    private static final TermId INHERITANCE_TERM_ID =TermId.constructWithPrefix("HP:0000005");
-    private static final TermId CLINICAL_COURSE_ID =TermId.constructWithPrefix("HP:0031797");
-    private static final TermId CLINICAL_MODIFIER_ID =TermId.constructWithPrefix("HP:0012823");
+    private static final TermId phenotypeRoot= TermId.of("HP:0000118");
+    private static final TermId INHERITANCE_TERM_ID =TermId.of("HP:0000005");
+    private static final TermId CLINICAL_COURSE_ID =TermId.of("HP:0031797");
+    private static final TermId CLINICAL_MODIFIER_ID =TermId.of("HP:0012823");
     private final HpoOntology ontology;
 
 
@@ -54,7 +54,7 @@ class Orphanet2BigFile {
                         writer.write(line + "\n");
                         n++;
                     } catch (HPOException hpoe) {
-                        logger.error(String.format("Could not make annotation for term %s of disorder %s ",tid.getIdWithPrefix(),disorder.getName()));
+                        logger.error(String.format("Could not make annotation for term %s of disorder %s ",tid.getValue(),disorder.getName()));
                         logger.error("Will skip this line: "+hpoe.getMessage());
                         // just go to next one.
                     }
@@ -81,7 +81,7 @@ class Orphanet2BigFile {
     private String getAspectV2(TermId tid) throws HPOException {
         Term term = ontology.getTermMap().get(tid);
         if (term==null) {
-            logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
+            logger.error("Invalid HPO tid="+tid.getValue());
             return "?";
         }
         tid = term.getId(); // update in case term is an alt_id
@@ -95,7 +95,7 @@ class Orphanet2BigFile {
             return "M";
         } else {
             String label=term.getName();
-            String msg=String.format("Could not get aspect for term %s [%s]",label,tid.getIdWithPrefix());
+            String msg=String.format("Could not get aspect for term %s [%s]",label,tid.getValue());
             throw new HPOException(msg);
         }
     }
@@ -111,11 +111,11 @@ class Orphanet2BigFile {
                 diseaseId, // diseaseId, e.g., ORPHA:123
                 entry.getName(), // Name
                 EMPTY_STRING, // Qualifier
-                hpoId.getIdWithPrefix(), // HPO ID
+                hpoId.getValue(), // HPO ID
                 diseaseID, // DB_Reference
                 ORPHA_EVIDENCE_CODE, // Evidence_Code
                 NO_ONSET_CODE_AVAILABLE, // Onset
-                entry.getFrequency().getIdWithPrefix(),// Frequency (An HPO TermId, always)
+                entry.getFrequency().getValue(),// Frequency (An HPO TermId, always)
                 EMPTY_STRING, // Sex (not used)
                 EMPTY_STRING, // Modifier (not used)
                 getAspectV2(hpoId),

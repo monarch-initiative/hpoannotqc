@@ -70,7 +70,7 @@ public class Merger {
                 System.err.print(String.format("D1: %s[%s]\tD2: " ,label, tiwm.getIdWithPrefix()));
                 String labels=bestMatch.keySet().stream().map(tid -> String.format("%s[%s](d=%d)",
                         ontology.getTermMap().get(tid).getName(),
-                        tid.getIdWithPrefix(),
+                        tid.getValue(),
                         bestMatch.get(tid))).collect(Collectors.joining(";"));
                 System.err.println(labels);
             }
@@ -98,7 +98,7 @@ public class Merger {
                 System.err.print(String.format("D1: %s[%s]\tD2: " ,label, tiwm.getIdWithPrefix()));
                 String labels=bestMatch.keySet().stream().map(tid -> String.format("%s[%s](d=%d)",
                         ontology.getTermMap().get(tid).getName(),
-                        tid.getIdWithPrefix(),
+                        tid.getValue(),
                         bestMatch.get(tid))).collect(Collectors.joining(";"));
                 System.err.println(labels);
             }

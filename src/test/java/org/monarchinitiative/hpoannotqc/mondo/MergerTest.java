@@ -12,6 +12,7 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class MergerTest {
 
 
     @BeforeAll
-    public static void init() throws PhenolException {
+    public static void init() throws PhenolException, FileNotFoundException {
         ClassLoader classLoader = MergerTest.class.getClassLoader();
         hpOboPath =classLoader.getResource("hp_head.obo").getFile();
         annotationPath =classLoader.getResource("smallfiles/OMIM-123456.tab").getFile();

@@ -12,6 +12,7 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,14 +35,14 @@ public class Compare2Diseases  implements Command {
         hpOboPath=hpopath;
         phenotype_annotation_path = annotationPath;
         logger.trace(String.format("Compare %s and %s using HPO file %s and annotation file %s",disease1,disease2,hpopath,annotationPath ));
-        HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
         try {
+            HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
             this.ontology = hpoOboParser.parse();
             Objects.requireNonNull(ontology);
             HpoDiseaseAnnotationParser annotationParser = new HpoDiseaseAnnotationParser(phenotype_annotation_path, ontology);
             diseaseMap = annotationParser.parse();
             logger.error("Done parsing");
-        } catch (PhenolException e) {
+        } catch (PhenolException | FileNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -53,8 +54,7 @@ public class Compare2Diseases  implements Command {
         try {
             HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
             this.ontology = hpoOboParser.parse();
-
-        } catch (PhenolException e) {
+        } catch (PhenolException | FileNotFoundException e) {
             logger.error(String.format("error trying to parse hp.obo file at %s: %s",hpOboPath,e.getMessage()));
             System.exit(1); // we cannot recover from this
         }

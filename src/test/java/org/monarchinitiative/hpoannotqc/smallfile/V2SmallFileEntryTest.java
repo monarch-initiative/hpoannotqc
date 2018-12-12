@@ -10,6 +10,7 @@ import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,7 +22,7 @@ public class V2SmallFileEntryTest {
 
 
     @BeforeAll
-    public static void init() throws PhenolException{
+    public static void init() throws PhenolException, FileNotFoundException  {
         Path resourceDirectory = Paths.get("src","test","resources","hp_head.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
@@ -33,7 +34,7 @@ public class V2SmallFileEntryTest {
        V2LineQualityController qc = new V2LineQualityController(ontology);
         String diseaseId="OMIM:216300";
         String diseasename="CLEFT PALATE, DEAFNESS, AND OLIGODONTIA";
-        TermId phenoID= TermId.constructWithPrefix("HP:0000007");
+        TermId phenoID= TermId.of("HP:0000007");
         String phenoName="Autosomal recessive inheritance";
         String evidence="IEA";
         String pub="OMIM:216300";

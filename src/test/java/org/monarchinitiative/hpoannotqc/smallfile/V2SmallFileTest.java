@@ -9,6 +9,7 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -23,7 +24,7 @@ public class V2SmallFileTest {
 
 
     @BeforeAll
-    public static void init() throws PhenolException {
+    public static void init() throws PhenolException, FileNotFoundException {
         Path hpOboPath = Paths.get("src","test","resources","hp_head.obo");
         String hpOboFile=hpOboPath.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboFile));

@@ -12,6 +12,7 @@ import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,7 +29,7 @@ public class BigFileWriterTest {
     private static HpoOntology ontology;
 
     @BeforeAll
-    public static void init() throws PhenolException {
+    public static void init() throws PhenolException, FileNotFoundException {
        // ontology = mock(HpoOntology.class);
 
         // set up ontology
@@ -41,7 +42,7 @@ public class BigFileWriterTest {
 //        // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:123456";
         String diseaseName="MADE-UP SYNDROME";
-        TermId hpoId= TermId.constructWithPrefix("HP:0000528");
+        TermId hpoId= TermId.of("HP:0000528");
         String hpoName="Anophthalmia";
         String evidenceCode="IEA";
         String pub="OMIM:154700";

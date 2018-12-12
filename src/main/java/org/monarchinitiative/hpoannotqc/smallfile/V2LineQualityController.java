@@ -73,8 +73,8 @@ public class V2LineQualityController {
     private String qcFrequency() { return String.format("%d good and %d bad frequency entries",n_good_frequency,n_bad_frequency);}
 
     /** Todo get from phenol */
-    private final TermId ONSET_ROOT = TermId.constructWithPrefix("HP:0003674");
-    private static final TermId FREQUENCY_ROOT = TermId.constructWithPrefix("HP:0040279");
+    private final TermId ONSET_ROOT = TermId.of("HP:0003674");
+    private static final TermId FREQUENCY_ROOT = TermId.of("HP:0040279");
 
     public V2LineQualityController(HpoOntology onto) {
 
@@ -218,7 +218,7 @@ public class V2LineQualityController {
             n_good_ageOfOnset_ID++;
             return true;
         }
-        TermId tid = TermId.constructWithPrefix(id);
+        TermId tid = TermId.of(id);
         if (! ontology.getTermMap().containsKey(tid)) {
             errors.add("Attempt to add onset ID that was not in graph: "+id);
             System.err.println("Attempt to add onset ID that was not in graph: "+id);
@@ -246,7 +246,7 @@ public class V2LineQualityController {
      */
     private boolean checkIsNotAltId(TermId tid) {
         if (! ontology.getTermMap().containsKey(tid)) {
-            errors.add("TermId not found at all in ontology: " + tid.getIdWithPrefix());
+            errors.add("TermId not found at all in ontology: " + tid.getValue());
             return false;
         }
         TermId upToDate = ontology.getPrimaryTermId(tid);
@@ -265,13 +265,13 @@ public class V2LineQualityController {
             return false;
         }
         Objects.requireNonNull(id);
-        TermId tid = TermId.constructWithPrefix(id);
+        TermId tid = TermId.of(id);
         String currentLabel = ontology.getTermMap().get(tid).getName();
         if (! currentLabel.equals(label)) {
             String errmsg = String.format("Found usage of wrong age of onset label %s instead of %s for %s: see following line",
                     label,
                     currentLabel,
-                    ontology.getTermMap().get(tid).getId().getIdWithPrefix());
+                    ontology.getTermMap().get(tid).getId().getValue());
             errors.add(errmsg);
             n_bad_ageOfOnsetLabel++;
             return false;
@@ -332,7 +332,7 @@ public class V2LineQualityController {
         }
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
-        TermId id = TermId.constructWithPrefix(freq);
+        TermId id = TermId.of(freq);
         //boolean OK = frequencySubontology.getTermMap().containsKey(id);
         if (existsPath(ontology,id,FREQUENCY_ROOT)) {
             n_good_frequency++;
@@ -340,7 +340,7 @@ public class V2LineQualityController {
         }else {
             errors.add(String.format("Could not find term %s [%s] in frequency subontology (see next line)",
                     ontology.getTermMap().get(id).getName(),
-                    ontology.getTermMap().get(id).getId().getIdWithPrefix()));
+                    ontology.getTermMap().get(id).getId().getValue()));
             n_bad_frequency++;
             return false;
         }

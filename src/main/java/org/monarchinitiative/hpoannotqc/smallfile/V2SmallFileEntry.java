@@ -236,7 +236,7 @@ public class  V2SmallFileEntry {
         return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
                 diseaseID,
                 diseaseName,
-                phenotypeId.getIdWithPrefix(),
+                phenotypeId.getValue(),
                 phenotypeName,
                 ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING,
                 ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,

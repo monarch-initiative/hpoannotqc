@@ -29,10 +29,10 @@ class V2BigFile {
     private final HpoOntology ontology;
     private final V2LineQualityController v2qualityController;
     private final static String EMPTY_STRING="";
-    private static final TermId phenotypeRoot= TermId.constructWithPrefix("HP:0000118");
-    private static final TermId INHERITANCE_TERM_ID =TermId.constructWithPrefix("HP:0000005");
-    private static final TermId CLINICAL_COURSE_ID =TermId.constructWithPrefix("HP:0031797");
-    private static final TermId CLINICAL_MODIFIER_ID =TermId.constructWithPrefix("HP:0012823");
+    private static final TermId phenotypeRoot= TermId.of("HP:0000118");
+    private static final TermId INHERITANCE_TERM_ID =TermId.of("HP:0000005");
+    private static final TermId CLINICAL_COURSE_ID =TermId.of("HP:0031797");
+    private static final TermId CLINICAL_MODIFIER_ID =TermId.of("HP:0012823");
     /** These are the objects that represent the diseases contained in the V2 small files. */
     private final List<V2SmallFile> v2SmallFileList;
 
@@ -78,7 +78,7 @@ class V2BigFile {
                 entry.getDiseaseID(), //DB_Object_ID
                 entry.getDiseaseName(), // DB_Name
                 entry.getNegation(), // Qualifier
-                entry.getPhenotypeId().getIdWithPrefix(), // HPO_ID
+                entry.getPhenotypeId().getValue(), // HPO_ID
                 entry.getPublication(), // DB_Reference
                 entry.getEvidenceCode(), // Evidence_Code
                 entry.getAgeOfOnsetId()!=null?entry.getAgeOfOnsetId():EMPTY_STRING, // Onset
@@ -95,7 +95,7 @@ class V2BigFile {
     private String getAspectV2(TermId tid) throws HPOException {
         Term term = ontology.getTermMap().get(tid);
         if (term==null) {
-            logger.error("Invalid HPO tid="+tid.getIdWithPrefix());
+            logger.error("Invalid HPO tid="+tid.getValue());
             return "?";
         }
         TermId primaryTid = term.getId(); // update in case term is an alt_id
@@ -113,7 +113,7 @@ class V2BigFile {
             return "M";
         } else {
             this.v2qualityController.incrementBadAspect();
-           throw new HPOException("Could not determine aspect of TermId "+tid.getIdWithPrefix());
+           throw new HPOException("Could not determine aspect of TermId "+tid.getValue());
         }
     }
     /**
