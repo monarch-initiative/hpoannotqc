@@ -3,6 +3,8 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.phenol.base.PhenolException;
+import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.Arrays;
@@ -47,7 +49,7 @@ public class  V2SmallFileEntry {
     /** Field #14 */
     private final String biocuration;
 
-    private final static String []fields={"#diseaseID",
+    private final static String [] expectedFields ={"#diseaseID",
             "diseaseName",
             "phenotypeID",
             "phenotypeName",
@@ -61,6 +63,10 @@ public class  V2SmallFileEntry {
             "publication",
             "evidence",
             "biocuration"};
+
+    /**
+     /** Number of tab-separated expectedFields in a valid small file. */
+    private static final int NUMBER_OF_FIELDS=expectedFields.length;
 
     public String getDiseaseID() {
         return diseaseID;
@@ -170,7 +176,7 @@ public class  V2SmallFileEntry {
      * @return V2 small file header.
      */
     public static String getHeaderV2() {
-        return Arrays.stream(fields).collect(Collectors.joining("\t"));
+        return Arrays.stream(expectedFields).collect(Collectors.joining("\t"));
     }
 
 
@@ -249,6 +255,65 @@ public class  V2SmallFileEntry {
                 evidenceCode!=null?evidenceCode:"",
                 biocuration!=null?biocuration:EMPTY_STRING);
     }
+
+
+
+    public static V2SmallFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
+        String A[] = line.split("\t");
+        if (A.length!= NUMBER_OF_FIELDS) {
+            logger.error(String.format("We were expecting %d expectedFields but got %d for line %s",NUMBER_OF_FIELDS,A.length,line ));
+            System.exit(1);
+        }
+        String diseaseID=A[0];
+        String diseaseName=A[1];
+        TermId phenotypeId = TermId.of(A[2]);
+        if (! ontology.getTermMap().containsKey(phenotypeId)) {
+            throw new PhenolException("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
+        }
+        String phenotypeName=A[3];
+        String ageOfOnsetId=A[4];
+        if (ageOfOnsetId!=null &&
+                ageOfOnsetId.length()>0 &&
+                (!ageOfOnsetId.startsWith("HP:"))) {
+            throw new PhenolException(String.format("Malformed age of onset termid: \"%s\"",ageOfOnsetId ));
+        }
+        String ageOfOnsetName=A[5];
+        String frequencyString=A[6];
+        String sex=A[7];
+        String negation=A[8];
+        String modifier=A[9];
+        String description=A[10];
+        String publication=A[11];
+        String evidenceCode=A[12];
+        String biocuration=A[13];
+
+        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
+        if (frequencyString!=null && ! frequencyString.isEmpty()) {
+            builder=builder.frequencyString(frequencyString);
+        }
+        if (sex!=null && !sex.isEmpty()) {
+            builder=builder.sex(sex);
+        }
+        if (negation!=null && !negation.isEmpty()) {
+            builder=builder.negation(negation);
+        }
+        if (modifier!=null && !modifier.isEmpty()) {
+            builder=builder.modifier(modifier);
+        }
+        if (description!=null && ! description.isEmpty()) {
+            builder=builder.description(description);
+        }
+        if (ageOfOnsetId!=null) {
+            builder=builder.ageOfOnsetId(ageOfOnsetId);
+        }
+        if (ageOfOnsetName!=null) {
+            builder=builder.ageOfOnsetName(ageOfOnsetName);
+        }
+        return builder.build();
+    }
+
+
+
 
     public static class Builder {
         /** Field #1 */

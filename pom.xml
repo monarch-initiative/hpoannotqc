@@ -4,7 +4,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -56,6 +56,14 @@
                     <groupId>org.slf4</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
+                <!--  <exclusion>
+                      <groupId>com.github.jsonld-java</groupId>
+                      <artifactId>jsonld-java</artifactId>
+                  </exclusion>
+                  <exclusion>
+                      <groupId>net.sourceforge.owlapi</groupId>
+                      <artifactId>owlapi-distribution</artifactId>
+                  </exclusion> -->
             </exclusions>
         </dependency>
 
@@ -99,12 +107,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -289,7 +291,7 @@
                 </dependencies>
             </plugin>
 
-       <!--    <plugin>
+     <!--   <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.4.1</version>
