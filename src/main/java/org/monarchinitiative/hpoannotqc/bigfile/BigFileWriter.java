@@ -5,14 +5,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +19,8 @@ import java.util.Map;
 
 public class BigFileWriter {
     private static final Logger logger = LogManager.getLogger();
-    /** List of all of the {@link V2SmallFile} objects, which represent annotated diseases. */
-    private List<V2SmallFile> v2SmallFileList =new ArrayList<>();
+    /** List of all of the {@link SmallFile} objects, which represent annotated diseases. */
+    private final List<SmallFile> v2SmallFileList;
     /** Representation of the version 2 Big file and all its data for export. */
     private final V2BigFile v2BigFile;
     /** Total number of annotations of all of the annotation files. */
@@ -41,7 +40,7 @@ public class BigFileWriter {
 
 
 
-    public BigFileWriter(HpoOntology ont, List<V2SmallFile> v2list, String outpath) throws HPOException {
+    public BigFileWriter(HpoOntology ont, List<SmallFile> v2list, String outpath) {
         this.ontology=ont;
         this.v2SmallFileList=v2list;
         this.bigFileOutputNameV2=outpath;
@@ -58,7 +57,7 @@ public class BigFileWriter {
         this.n_decipher=0;
         this.n_omim=0;
         this.n_unknown=0;
-        for (V2SmallFile v2f : v2SmallFileList) {
+        for (SmallFile v2f : v2SmallFileList) {
             if (v2f.isOMIM()) n_omim++;
             else if (v2f.isDECIPHER()) n_decipher++;
             else n_unknown++;
@@ -100,7 +99,7 @@ public class BigFileWriter {
         this.v2BigFile.outputBigFileV2(this.writer);
     }
 
-    public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) throws IOException {
+    public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) {
         Orphanet2BigFile orph2big = new Orphanet2BigFile(orphanetDisorders, writer,this.ontology);
         orph2big.writeOrphanetV2();
     }

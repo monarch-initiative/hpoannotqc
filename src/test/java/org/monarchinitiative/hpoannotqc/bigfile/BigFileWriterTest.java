@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -25,18 +25,17 @@ public class BigFileWriterTest {
 
 
 
-    private static V2SmallFileEntry entry;
+    private static SmallFileEntry entry;
     private static HpoOntology ontology;
 
     @BeforeAll
-    public static void init() throws PhenolException, FileNotFoundException {
+    static void init() throws PhenolException, FileNotFoundException {
        // ontology = mock(HpoOntology.class);
 
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath =classLoader.getResource("hp_head.obo").getFile();
         Objects.requireNonNull(hpOboPath);
-//        hpOboPath="/home/peter/GIT/human-phenotype-ontology/hp.obo";
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
 //        // Make a typical entry. All other fields are emtpy.
@@ -48,7 +47,7 @@ public class BigFileWriterTest {
         String pub="OMIM:154700";
         String biocuration="HPO:skoehler[2015-07-26]";
         String onsetModifier="HP:0040283";
-        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,biocuration).ageOfOnsetId(onsetModifier);
+        SmallFileEntry.Builder builder=new SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,biocuration).ageOfOnsetId(onsetModifier);
         entry = builder.build();
     }
 
@@ -58,8 +57,8 @@ public class BigFileWriterTest {
      * Test emitting a line of the V2 (2018-?) big file from a V2 small file line.
      */
     @Test
-    public void testV2line() throws HPOException {
-        String [] v1bigFileFields = {
+    void testV2line() throws HPOException {
+        String [] bigFileFields = {
                 "OMIM:123456",//DiseaseID
                 "MADE-UP SYNDROME", // Name
                 "",//Qualifier
@@ -74,8 +73,8 @@ public class BigFileWriterTest {
                 "HPO:skoehler[2015-07-26]", // biocuration
 
         };
-        String expected= Arrays.stream(v1bigFileFields).collect(Collectors.joining("\t"));
-        List<V2SmallFile> emptyList = ImmutableList.of(); // needed for testing.
+        String expected= String.join("\t", bigFileFields);
+        List<SmallFile> emptyList = ImmutableList.of(); // needed for testing.
         V2BigFile v1b = new V2BigFile(ontology, emptyList);
         String line = v1b.transformEntry2BigFileLineV2(entry);
         assertEquals(expected,line);
@@ -83,7 +82,7 @@ public class BigFileWriterTest {
 
 
     @Test
-    public void testV2Header() {
+    void testV2Header() {
         String expected="#DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
         assertEquals(expected,V2BigFile.getHeaderV2());
     }

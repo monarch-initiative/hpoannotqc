@@ -4,8 +4,8 @@ package org.monarchinitiative.hpoannotqc.io;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile;
-import org.monarchinitiative.hpoannotqc.smallfile.V2SmallFileEntry;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -17,11 +17,11 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Parse of V2 small file into a {@link org.monarchinitiative.hpoannotqc.smallfile.V2SmallFile} object
+ * Parse of V2 small file into a {@link SmallFile} object
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 2/05/2018.
  */
-public class V2SmallFileParser {
+public class SmallFileParser {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
@@ -30,7 +30,7 @@ public class V2SmallFileParser {
     /** Path to a file such as "OMIM-600123.tab" containing data about the phenotypes of a disease. */
     private final String pathToV2File;
     /** Computational disease model contained in the small file. */
-    private V2SmallFile v2smallfile=null;
+    private SmallFile v2smallfile=null;
     private static final String[] expectedFields = {
             "#diseaseID",
             "diseaseName",
@@ -50,15 +50,15 @@ public class V2SmallFileParser {
     /** Number of tab-separated fields in a valid small file. */
     private static final int NUMBER_OF_FIELDS=expectedFields.length;
 
-    public V2SmallFileParser(String path, HpoOntology ontology) {
+    public SmallFileParser(String path, HpoOntology ontology) {
         pathToV2File=path;
         this.ontology=ontology;
     }
 
 
-    public Optional<V2SmallFile> parse() {
+    public Optional<SmallFile> parse() {
         String basename=(new File(pathToV2File).getName());
-        List<V2SmallFileEntry> entryList=new ArrayList<>();
+        List<SmallFileEntry> entryList=new ArrayList<>();
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(pathToV2File));
@@ -97,7 +97,7 @@ public class V2SmallFileParser {
                 String evidenceCode=A[12];
                 String biocuration=A[13];
 
-                V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
+                SmallFileEntry.Builder builder=new SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
                 if (frequencyString!=null && ! frequencyString.isEmpty()) {
                     builder=builder.frequencyString(frequencyString);
                 }
@@ -122,7 +122,7 @@ public class V2SmallFileParser {
                 entryList.add(builder.build());
             }
             br.close();
-            return  Optional.of(new V2SmallFile(basename,entryList));
+            return  Optional.of(new SmallFile(basename,entryList));
         } catch (IOException | HPOException e) {
             logger.error(String.format("Error parsing %s",pathToV2File));
             e.printStackTrace();

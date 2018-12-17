@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.phenol.base.PhenolException;
@@ -16,13 +17,13 @@ import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class V2SmallFileEntryTest {
+class SmallFileEntryTest {
 
     private static HpoOntology ontology;
 
 
     @BeforeAll
-    public static void init() throws PhenolException, FileNotFoundException  {
+    static void init() throws PhenolException, FileNotFoundException  {
         Path resourceDirectory = Paths.get("src","test","resources","hp_head.obo");
         String hpOboPath=resourceDirectory.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
@@ -30,8 +31,8 @@ public class V2SmallFileEntryTest {
     }
 
     @Test
-    public void testEvidenceCodeNotEmpty() {
-       V2LineQualityController qc = new V2LineQualityController(ontology);
+    void testEvidenceCodeNotEmpty() {
+       SmallFileEntryQualityController qc = new SmallFileEntryQualityController(ontology);
         String diseaseId="OMIM:216300";
         String diseasename="CLEFT PALATE, DEAFNESS, AND OLIGODONTIA";
         TermId phenoID= TermId.of("HP:0000007");
@@ -40,7 +41,7 @@ public class V2SmallFileEntryTest {
         String pub="OMIM:216300";
         String ab="HPO:IEA[2009-02-17]";
 
-        V2SmallFileEntry.Builder builder = new V2SmallFileEntry.Builder( diseaseId,
+        SmallFileEntry.Builder builder = new SmallFileEntry.Builder( diseaseId,
                  diseasename,
                  phenoID,
                  phenoName,
@@ -48,8 +49,34 @@ public class V2SmallFileEntryTest {
                  pub,
                  ab
                  );
-        V2SmallFileEntry entry=builder.build();
+        SmallFileEntry entry=builder.build();
         qc.checkV2entry(entry);
         assertEquals("IEA",entry.getEvidenceCode());
     }
+
+    @Test
+    void testEvidenceCodeValid() {
+        String[] fields={
+                "OMIM:123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PC",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"));
+        Assertions.assertThrows(PhenolException.class, () -> {
+            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        });
+    }
+
+
+
 }

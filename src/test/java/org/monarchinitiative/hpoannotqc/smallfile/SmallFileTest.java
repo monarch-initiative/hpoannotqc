@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.monarchinitiative.hpoannotqc.io.V2SmallFileParser;
+import org.monarchinitiative.hpoannotqc.io.SmallFileParser;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -18,26 +18,26 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
-public class V2SmallFileTest {
+class SmallFileTest {
     private static HpoOntology ontology;
-    private static V2SmallFile v2sf=null;
+    private static SmallFile v2sf=null;
 
 
     @BeforeAll
-    public static void init() throws PhenolException, FileNotFoundException {
+    static void init() throws PhenolException, FileNotFoundException {
         Path hpOboPath = Paths.get("src","test","resources","hp_head.obo");
         String hpOboFile=hpOboPath.toAbsolutePath().toString();
         HpOboParser oboparser = new HpOboParser(new File(hpOboFile));
         ontology = oboparser.parse();
         Path omim123456path = Paths.get("src","test","resources","smallfiles","OMIM-123456.tab");
         String omim123456file = omim123456path.toAbsolutePath().toString();
-        V2SmallFileParser parser = new V2SmallFileParser(omim123456file,ontology);
-        Optional<V2SmallFile> v2opt = parser.parse();
+        SmallFileParser parser = new SmallFileParser(omim123456file,ontology);
+        Optional<SmallFile> v2opt = parser.parse();
         v2opt.ifPresent(v2SmallFile -> v2sf = v2SmallFile);
     }
 
     @Test
-    public void testParse() {
+    void testParse() {
         assertNotNull(v2sf);
     }
 
@@ -47,8 +47,8 @@ public class V2SmallFileTest {
      * for the latter are 3/4 and 2/5 and so we expect a total combined frequency of (3+2)/(4+5)=5/9
      */
     @Test
-    public void testMergeFrequencies() {
-        List<V2SmallFileEntry> entrylist= v2sf.getOriginalEntryList();
+    void testMergeFrequencies() {
+        List<SmallFileEntry> entrylist= v2sf.getOriginalEntryList();
         assertEquals(3,entrylist.size());
     }
 

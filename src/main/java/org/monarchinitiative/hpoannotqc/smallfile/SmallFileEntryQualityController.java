@@ -20,7 +20,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getDe
  * and to look at each V2 line in turn.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class V2LineQualityController {
+public class SmallFileEntryQualityController {
     private static final Logger logger = LogManager.getLogger();
     private final HpoOntology ontology;
 
@@ -76,7 +76,7 @@ public class V2LineQualityController {
     private final TermId ONSET_ROOT = TermId.of("HP:0003674");
     private static final TermId FREQUENCY_ROOT = TermId.of("HP:0040279");
 
-    public V2LineQualityController(HpoOntology onto) {
+    public SmallFileEntryQualityController(HpoOntology onto) {
 
         this.ontology=onto;
         this.onsetTerms = getDescendents(ontology,ONSET_ROOT);
@@ -362,7 +362,7 @@ public class V2LineQualityController {
 
 
 
-    public boolean checkV2entry(V2SmallFileEntry entry) {
+    public boolean checkV2entry(SmallFileEntry entry) {
         boolean clean=true;
         if (! checkDB(entry.getDB())) {
             errors.add(String.format("Bad DB: %s",entry.toString()));

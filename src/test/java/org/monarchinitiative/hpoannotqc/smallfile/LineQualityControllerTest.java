@@ -19,28 +19,28 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class V2LineQualityControllerTest {
+class LineQualityControllerTest {
 
 
     private static HpoOntology ontology;
-    private static V2LineQualityController qc;
+    private static SmallFileEntryQualityController qc;
 
 
     @BeforeAll
-    public static void init() throws PhenolException, FileNotFoundException {
+    static void init() throws PhenolException, FileNotFoundException {
         // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath = Objects.requireNonNull(classLoader.getResource("hp_head.obo")).getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
-        qc = new V2LineQualityController(ontology);
+        qc = new SmallFileEntryQualityController(ontology);
     }
 
 
 
     @Test
-    public void testFreq1() throws PhenolException {
+    void testFreq1() throws PhenolException {
         String[] fields={
         "OMIM:123456",
                 "MADE-UP SYNDROME",
@@ -56,8 +56,8 @@ public class V2LineQualityControllerTest {
                 "PMID:9843983",
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
-        String line = Arrays.stream(fields).collect(Collectors.joining("\t"));
-        V2SmallFileEntry entry = V2SmallFileEntry.fromLine(line,ontology);
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
         boolean result = qc.checkV2entry(entry);
         if (!result) {
             List<String> errors = qc.getErrors();
@@ -66,8 +66,6 @@ public class V2LineQualityControllerTest {
             }
         }
         assertTrue(result);
-
-
 
     }
 }

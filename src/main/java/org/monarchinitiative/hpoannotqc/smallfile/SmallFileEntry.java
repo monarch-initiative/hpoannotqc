@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.base.PhenolException;
@@ -9,13 +10,14 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by peter on 1/20/2018.
  * This class represents the contents of a single annotation line.
  */
-public class  V2SmallFileEntry {
+public class SmallFileEntry {
     private static final Logger logger = LogManager.getLogger();
 
     private final static String EMPTY_STRING="";
@@ -63,6 +65,9 @@ public class  V2SmallFileEntry {
             "publication",
             "evidence",
             "biocuration"};
+
+    /** Set of allowable evidence codes. */
+    private static final Set<String> EVIDENCE_CODES = ImmutableSet.of("IEA","TAS","PCS");
 
     /**
      /** Number of tab-separated expectedFields in a valid small file. */
@@ -165,7 +170,7 @@ public class  V2SmallFileEntry {
 
 
 
-    public void merge(String freq, List<V2SmallFileEntry> annotlist ) {
+    public void merge(String freq, List<SmallFileEntry> annotlist ) {
 
     }
 
@@ -176,26 +181,26 @@ public class  V2SmallFileEntry {
      * @return V2 small file header.
      */
     public static String getHeaderV2() {
-        return Arrays.stream(expectedFields).collect(Collectors.joining("\t"));
+        return String.join("\t",expectedFields);
     }
 
 
 
 
-    private V2SmallFileEntry(String disID,
-            String diseaseName,
-            TermId phenotypeId,
-            String phenotypeName,
-            String ageOfOnsetId,
-            String ageOfOnsetName,
-            String evidenceCode,
-            String frequencyString,
-            String sex,
-            String negation,
-            String modifier,
-            String description,
-            String publication,
-            String biocuration) {
+    private SmallFileEntry(String disID,
+                           String diseaseName,
+                           TermId phenotypeId,
+                           String phenotypeName,
+                           String ageOfOnsetId,
+                           String ageOfOnsetName,
+                           String evidenceCode,
+                           String frequencyString,
+                           String sex,
+                           String negation,
+                           String modifier,
+                           String description,
+                           String publication,
+                           String biocuration) {
         this.diseaseID=disID;
         this.diseaseName=diseaseName;
         this.phenotypeId=phenotypeId;
@@ -212,8 +217,8 @@ public class  V2SmallFileEntry {
         this.biocuration=biocuration;
     }
 
-    public V2SmallFileEntry makeDuplicate() {
-        return new V2SmallFileEntry(this.diseaseID,
+    public SmallFileEntry makeDuplicate() {
+        return new SmallFileEntry(this.diseaseID,
                 this.diseaseName,
                 this.phenotypeId,
                 this.phenotypeName,
@@ -258,7 +263,7 @@ public class  V2SmallFileEntry {
 
 
 
-    public static V2SmallFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
+    public static SmallFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
         String A[] = line.split("\t");
         if (A.length!= NUMBER_OF_FIELDS) {
             logger.error(String.format("We were expecting %d expectedFields but got %d for line %s",NUMBER_OF_FIELDS,A.length,line ));
@@ -287,7 +292,12 @@ public class  V2SmallFileEntry {
         String evidenceCode=A[12];
         String biocuration=A[13];
 
-        V2SmallFileEntry.Builder builder=new V2SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
+        // Q/C
+        if (! EVIDENCE_CODES.contains(evidenceCode)) {
+            throw new PhenolException(String.format("Did not recognize evidence code \"%s\".", evidenceCode));
+        }
+
+        SmallFileEntry.Builder builder=new SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
         if (frequencyString!=null && ! frequencyString.isEmpty()) {
             builder=builder.frequencyString(frequencyString);
         }
@@ -390,8 +400,8 @@ public class  V2SmallFileEntry {
 
         public Builder description(String d) { this.description=d; return this;}
 
-        public V2SmallFileEntry build() {
-            return new V2SmallFileEntry(diseaseID,
+        public SmallFileEntry build() {
+            return new SmallFileEntry(diseaseID,
                     diseaseName,
                     phenotypeId,
                     phenotypeName,
