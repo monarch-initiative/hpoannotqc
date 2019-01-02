@@ -10,11 +10,8 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,7 +20,7 @@ class LineQualityControllerTest {
 
 
     private static HpoOntology ontology;
-    private static SmallFileEntryQualityController qc;
+    private static SmallFileEntryQC qc;
 
 
     @BeforeAll
@@ -34,7 +31,7 @@ class LineQualityControllerTest {
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
-        qc = new SmallFileEntryQualityController(ontology);
+        qc = new SmallFileEntryQC(ontology);
     }
 
 
@@ -58,7 +55,7 @@ class LineQualityControllerTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
-        boolean result = qc.checkV2entry(entry);
+        boolean result = qc.checkSmallFileEntry(entry);
         if (!result) {
             List<String> errors = qc.getErrors();
             for (String e: errors) {

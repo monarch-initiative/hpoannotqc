@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntryQualityController;
+import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntryQC;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -25,7 +25,7 @@ class BigFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
-    private final SmallFileEntryQualityController v2qualityController;
+    private final SmallFileEntryQC v2qualityController;
     private final static String EMPTY_STRING="";
     private static final TermId phenotypeRoot= TermId.of("HP:0000118");
     private static final TermId INHERITANCE_TERM_ID =TermId.of("HP:0000005");
@@ -42,7 +42,7 @@ class BigFile {
     BigFile(HpoOntology ont, List<SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
-        v2qualityController=new SmallFileEntryQualityController(this.ontology);
+        v2qualityController=new SmallFileEntryQC(this.ontology);
     }
 
 
@@ -51,12 +51,12 @@ class BigFile {
 
     void outputBigFile(BufferedWriter writer) throws IOException {
         int n = 0;
-        SmallFileEntryQualityController v2qc = new SmallFileEntryQualityController(this.ontology);
+        SmallFileEntryQC v2qc = new SmallFileEntryQC(this.ontology);
         writer.write(getHeaderLine() + "\n");
-        for (SmallFile v2 : v2SmallFileList) {
-            List<SmallFileEntry> entryList = v2.getOriginalEntryList();
+        for (SmallFile smallFile : v2SmallFileList) {
+            List<SmallFileEntry> entryList = smallFile.getOriginalEntryList();
             for (SmallFileEntry entry : entryList) {
-                v2qc.checkV2entry(entry);
+                v2qc.checkSmallFileEntry(entry);
                 try {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
@@ -113,19 +113,14 @@ class BigFile {
         }
         TermId primaryTid = term.getId(); // update in case term is an alt_id
         if (existsPath(ontology, primaryTid, phenotypeRoot)) {
-            v2qualityController.incrementGoodAspect();//
             return "P"; // organ/phenotype abnormality
         } else if (existsPath(ontology, primaryTid, INHERITANCE_TERM_ID)) {
-            v2qualityController.incrementGoodAspect();
             return "I";
         } else if (existsPath(ontology, primaryTid, CLINICAL_COURSE_ID)) {
-            v2qualityController.incrementGoodAspect();
             return "C";
         } else if (existsPath(ontology,primaryTid,CLINICAL_MODIFIER_ID)) {
-            v2qualityController.incrementGoodAspect();
             return "M";
         } else {
-            this.v2qualityController.incrementBadAspect();
            throw new HPOException("Could not determine aspect of TermId "+tid.getValue());
         }
     }

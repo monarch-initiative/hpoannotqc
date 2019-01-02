@@ -32,7 +32,7 @@ class SmallFileEntryTest {
 
     @Test
     void testEvidenceCodeNotEmpty() {
-       SmallFileEntryQualityController qc = new SmallFileEntryQualityController(ontology);
+       SmallFileEntryQC qc = new SmallFileEntryQC(ontology);
         String diseaseId="OMIM:216300";
         String diseasename="CLEFT PALATE, DEAFNESS, AND OLIGODONTIA";
         TermId phenoID= TermId.of("HP:0000007");
@@ -50,7 +50,7 @@ class SmallFileEntryTest {
                  ab
                  );
         SmallFileEntry entry=builder.build();
-        qc.checkV2entry(entry);
+        qc.checkSmallFileEntry(entry);
         assertEquals("IEA",entry.getEvidenceCode());
     }
 
