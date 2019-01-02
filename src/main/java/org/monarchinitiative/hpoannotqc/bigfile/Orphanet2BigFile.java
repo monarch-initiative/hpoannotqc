@@ -73,7 +73,7 @@ class Orphanet2BigFile {
     }
 
     /**
-     * This is identical to the analogous function in {@link V2BigFile} except that it does not use
+     * This is identical to the analogous function in {@link BigFile} except that it does not use
      * the Q/C function of that function.
      * @param tid An HPO term id for which we want to get the aspect
      * @return A one-letter String representing the aspect (P,I,C,M).

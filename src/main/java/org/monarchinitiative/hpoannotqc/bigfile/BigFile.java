@@ -12,9 +12,7 @@ import org.monarchinitiative.phenol.ontology.data.Term;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
@@ -23,7 +21,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  * {@code phenotype.hpoa}.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson </a>
  */
-class V2BigFile {
+class BigFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
@@ -41,7 +39,7 @@ class V2BigFile {
      * @param ont Reference to the HPO Ontology
      * @param v2SmallFiles List of V2 small files to be converted to the bigfile.
      */
-    V2BigFile(HpoOntology ont, List<SmallFile> v2SmallFiles) {
+    BigFile(HpoOntology ont, List<SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
         v2qualityController=new SmallFileEntryQualityController(this.ontology);
@@ -51,16 +49,16 @@ class V2BigFile {
 
 
 
-    void outputBigFileV2(BufferedWriter writer) throws IOException {
+    void outputBigFile(BufferedWriter writer) throws IOException {
         int n = 0;
         SmallFileEntryQualityController v2qc = new SmallFileEntryQualityController(this.ontology);
-        writer.write(getHeaderV2() + "\n");
+        writer.write(getHeaderLine() + "\n");
         for (SmallFile v2 : v2SmallFileList) {
             List<SmallFileEntry> entryList = v2.getOriginalEntryList();
             for (SmallFileEntry entry : entryList) {
                 v2qc.checkV2entry(entry);
                 try {
-                    String bigfileLine = transformEntry2BigFileLineV2(entry);
+                    String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
                 } catch (HPOException e) {
                     e.printStackTrace();
@@ -71,8 +69,15 @@ class V2BigFile {
         System.out.println("We output a total of " + n + " big file lines");
         v2qc.dumpQCtoLog();
     }
-    /** Construct one line for the V1 big file that was in use from 2009-2018. */
-    String transformEntry2BigFileLineV2(SmallFileEntry entry) throws HPOException{
+
+    /**
+     * Transform one line from a Small File (represented as a {@link SmallFileEntry} object)
+     * into one line of the Big File.
+     * @param entry Representing a line from a Small File
+     * @return A string that will be one line of the Big file
+     * @throws HPOException if the Aspect of the line cannot be determined
+     */
+    String transformEntry2BigFileLine(SmallFileEntry entry) throws HPOException{
 
         String [] elems = {
                 entry.getDiseaseID(), //DB_Object_ID
@@ -85,14 +90,22 @@ class V2BigFile {
                 entry.getFrequencyModifier()!=null?entry.getFrequencyModifier():EMPTY_STRING, // Frequency
                 entry.getSex(), // Sex
                 entry.getModifier(), // Modifier
-                getAspectV2(entry.getPhenotypeId()), // Aspect
+                getAspect(entry.getPhenotypeId()), // Aspect
                 entry.getBiocuration() // Biocuration
         };
         return String.join("\t",elems);
     }
 
-
-    private String getAspectV2(TermId tid) throws HPOException {
+    /**
+     * This method calculates the aspect of a term used for an annotation.
+     * The aspect depends on the location of the term in the HPO hierarchy,
+     * for instance it is "I" if the term is in the inheritance subhierarchy and it
+     * is "P" if the term is in the phenotype subhierarchy.
+     * @param tid The term id of an HPO Term
+     * @return The Aspect (P,I,C,M) of the term.
+     * @throws HPOException if the term cannot be identified as either P,C,I, or M.
+     */
+    private String getAspect(TermId tid) throws HPOException {
         Term term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getValue());
@@ -117,9 +130,9 @@ class V2BigFile {
         }
     }
     /**
-     * @return Header line for the V2 big file.
+     * @return Header line for the big file (indicating column names for the data).
      */
-    static String getHeaderV2() {
+    static String getHeaderLine() {
         String []fields={"DatabaseID",
                 "DiseaseName",
                 "Qualifier",
@@ -132,7 +145,7 @@ class V2BigFile {
                 "Modifier",
                 "Aspect",
                 "Biocuration"};
-        return "#" + String.join("\t",fields);
+        return String.join("\t",fields);
     }
 
 

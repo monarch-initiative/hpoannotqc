@@ -3,6 +3,10 @@ Change Log
 ==========
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
+`1.2.4`_(2010-01-02)
+--------------------
+* fixed bug with '#' in header, added test.
+
 `1.2.4`_(2018-12-11)
 --------------------
 * Update/refactor for phenol 1.3.1

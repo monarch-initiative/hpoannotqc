@@ -66,6 +66,29 @@ class LineQualityControllerTest {
             }
         }
         assertTrue(result);
-
     }
+
+    /** The first entry should be OMIM:123456 and not just 123456.*/
+    @Test
+    void testRecognizeBadDatabaseId() throws PhenolException {
+        String[] fields={
+                "123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+    }
+
+
 }

@@ -22,7 +22,7 @@ public class BigFileWriter {
     /** List of all of the {@link SmallFile} objects, which represent annotated diseases. */
     private final List<SmallFile> v2SmallFileList;
     /** Representation of the version 2 Big file and all its data for export. */
-    private final V2BigFile v2BigFile;
+    private final BigFile bigFile;
     /** Total number of annotations of all of the annotation files. */
     private int n_total_annotation_lines=0;
     /**Usually "phenotype.hpoa", but may also include path. */
@@ -44,7 +44,7 @@ public class BigFileWriter {
         this.ontology=ont;
         this.v2SmallFileList=v2list;
         this.bigFileOutputNameV2=outpath;
-        this.v2BigFile=new V2BigFile(ont,v2SmallFileList);
+        this.bigFile =new BigFile(ont,v2SmallFileList);
     }
 
 
@@ -96,7 +96,7 @@ public class BigFileWriter {
         }
 
 
-        this.v2BigFile.outputBigFileV2(this.writer);
+        this.bigFile.outputBigFile(this.writer);
     }
 
     public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) {

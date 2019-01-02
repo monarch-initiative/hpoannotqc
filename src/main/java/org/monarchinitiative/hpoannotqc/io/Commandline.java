@@ -52,7 +52,8 @@ public class Commandline {
     private String smallFileDirectory = null;
     /** Depending on the command, path to output directory or output file. */
     private String outputPath = null;
-
+    /** Overwrite previously downloaded files? */
+    private boolean overwrite;
 
 
 
@@ -63,7 +64,7 @@ public class Commandline {
 
         String mycommand = null;
         String clstring = Arrays.stream(args).collect(Collectors.joining(" "));
-        if (args == null || args.length ==0) {
+        if (args.length ==0) {
             printUsage("[ERROR] Failed to pass a command");
         }
         try {
@@ -97,6 +98,7 @@ public class Commandline {
             if (commandLine.hasOption("o")) {
                 this.outputPath=commandLine.getOptionValue("o");
             }
+            this.overwrite =  commandLine.hasOption("overwrite") ;
             if (commandLine.hasOption("s")) {
                 this.smallFileDirectory= commandLine.getOptionValue("s");
             } else {
@@ -115,7 +117,7 @@ public class Commandline {
         }
         switch (mycommand) {
             case "download":
-                this.command = new DownloadCommand(this.downloadDirectory);
+                this.command = new DownloadCommand(this.downloadDirectory,overwrite);
                 break;
             case "big-file":
                 if (outputPath == null) {
@@ -146,6 +148,7 @@ public class Commandline {
                 .addOption("d", "download", true, "directory to download HPO data (default \"data\")")
                 .addOption("h", "hpo", true, "path to hp.obo")
                 .addOption("o", "out", true, "name/path of output file/directory")
+                .addOption(null,"overwrite",false,"overwrite previously downloaded files?")
                 .addOption("s","small-files",true,"small file directory")
                 .addOption("t", "term", true, "HPO id (e.g., HP:0000123)")
                 .addOption("x","orphadata",true,"Orphanet XML file path")

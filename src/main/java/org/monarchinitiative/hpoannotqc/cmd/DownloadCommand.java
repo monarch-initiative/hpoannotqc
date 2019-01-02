@@ -20,21 +20,25 @@ import java.net.URL;
  * Code modified from Download command in Jannovar.
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- * @version 0.0.1 (May 10, 2017)
+ * @version 0.0.2 (Jan 2, 2019)
  */
 public final class DownloadCommand implements Command {
     private static final Logger LOGGER = LogManager.getLogger();
     private final String downloadDirectory;
+    /** Overwrite previously downloaded files if true. */
+    private final boolean overwrite;
 
     private final static String MONDO_URL="https://raw.githubusercontent.com/monarch-initiative/monarch-disease-ontology/master/src/mondo/mondo.obo";
 
     public String getName() { return "download"; }
 
     /**
-
+     * @param downloadDir directory to download to
+     * @param overw Overwrite previously downloaded files if true.
      */
-    public DownloadCommand(String downloadDir)  {
+    public DownloadCommand(String downloadDir, boolean overw)  {
         this.downloadDirectory=downloadDir;
+        this.overwrite=overw;
     }
 
     /**
@@ -45,8 +49,6 @@ public final class DownloadCommand implements Command {
         createDownloadDir(downloadDirectory);
         downloadHpObo();
         downloadOrphanet();
-        downloadMondo();
-       // downloadPhenotypeAnnotationDotTab();
     }
 
     /**
@@ -57,9 +59,13 @@ public final class DownloadCommand implements Command {
         String downloadLocation=String.format("%s%sen_product4_HPO.xml",downloadDirectory, File.separator);
         File f = new File(downloadLocation);
         if (f.exists()) {
-            LOGGER.trace("cowardly refusing to download en_product4_HPO.xml, since it is already there");
-            System.out.println("cowardly refusing to download en_product4_HPO.xml, since it is already there");
-            return;
+            if (overwrite) {
+                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
+            } else {
+                LOGGER.trace("cowardly refusing to download en_product4_HPO.xml, since it is already there");
+                System.out.println("cowardly refusing to download en_product4_HPO.xml, since it is already there");
+                return;
+            }
         }
         try {
             URL url = new URL("http://www.orphadata.org/data/xml/en_product4_HPO.xml");
@@ -78,66 +84,18 @@ public final class DownloadCommand implements Command {
     }
 
 
-    private void downloadMondo() {
-        // Now the same for the phenotype_annotation.tab file
-        String downloadLocation = String.format("%s%smondo.obo", downloadDirectory, File.separator);
-        File f = new File(downloadLocation);
-        if (f.exists()) {
-            String msg = "cowardly refusing to download mondo.obo, since it is already there";
-            LOGGER.trace(msg);
-            System.out.println(msg);
-            return;
-        }
-        try {
-            URL url = new URL(MONDO_URL);
-            FileDownloader downloader = new FileDownloader();
-            boolean result = downloader.copyURLToFile(url, f);
-            if (result) {
-                String msg = String.format("Downloaded mondo.obo to %s" , downloadLocation );
-                LOGGER.trace(msg);
-                System.out.println(msg);
-            } else {
-                LOGGER.error("[ERROR] Could not mondo.obo to " + downloadLocation);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void downloadPhenotypeAnnotationDotTab() {
-        // Now the same for the phenotype_annotation.tab file
-        String downloadLocation = String.format("%s%sphenotype_annotation.tab", downloadDirectory, File.separator);
-        File f = new File(downloadLocation);
-        if (f.exists()) {
-            LOGGER.trace("cowardly refusing to download phenoptype_annotation.tab, since it is already there");
-            return;
-        }
-        try {
-            URL url = new URL("http://compbio.charite.de/jenkins/job/hpo.annotations/lastStableBuild/artifact/misc/phenotype_annotation.tab");
-            FileDownloader downloader = new FileDownloader();
-            boolean result = downloader.copyURLToFile(url, f);
-            if (result) {
-                LOGGER.trace("Downloaded phenotype_annotation.tab to " + downloadLocation);
-            } else {
-                LOGGER.error("[ERROR] Could not phenotype_annotation.tab to " + downloadLocation);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     private void downloadHpObo() {
         String downloadLocation=String.format("%s%shp.obo",downloadDirectory, File.separator);
         File f = new File(downloadLocation);
         if (f.exists()) {
-            String msg = "cowardly refusing to download hp.obo, since it is already there";
-            LOGGER.trace(msg);
-            System.out.println(msg);
-            return;
+            if (overwrite) {
+                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
+            } else {
+                LOGGER.trace("cowardly refusing to hp.obo, since it is already there");
+                System.out.println("cowardly refusing to download hp.obo, since it is already there");
+                return;
+            }
         }
         try {
             URL url = new URL("https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo");

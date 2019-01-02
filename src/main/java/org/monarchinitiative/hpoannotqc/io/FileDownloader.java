@@ -68,8 +68,6 @@ public class FileDownloader {
      *             on problems with downloading
      */
     public boolean copyURLToFile(URL src, File dest) throws FileDownloadException {
-        if (dest.exists())
-            return false;
         if (!dest.getParentFile().exists()) {
             LOGGER.info("Creating directory {}", dest.getParentFile());
             dest.getParentFile().mkdirs();

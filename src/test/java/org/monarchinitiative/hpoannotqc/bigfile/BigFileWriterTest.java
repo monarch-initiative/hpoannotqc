@@ -13,10 +13,8 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,15 +28,12 @@ public class BigFileWriterTest {
 
     @BeforeAll
     static void init() throws PhenolException, FileNotFoundException {
-       // ontology = mock(HpoOntology.class);
-
-        // set up ontology
         ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
         String hpOboPath =classLoader.getResource("hp_head.obo").getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
-//        // Make a typical entry. All other fields are emtpy.
+        // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:123456";
         String diseaseName="MADE-UP SYNDROME";
         TermId hpoId= TermId.of("HP:0000528");
@@ -75,16 +70,19 @@ public class BigFileWriterTest {
         };
         String expected= String.join("\t", bigFileFields);
         List<SmallFile> emptyList = ImmutableList.of(); // needed for testing.
-        V2BigFile v1b = new V2BigFile(ontology, emptyList);
-        String line = v1b.transformEntry2BigFileLineV2(entry);
+        BigFile v1b = new BigFile(ontology, emptyList);
+        String line = v1b.transformEntry2BigFileLine(entry);
         assertEquals(expected,line);
     }
 
 
+    /** Note that the header should NOT have a #, which is used for the
+     * preceding comment lines.
+     */
     @Test
     void testV2Header() {
-        String expected="#DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
-        assertEquals(expected,V2BigFile.getHeaderV2());
+        String expected="DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
+        assertEquals(expected,BigFile.getHeaderLine());
     }
 
 }
