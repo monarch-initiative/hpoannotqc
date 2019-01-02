@@ -170,12 +170,6 @@ public class SmallFileEntry {
 
 
 
-    public void merge(String freq, List<SmallFileEntry> annotlist ) {
-
-    }
-
-
-
     /**
      * This is the header of the V2 small files.
      * @return V2 small file header.
@@ -217,22 +211,6 @@ public class SmallFileEntry {
         this.biocuration=biocuration;
     }
 
-    public SmallFileEntry makeDuplicate() {
-        return new SmallFileEntry(this.diseaseID,
-                this.diseaseName,
-                this.phenotypeId,
-                this.phenotypeName,
-                this.ageOfOnsetId,
-                this.ageOfOnsetName,
-                this.evidenceCode,
-                this.frequencyModifier,
-                this.sex,
-                this.negation,
-                this.modifier,
-                this.description,
-                this.publication,
-                this.biocuration);
-    }
 
     /** @return the row that will be written to the V2 file for this entry. */
     @Override public String toString() { return getRow();}

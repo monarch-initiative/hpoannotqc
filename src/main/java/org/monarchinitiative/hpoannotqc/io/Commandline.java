@@ -39,8 +39,6 @@ public class Commandline {
     private final static String DEFAULT_ANNOTATION_PATH = String.format("%s%s%s",
             DEFAULT_DOWNLOAD_DIRECTORY, File.separator,"phenotype.hpoa");
 
-    private final static String DEFAULT_V2_SMALL_FILE_DIRECTORY="v2files";
-
     private final static String DEFAULT_ORPHANET_XML_FILE="data/en_product4_HPO.xml";
 
 
@@ -102,7 +100,7 @@ public class Commandline {
             if (commandLine.hasOption("s")) {
                 this.smallFileDirectory= commandLine.getOptionValue("s");
             } else {
-                this.smallFileDirectory = DEFAULT_V2_SMALL_FILE_DIRECTORY;
+                this.smallFileDirectory = null;
             }
             if (commandLine.hasOption("x")) {
                 this.orphanetXmlPath= commandLine.getOptionValue("x");
@@ -122,6 +120,9 @@ public class Commandline {
             case "big-file":
                 if (outputPath == null) {
                     outputPath = "phenotype.hpoa";
+                }
+                if (smallFileDirectory==null) {
+                    printUsage("[ERROR] Must indicate path to small file directory to run big-file command");
                 }
                 this.command = new BigFileCommand(hpoOboPath, smallFileDirectory, orphanetXmlPath, outputPath);
                 break;
