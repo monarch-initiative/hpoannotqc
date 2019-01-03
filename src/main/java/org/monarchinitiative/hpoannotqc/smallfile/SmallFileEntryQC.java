@@ -61,7 +61,7 @@ public class SmallFileEntryQC {
     private void checkDiseaseName(String name) {
         if (name==null || name.isEmpty()) {
             errors.add(String.format("Bad disease name: %s",name));
-            errorcodes.add(BAD_DISEASE_NAME);
+            errorcodes.add(MISSING_DISEASE_NAME);
             clean = false;
         }
     }
@@ -87,7 +87,7 @@ public class SmallFileEntryQC {
     private void checkPhenotypeId(TermId id) {
         if (id==null || ! ontology.getTermMap().containsKey(id)) {
             errors.add("Could not find HPO term id for \""+id.getValue()+"\"");
-            errorcodes.add(USAGE_OF_OBSOLETE_PHENOTYPE_ID);
+            errorcodes.add(PHENOTYPE_ID_NOT_FOUND);
             clean = false;
         } else {
             TermId current = ontology.getTermMap().get(id).getId();
@@ -150,10 +150,10 @@ public class SmallFileEntryQC {
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
         }
-        if (!pub.startsWith("PMID") ||
-                !pub.startsWith("OMIM") ||
-                !pub.startsWith("http") ||
-                !pub.startsWith("DECIPHER") ||
+        if (!pub.startsWith("PMID") &&
+                !pub.startsWith("OMIM")&&
+                !pub.startsWith("http") &&
+                !pub.startsWith("DECIPHER") &&
                 !pub.startsWith("ISBN")) {
             errors.add(String.format("Did not recognize publication prefix: \"%s\" for %s (see next line)", pub.substring(0, index), pub));
             errorcodes.add(MALFORMED_CITATION);
@@ -337,7 +337,6 @@ public class SmallFileEntryQC {
         }
 
         logger.info("#####   Q/C Summary   #####");
-
     }
 
 }

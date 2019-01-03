@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.smallfile;
 
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 
 import org.junit.jupiter.api.Test;
@@ -13,10 +14,15 @@ import java.io.*;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.BAD_DATABASE_NAME;
+import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.MISSING_DISEASE_NAME;
+import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.PHENOTYPE_ID_NOT_FOUND;
 
 
-class LineQualityControllerTest {
+class SmallFileEntryQCTest {
 
 
     private static HpoOntology ontology;
@@ -85,6 +91,63 @@ class LineQualityControllerTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        qc.checkSmallFileEntry(entry);
+        assertTrue(qc.hasErrors());
+        List<SmallFileQCCode> errorcodes = qc.getErrorCodes();
+        assertEquals(1,errorcodes.size());
+        assertEquals(BAD_DATABASE_NAME,errorcodes.get(0));
+    }
+
+    @Test
+    void testMissingDiseaseName() throws PhenolException {
+        String[] fields={
+                "OMIM:123456",
+                "",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        boolean result = qc.checkSmallFileEntry(entry);
+        qc.checkSmallFileEntry(entry);
+        assertTrue(qc.hasErrors());
+        List<SmallFileQCCode> errorcodes = qc.getErrorCodes();
+        assertEquals(1,errorcodes.size());
+        assertEquals(MISSING_DISEASE_NAME,errorcodes.get(0));
+    }
+
+
+    /** Test that an exception is thrown because HP:1230528 does not exist.*/
+    @Test
+    void testRecognizeBadHPOId() throws PhenolException {
+        String[] fields={
+                "123456",
+                "MADE-UP SYNDROME",
+                "HP:1230528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        Assertions.assertThrows(PhenolException.class, () -> {
+            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        });
     }
 
 
