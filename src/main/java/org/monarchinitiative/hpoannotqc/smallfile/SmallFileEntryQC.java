@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 
@@ -38,6 +39,8 @@ public class SmallFileEntryQC {
 
     private final TermId ONSET_ROOT = TermId.of("HP:0003674");
     private static final TermId FREQUENCY_ROOT = TermId.of("HP:0040279");
+    /** The current entry we are processing (used for error Q/C and updated for each entry). */
+    private SmallFileEntry currentSmallFileEntry;
 
     public SmallFileEntryQC(HpoOntology onto) {
         this.ontology=onto;
@@ -134,28 +137,32 @@ public class SmallFileEntryQC {
             errors.add(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
+            return;
         }
         if (pub.contains("::")) { // should only be one colon separating prefix and id
             errors.add(String.format("Malformed citation id (double colon): \"%s\"", pub));
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
+            return;
         }
         if (pub.startsWith("HPO")) {
             errors.add(String.format("Malformed citation id: \"%s\"", pub));
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
+            return;
         }
         if (pub.contains(" ")) {
             errors.add(String.format("Malformed citation id (contains space): \"%s\"", pub));
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
+            return;
         }
         if (!pub.startsWith("PMID") &&
                 !pub.startsWith("OMIM")&&
                 !pub.startsWith("http") &&
                 !pub.startsWith("DECIPHER") &&
                 !pub.startsWith("ISBN")) {
-            errors.add(String.format("Did not recognize publication prefix: \"%s\" for %s (see next line)", pub.substring(0, index), pub));
+            errors.add(String.format("Did not recognize publication prefix: \"%s\" for %s ", pub.substring(0, index), pub));
             errorcodes.add(MALFORMED_CITATION);
             clean = false;
         }
@@ -274,10 +281,18 @@ public class SmallFileEntryQC {
             errors.add("Invalid frequency term: " + freq);
             errorcodes.add(INVALID_FREQUENCY_TERM);
             clean = false;
+            return;
         }
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
-        TermId id = TermId.of(freq);
+        TermId id=null;
+        try {
+            id = TermId.of(freq);
+        } catch (PhenolRuntimeException pre) {
+            System.out.println("[RunTimeError] Could not parse frequency term id " + freq);
+            System.err.println("for entry="+currentSmallFileEntry.toString());
+            System.exit(1);
+        }
         if (! existsPath(ontology,id,FREQUENCY_ROOT)) {
             errors.add(String.format("Could not find term %s [%s] in frequency subontology",
                     ontology.getTermMap().get(id).getName(),
@@ -308,6 +323,7 @@ public class SmallFileEntryQC {
         this.clean=true;
         errors.clear(); // reset list of error messages for the current entry.
         errorcodes.clear(); // reset list of error codes for the entry
+        this.currentSmallFileEntry=entry;
         checkDB(entry.getDB());
         checkDiseaseName(entry.getDiseaseName());
         checkNegation(entry.getNegation());

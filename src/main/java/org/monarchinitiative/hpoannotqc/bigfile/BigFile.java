@@ -61,6 +61,7 @@ class BigFile {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
                 } catch (HPOException e) {
+                    System.err.println("Error encountered with entry " + entry.toString());
                     e.printStackTrace();
                 }
                 n++;
@@ -121,7 +122,7 @@ class BigFile {
         } else if (existsPath(ontology,primaryTid,CLINICAL_MODIFIER_ID)) {
             return "M";
         } else {
-           throw new HPOException("Could not determine aspect of TermId "+tid.getValue());
+           throw new HPOException("Could not determine aspect of TermId "+tid.getValue() );
         }
     }
     /**

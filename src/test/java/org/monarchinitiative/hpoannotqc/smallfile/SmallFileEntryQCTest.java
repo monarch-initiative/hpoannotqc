@@ -150,5 +150,30 @@ class SmallFileEntryQCTest {
         });
     }
 
+    /** for some reason, 96.7% was not being recongized. */
+    @Test
+    void testFrequency() throws PhenolException {
+        String[] fields={
+                "OMIM:123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "96.7%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        boolean result = qc.checkSmallFileEntry(entry);
+        qc.checkSmallFileEntry(entry);
+        assertFalse(qc.hasErrors());
+    }
+
 
 }
