@@ -88,7 +88,8 @@ public class SmallFileEntry {
     /** Set of allowable evidence codes. */
     private static final Set<String> EVIDENCE_CODES = ImmutableSet.of("IEA","TAS","PCS");
 
-    private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","DECIPHER","ISBN", "ISBN-10","ISBN-13");
+    private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","https","DECIPHER",
+            "ISBN", "ISBN-10","ISBN-13");
     /** regex for patterns such as HPO:skoehler[2018-09-22] */
     private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})\\]";
     /** The pattern that corresponds to {@link #biocurationRegex}. */
