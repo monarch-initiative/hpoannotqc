@@ -3,7 +3,6 @@ package org.monarchinitiative.hpoannotqc.orphanet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -208,17 +207,10 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     logger.trace("Done parsing Orphanet XML document");
                 } else if (endElementName.equals("Disorder")) {
                     if (disorder != null) {
-                        List<SmallFileQCCode> qclist = disorder.qcCheck();
-                        if (qclist.size()>0) {
-                            logger.error("QC Issues for Orphanet disease " + disorder.toString() +" (see next line)");
-                            String codes = qclist.stream().map(SmallFileQCCode::getName).collect(Collectors.joining(";"));
-                            logger.error("\t" + codes);
-                        }
                         disorders.add(disorder);
                     }
                 }
             }
-            //
         }
     }
 

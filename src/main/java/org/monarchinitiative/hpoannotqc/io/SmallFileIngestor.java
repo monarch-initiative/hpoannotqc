@@ -31,6 +31,8 @@ public class SmallFileIngestor {
     /** Names of entries (small files) that we will omit because they do not represent diseases. */
     private final Set<String> omitEntries;
 
+    private final List<String> parseErrors=new ArrayList<>();
+
     /** Total number of annotations of all of the annotation files. */
     private int n_total_annotation_lines=0;
 
@@ -65,9 +67,20 @@ public class SmallFileIngestor {
             } else {
                 logger.error("Could not parse V2 small file for {}",path);
             }
+            if (parser.hasErrors()) {
+                this.parseErrors.addAll(parser.getParseErrors());
+            }
         }
-        logger.error("Finished with input of {} files with {} annotations",i,n_total_annotation_lines);
-        logger.error("A total of {} entries found in the small file directory were omitted.",n_total_omitted_entries);
+        logger.info("Finished with input of {} files with {} annotations",i,n_total_annotation_lines);
+        logger.info("A total of {} entries found in the small file directory were omitted.",n_total_omitted_entries);
+        if (! parseErrors.isEmpty()) {
+            logger.error("Parsing errors were encountered while ingesting the small files");
+            int k=0;
+            for (String err: parseErrors) {
+                k++;
+                logger.error("("+k+") "+err);
+            }
+        }
     }
 
     /**
@@ -118,7 +131,7 @@ public class SmallFileIngestor {
                 if (path.toString().endsWith(".tab")) {
                     String basename=baseName(path);
                     if (omitEntries.contains(basename)) {
-                        logger.trace("Skipping annotations for entry {}", basename);
+                        logger.trace("Skipping annotations for omitted entry {}", basename);
                         n_total_omitted_entries++;
                         continue; // skip this one!
                     }

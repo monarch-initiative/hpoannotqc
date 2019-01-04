@@ -10,14 +10,12 @@ import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
-import java.util.List;
-import java.util.Objects;
+
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
-import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
+
 
 /**
  * Created by peter on 1/20/2018.
@@ -76,7 +74,7 @@ public class SmallFileEntry {
     private static final int NUMBER_OF_FIELDS=expectedFields.length;
 
 
-    private final static Set validDatabases = ImmutableSet.of("OMIM","DECIPER","ORPHA");
+    private final static Set validDatabases = ImmutableSet.of("OMIM","DECIPHER","ORPHA");
     /** A set with all of the TermIds for frequency. */
     private final static Set frequencySubhierarcyTermIds = ImmutableSet.of(TermId.of("HP:0003674"),TermId.of("HP:0040280"),
             TermId.of("HP:0040281"), TermId.of("HP:0040282"),TermId.of("HP:0040283"),TermId.of("HP:0040284"),
@@ -90,7 +88,7 @@ public class SmallFileEntry {
     /** Set of allowable evidence codes. */
     private static final Set<String> EVIDENCE_CODES = ImmutableSet.of("IEA","TAS","PCS");
 
-    private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","DECIPHER","ISBN");
+    private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","DECIPHER","ISBN", "ISBN-10","ISBN-13");
     /** regex for patterns such as HPO:skoehler[2018-09-22] */
     private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})\\]";
     /** The pattern that corresponds to {@link #biocurationRegex}. */
@@ -235,16 +233,8 @@ public class SmallFileEntry {
         String diseaseID=A[0];
         String diseaseName=A[1];
         TermId phenotypeId = TermId.of(A[2]);
-        if (! ontology.getTermMap().containsKey(phenotypeId)) {
-            throw new PhenolException("WARNING skipping annotation because we could not find term for (version mismatch?)" + A[2]);
-        }
         String phenotypeName=A[3];
         String ageOfOnsetId=A[4];
-        if (ageOfOnsetId!=null &&
-                ageOfOnsetId.length()>0 &&
-                (!ageOfOnsetId.startsWith("HP:"))) {
-            throw new PhenolException(String.format("Malformed age of onset termid: \"%s\"",ageOfOnsetId ));
-        }
         String ageOfOnsetName=A[5];
         String frequencyString=A[6];
         String sex=A[7];
@@ -288,7 +278,7 @@ public class SmallFileEntry {
      * @throws SmallFileException
      */
     public static void performQualityControl(SmallFileEntry entry, HpoOntology ontology) throws SmallFileException {
-        checkDB(entry.getDB());
+        checkDB(entry);
         checkDiseaseName(entry.getDiseaseName());
         checkPhenotypeFields(entry.getPhenotypeId(),entry.getPhenotypeLabel(),ontology);
         checkAgeOfOnsetFields(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetLabel(),ontology);
@@ -304,12 +294,17 @@ public class SmallFileEntry {
 
     /**
      * Checks if the database string is in the set of valid strings ({@link #validDatabases})
-     * @param db A database String such as OMIM or ORPHA
+     * @param entry SMallFileEntry to be checked for a database String such as OMIM or ORPHA
      * @throws SmallFileException if an invalid database code is used
      */
-    private static void checkDB(String db) throws SmallFileException {
-        if (! validDatabases.contains(db) ) {
-            throw new SmallFileException(String.format("Invalid database symbol: \"%s\"", db));
+    private static void checkDB(SmallFileEntry entry) throws SmallFileException {
+        try {
+            String db = entry.getDB();
+            if (! validDatabases.contains(db) ) {
+                throw new SmallFileException(String.format("Invalid database symbol: \"%s\"", db));
+            }
+        } catch (PhenolRuntimeException r) {
+            throw new SmallFileException("Could not construct database: "+ r.getMessage());
         }
     }
 
@@ -431,9 +426,15 @@ public class SmallFileEntry {
         }
     }
 
+    /**
+     * The sex entry is used for annotations that are specific to either males or females. It is usually
+     * empty. If present, it must be either MALE or FEMALE (for now we do no enforce capitalization).
+     * @param sex THe sex-specificity entry
+     * @throws SmallFileException
+     */
     private static void checkSexEntry(String sex) throws SmallFileException {
         if (sex==null || sex.isEmpty()) return; // OK,  not required
-        if (! sex.equals("MALE") && ! sex.equals("FEMALE"))
+        if (! sex.equalsIgnoreCase("MALE") && ! sex.equalsIgnoreCase("FEMALE"))
             throw new SmallFileException(String.format("Malformed sex entry: \"%s\"", sex));
     }
 

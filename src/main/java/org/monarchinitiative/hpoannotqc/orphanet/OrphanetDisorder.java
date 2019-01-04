@@ -3,13 +3,11 @@ package org.monarchinitiative.hpoannotqc.orphanet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.UNINITIALIZED_DISEASE_NAME;
 
 /**
  * This class represents on disease as annotated by Orphanet.
@@ -82,14 +80,6 @@ public class OrphanetDisorder {
     }
 
 
-
-    public List<SmallFileQCCode> qcCheck() {
-        List<SmallFileQCCode> lst = new ArrayList<>();
-        if (name==null) {
-            lst.add(UNINITIALIZED_DISEASE_NAME);
-        }
-        return lst;
-    }
 
 
 }

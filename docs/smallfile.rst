@@ -95,10 +95,9 @@ PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes 
 
 
 14. **biocuration**. This field must begin with a valid reference of the form prefix:id.
-This can be
-ORCID:0000-0000-0000-0123 or a database id followed by a name (usually first initial-lastname)
-HPO:mmustermann.
+This can be something like ``ORCID:0000-0000-0000-0123`` or a database id followed by a name
+(usually first initial-lastname), e.g., ``HPO:mmustermann``.
  This field contains the date when the term was first created and must have the form yyyy-mm-dd, e.g.,
-2016-07-22.
-Multiple biocurations are separated by a semicolon, e.g., HPO:skoehler[2013-06-25];HPO:probinson[2015-12-06].
+2016-07-22. Multiple biocurations are separated by a semicolon, e.g.,
+``HPO:skoehler[2013-06-25];HPO:probinson[2015-12-06]``.
 

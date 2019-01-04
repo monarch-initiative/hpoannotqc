@@ -5,6 +5,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.monarchinitiative.hpoannotqc.exception.SmallFileException;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -16,8 +17,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SmallFileEntryTest {
 
@@ -79,6 +83,128 @@ class SmallFileEntryTest {
             SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
         });
     }
+
+    /** Throws an exception becase the disease name is missing. */
+    @Test
+    void testMissingDiseaseName() {
+        String[] fields={
+                "OMIM:123456",
+                "",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        Assertions.assertThrows(SmallFileException.class, () -> {
+            SmallFileEntry entry = SmallFileEntry.fromLine(line, ontology);
+        });
+    }
+
+
+
+    /** Test that an exception is thrown because HP:1230528 does not exist.*/
+    @Test
+    void testRecognizeBadHPOId() throws PhenolException {
+        String[] fields={
+                "123456",
+                "MADE-UP SYNDROME",
+                "HP:1230528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        Assertions.assertThrows(PhenolException.class, () -> {
+            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        });
+    }
+
+    /** This should go through with no problems. */
+    @Test
+    void testFrequency() throws PhenolException {
+        String[] fields={
+                "OMIM:123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "96.7%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        assertEquals("96.7%",entry.getFrequencyModifier());
+    }
+
+
+    /** The first entry should be OMIM:123456 and not just 123456.*/
+    @Test
+    void testRecognizeBadDatabaseId() throws PhenolException {
+        String[] fields={
+                "123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "76.3%",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        Assertions.assertThrows(SmallFileException.class, () -> {
+            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        });
+    }
+
+    /** This should go through with no problems */
+    @Test
+    void testFreq1() throws PhenolException {
+        String[] fields={
+                "OMIM:123456",
+                "MADE-UP SYNDROME",
+                "HP:0000528",
+                "Anophthalmia",
+                "",
+                "",
+                "7/42",
+                "FEMALE",
+                "",
+                "",
+                "",
+                "PMID:9843983",
+                "PCS",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);
+        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        assertEquals("7/42",entry.getFrequencyModifier());
+    }
+
 
 
 

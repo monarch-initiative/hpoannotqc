@@ -6,25 +6,19 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
         </Console>
 
-
         <File name="MyLog"
               append="true"
               immediateFlush="true"
               fileName="HpoAnnotQc.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
         </File>
-
     </Appenders>
 
     <Loggers>
-        <Logger name="org.monarchinitiative.hpoannotqc.Main" level="warn">
-            <AppenderRef ref="Console" level="warn"/>
-            <AppenderRef ref="MyLog" level="warn"/>
-        </Logger>
-
-        <Root level="trace">
-            <AppenderRef ref="Console" level="warn"/>
-            <AppenderRef ref="MyLog" level="warn"/>
+        <logger name="org.monarchinitiative.phenol.io.obo.hpo.HpOboParser" level="error"/>
+        <Root level="warn">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="MyLog" />
         </Root>
     </Loggers>
 </Configuration>

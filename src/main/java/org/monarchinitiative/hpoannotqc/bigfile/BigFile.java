@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntryQC;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -25,7 +24,6 @@ class BigFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
-    private final SmallFileEntryQC v2qualityController;
     private final static String EMPTY_STRING="";
     private static final TermId phenotypeRoot= TermId.of("HP:0000118");
     private static final TermId INHERITANCE_TERM_ID =TermId.of("HP:0000005");
@@ -42,7 +40,6 @@ class BigFile {
     BigFile(HpoOntology ont, List<SmallFile> v2SmallFiles) {
         this.ontology=ont;
         v2SmallFileList=v2SmallFiles;
-        v2qualityController=new SmallFileEntryQC(this.ontology);
     }
 
 
@@ -53,12 +50,10 @@ class BigFile {
      */
     void outputBigFile(BufferedWriter writer) throws IOException {
         int n = 0;
-        SmallFileEntryQC v2qc = new SmallFileEntryQC(this.ontology);
         writer.write(getHeaderLine() + "\n");
         for (SmallFile smallFile : v2SmallFileList) {
             List<SmallFileEntry> entryList = smallFile.getEntryList();
             for (SmallFileEntry entry : entryList) {
-                v2qc.checkSmallFileEntry(entry);
                 try {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
@@ -70,7 +65,6 @@ class BigFile {
             }
         }
         System.out.println("We output a total of " + n + " big file lines");
-        v2qc.dumpQCtoLog();
     }
 
     /**

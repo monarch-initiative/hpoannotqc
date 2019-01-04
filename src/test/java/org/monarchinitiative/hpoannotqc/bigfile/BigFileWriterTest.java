@@ -65,13 +65,12 @@ public class BigFileWriterTest {
                 "HP:0000528", // HPO_ID,
                 "OMIM:154700",//DB_Reference
                 "IEA", // Evidence_Code
-                "HP:0040283",//Onset
-                "", // Frequency
+                "",//Onset
+                "HP:0040283", // Frequency HP:0040283=Occasional
                 "", // Sex
                 "",//Modifier
                 "P",// Aspect
                 "HPO:skoehler[2015-07-26]", // biocuration
-
         };
         String expected= String.join("\t", bigFileFields);
         List<SmallFile> emptyList = ImmutableList.of(); // needed for testing.

@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
 import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntryQC;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -52,13 +51,11 @@ public class SmallFileParser {
 
     /** Number of tab-separated fields in a valid small file. */
     private static final int NUMBER_OF_FIELDS=expectedFields.length;
-    /** An object for quality control of the Small File lines. */
-    private final SmallFileEntryQC smallFileEntryQC;
+
 
     public SmallFileParser(String path, HpoOntology ontology) {
         pathToV2File=path;
         this.ontology=ontology;
-        smallFileEntryQC =new SmallFileEntryQC(this.ontology);
     }
 
 
@@ -90,7 +87,8 @@ public class SmallFileParser {
         return Optional.empty();
     }
 
-
+    public boolean hasErrors() { return parseErrors.size()>0; }
+    public List<String> getParseErrors() { return parseErrors; }
 
 
      /* This method checks that the nead has the expected number and order of lines.
