@@ -15,8 +15,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 class SmallFileTest {
     private static HpoOntology ontology;
@@ -41,15 +40,23 @@ class SmallFileTest {
         assertNotNull(v2sf);
     }
 
-
-    /**
-     * The raw file has three entries -- one for autosomal dominant and two for aculeiform cataract. The frequencies
-     * for the latter are 3/4 and 2/5 and so we expect a total combined frequency of (3+2)/(4+5)=5/9
-     */
     @Test
-    void testMergeFrequencies() {
-        List<SmallFileEntry> entrylist= v2sf.getOriginalEntryList();
-        assertEquals(3,entrylist.size());
+    void basenameTest() {
+        assertEquals("OMIM-123456.tab", v2sf.getBasename());
     }
+
+    @Test
+    void isOmimTest() {
+        assertTrue(v2sf.isOMIM());
+        assertFalse(v2sf.isDECIPHER());
+    }
+
+    /** Our test file has three annotation lines. */
+    @Test
+    void numberOfAnnotationsTest() {
+        assertEquals(3,v2sf.getNumberOfAnnotations());
+    }
+
+
 
 }

@@ -1,92 +1,14 @@
 HPO Annotation Small Files
 ==========================
 
-We are currently in the process of updating the ontologuy
+Each annotated disease in the HPO corpus is represented in a single so-called small file.
 
 
-Converting old "small files" to new format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-See Google doc that was sent around the phenotype list for background.
-The HPO project is updating the rare disease annotation files to add some new features. This document is intended
-to explain the process, but we note it is intended for internal use and will be deleted after the conversion has been
-carried out.
-
-
-Running HPO Annot QC to perform the conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To run the demo program, enter the following command. ::
-
-    $ java -jar target/HpoAnnotQc.jar convert -h <path to hp.obo> -d <path to /hpo-annotation-data/rare-diseases/annotated>
-
-Here, <path to /hpo-annotation-datrare-diseases/annotated> is the path to the ``annotated`` directory containing the original small files.
-
-This command will create a new directory called "v2files" and write one "new" small file for each "old" small file.
-
-To turn this into a "big" file, run the following command. ::
-
-    $ java -jar target/HpoAnnotQc.jar big-file -h <path to hp.obo>
-
-This will create a new file called ``phenotype_annotation2.tab``.
-
-
-Note that if you first run the command to download the latest hp.obo file, the file will be placed in the default location
-``data/hp.obo`` and does not need to be passed via the command line. ::
-
-    $ java -jar target/HpoAnnotQc.jar download
-
-
-
-Current small file format
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-The "average" current format for the small files is as follows. Note that there were different
-formats at different times from 2009-2018, and the various formats were merged into a unified big file.
-
-
-
-
-+--------+-----------------+--------------------------------+
-| Column |    Item         | Comment                        |
-+========+=================+================================+
-| 1      | diseaseID       | OMIM, ORPHA, DECIPHER          |
-+--------+-----------------+--------------------------------+
-| 2      | diseaseName     | e.g., Neurofibromatosis type 1 |
-+--------+-----------------+--------------------------------+
-| 3      | phenotypeId     | e.g., HP:0000123               |
-+--------+-----------------+--------------------------------+
-| 4      | phenotypeName   | e.g., Scoliosis                |
-+--------+-----------------+--------------------------------+
-| 5      | ageOfOnsetId    | e.g., HP:0003581               |
-+--------+-----------------+--------------------------------+
-| 6      | ageOfOnsetName  | e.g., Adult onset              |
-+--------+-----------------+--------------------------------+
-| 7      | frequencyId     | e.g., HP:0040280               |
-+--------+-----------------+--------------------------------+
-| 8      | frequencyString | e.g., 5/13                     |
-+--------+-----------------+--------------------------------+
-| 9      | sex             | Male, Female                   |
-+--------+-----------------+--------------------------------+
-| 10     | negation        | NOT or not                     |
-+--------+-----------------+--------------------------------+
-| 11     | modifier        | semicolon sep list HPO terms   |
-+--------+-----------------+--------------------------------+
-| 12     | description     | free text                      |
-+--------+-----------------+--------------------------------+
-| 13     | publication     | e.g., PMID:123321              |
-+--------+-----------------+--------------------------------+
-| 14     | assignedBy      | ORCID or HPO etc               |
-+--------+-----------------+--------------------------------+
-| 15     | dateCreated     | e.g., 2017-01-15               |
-+--------+-----------------+--------------------------------+
-
-
-
-Proposed new small file format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+Small file format
+~~~~~~~~~~~~~~~~~
+The small files have tab-separated value format, i.e., TSVs. Please note that
+the format is different from our main release file (the "big file", phenotype.hpoa),
+which is created by combining data from the small files. There are 14 fields.
 
 
 +--------+-----------------+--------------------------------+
@@ -118,10 +40,9 @@ Proposed new small file format
 +--------+-----------------+--------------------------------+
 | 13     | evidence        | PCS, IEA, ICE, or TAS          |
 +--------+-----------------+--------------------------------+
-| 14     | assignedBy      | ORCID or HPO etc               |
+| 14     | biocuration     | HPO:skoehler[YYYY-MM-DD]       |
 +--------+-----------------+--------------------------------+
-| 15     | dateCreated     | e.g., 2017-01-15               |
-+--------+-----------------+--------------------------------+
+
 
 
 1. **diseaseID**. This field is a string that must be one of "OMIM:id", "ORPHA:id", or "DECIPHER:id". The id portion
@@ -166,32 +87,18 @@ PMID:123, OMIM:123 or ?. Note: pimd:123 is not accepted. The following prefixes 
 * ISBN
 * DECIPHER
 
-13. **evidence**. One of the four codes
+13. **evidence**. One of the three HPO evidence codes.
 
 * IEA
 * TAS
 * PCS
-* ICE
 
 
-13. **assignedBy**. This field must be filled with a valid reference of the form prefix:id. This can be
-ORCID:0000-0000-0000-0123 or a database id followed by a name (usually first initial-lastname) HPO:mmustermann.
-
-14. **dateCreated**. This field contains the date when the term was first created and must have the form yyyy-mm-dd, e.g.,
+14. **biocuration**. This field must begin with a valid reference of the form prefix:id.
+This can be
+ORCID:0000-0000-0000-0123 or a database id followed by a name (usually first initial-lastname)
+HPO:mmustermann.
+ This field contains the date when the term was first created and must have the form yyyy-mm-dd, e.g.,
 2016-07-22.
-
-
-
-
-Decisions as to what to do with incomplete/inaccurate data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. missing evidence codes. For instance, OMIM:145680. Decision -- add IEA as evidence code.
-
-
-2. Publications. We do not allow an empty publication field. For OMIM-derived annotations, we can use the dbID field
-as the publication reference. There are over 1000 entries with nothing in the publication field, and I just add the
-dbID (e.g., OMIM:123000). There are some entries that just have the word "OMIM" in the pub field. I have also corrected
-these, e.g.,  ::
-
-    OMIM:306955	HETEROTAXY, VISCERAL, 1, X-LINKED; HTX1					HP:0001419	X-linked recessive inheritance			TAS	TAS							OMIM	HPO:skoehler	30.12.2015
+Multiple biocurations are separated by a semicolon, e.g., HPO:skoehler[2013-06-25];HPO:probinson[2015-12-06].
 

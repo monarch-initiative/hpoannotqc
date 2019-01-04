@@ -16,7 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ */
 public class BigFileWriter {
     private static final Logger logger = LogManager.getLogger();
     /** List of all of the {@link SmallFile} objects, which represent annotated diseases. */
@@ -47,11 +49,18 @@ public class BigFileWriter {
         this.bigFile =new BigFile(ont,v2SmallFileList);
     }
 
-
+    /** This method should be called by client code after finishing the output of the Big File
+     * @throws IOException if there is a problem with closing the file handle
+     */
     public void closeFileHandle() throws IOException {
         writer.close();
     }
 
+    /** In the header of the {@code phenotype.hpoa} file, we write the
+     * number of OMIM, Orphanet, and DECIPHER entries. This is calculated
+     * here (except for Orphanet).
+     * @param n_orpha number of Orphanet entries to be included in the big file
+     */
     public void setNumberOfDiseasesForHeader(int n_orpha) {
         this.n_orphanet=n_orpha;
         this.n_decipher=0;
@@ -82,7 +91,11 @@ public class BigFileWriter {
         return ft.format(dNow);
     }
 
-    public void outputBigFileV2() throws IOException {
+    /**
+     * Output the {@code phenotype.hpoa} file on the basis of the "small files" and the Orphanet XML file.
+     * @throws IOException if we cannot write to file.
+     */
+    public void outputBigFile() throws IOException {
         String description = String.format("#description: HPO annotations for rare diseases [%d: OMIM; %d: DECIPHER; %d ORPHANET]",n_omim,n_decipher,n_orphanet);
         if (n_unknown>0) description=String.format("%s -- warning: %d entries could not be assigned to a database",description,n_unknown);
         writer.write(description + "\n");
@@ -94,8 +107,6 @@ public class BigFileWriter {
         if (ontologyMetaInfo.containsKey("saved-by")) {
             writer.write(String.format("#HPO-contributors: %s\n",ontologyMetaInfo.get("saved-by")));
         }
-
-
         this.bigFile.outputBigFile(this.writer);
     }
 

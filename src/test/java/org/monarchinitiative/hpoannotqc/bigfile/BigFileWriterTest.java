@@ -36,17 +36,22 @@ public class BigFileWriterTest {
         // Make a typical entry. All other fields are emtpy.
         String diseaseID="OMIM:123456";
         String diseaseName="MADE-UP SYNDROME";
-        TermId hpoId= TermId.of("HP:0000528");
+        String hpoId= "HP:0000528";
         String hpoName="Anophthalmia";
-        String evidenceCode="IEA";
+        String age1="";
+        String age2="";
+        String freq="HP:0040283";
+        String sex="";
+        String negation="";
+        String mod="";
+        String description="";
         String pub="OMIM:154700";
+        String evidenceCode="IEA";
         String biocuration="HPO:skoehler[2015-07-26]";
-        String onsetModifier="HP:0040283";
-        SmallFileEntry.Builder builder=new SmallFileEntry.Builder(diseaseID,diseaseName,hpoId,hpoName,evidenceCode,pub,biocuration).ageOfOnsetId(onsetModifier);
-        entry = builder.build();
+        String fields[] ={diseaseID,diseaseName,hpoId,hpoName,age1,age2,freq,sex,negation,mod,description,pub,evidenceCode,biocuration};
+        String line = String.join("\t",fields);
+        entry = SmallFileEntry.fromLine(line,ontology);
     }
-
-
 
     /**
      * Test emitting a line of the V2 (2018-?) big file from a V2 small file line.

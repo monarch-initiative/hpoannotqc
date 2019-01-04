@@ -4,25 +4,32 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.SmallFileException;
 import org.monarchinitiative.phenol.base.PhenolException;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.monarchinitiative.hpoannotqc.smallfile.SmallFileQCCode.*;
+import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
 /**
  * Created by peter on 1/20/2018.
  * This class represents the contents of a single annotation line.
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class SmallFileEntry {
     private static final Logger logger = LogManager.getLogger();
 
     private final static String EMPTY_STRING="";
 
-    /** Field #1 */
+    /** The CURIE of the disease, e.g., OMIM:600201 (Field #0). */
     private final String diseaseID;
     /** Field #2 */
     private final String diseaseName;
@@ -65,117 +72,95 @@ public class SmallFileEntry {
             "publication",
             "evidence",
             "biocuration"};
+    /** Number of tab-separated expectedFields in a valid small file. */
+    private static final int NUMBER_OF_FIELDS=expectedFields.length;
+
+
+    private final static Set validDatabases = ImmutableSet.of("OMIM","DECIPER","ORPHA");
+    /** A set with all of the TermIds for frequency. */
+    private final static Set frequencySubhierarcyTermIds = ImmutableSet.of(TermId.of("HP:0003674"),TermId.of("HP:0040280"),
+            TermId.of("HP:0040281"), TermId.of("HP:0040282"),TermId.of("HP:0040283"),TermId.of("HP:0040284"),
+            TermId.of("HP:0040285"));
+    /** A set with all of the TermIds for age of onset. */
+    private final static Set onsetSubhierarcyTermIds = ImmutableSet.of( TermId.of("HP:0003674"), TermId.of("HP:0011460"),
+            TermId.of("HP:0003581"), TermId.of("HP:0003596"), TermId.of("HP:0003584"), TermId.of("HP:0011462"),
+             TermId.of("HP:0003577"), TermId.of("HP:0003623"), TermId.of("HP:0410280"), TermId.of("HP:0011463"),
+             TermId.of("HP:0003593"), TermId.of("HP:0003621"), TermId.of("HP:0030674"), TermId.of("HP:0011461"));
 
     /** Set of allowable evidence codes. */
     private static final Set<String> EVIDENCE_CODES = ImmutableSet.of("IEA","TAS","PCS");
 
-    /**
-     /** Number of tab-separated expectedFields in a valid small file. */
-    private static final int NUMBER_OF_FIELDS=expectedFields.length;
+    private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","DECIPHER","ISBN");
+    /** regex for patterns such as HPO:skoehler[2018-09-22] */
+    private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})\\]";
+    /** The pattern that corresponds to {@link #biocurationRegex}. */
+    private static final Pattern biocurationPattern = Pattern.compile(biocurationRegex);
 
     public String getDiseaseID() {
         return diseaseID;
     }
 
     /** The disease ID has two parts, the database (before the :) and the id (after the :).
-     * @return the database part of the diseaseID
-     */
+     * @return the database part of the diseaseID. */
     public String getDB() {
-        String[]A=diseaseID.split(":");
-        return A[0];
+        return TermId.of(diseaseID).getPrefix();
     }
     /** The disease ID has two parts, the database (before the :) and the id (after the :).
-     * @return the object_ID part of the diseaseID
-     */
+     * @return the object_ID part of the diseaseID. */
     public String getDB_Object_ID() {
-        String[]A=diseaseID.split(":");
-        if (A.length>1) return A[1];
-        else return diseaseID;
+        return TermId.of(diseaseID).getId();
     }
-
+    /** @return the disease name, e.g., Noonan syndrome. */
     public String getDiseaseName() {
         return diseaseName;
     }
-
+    /** @return HPO id of this annotation. */
     public TermId getPhenotypeId() {
         return phenotypeId;
     }
-
-    public String getPhenotypeName() {
+    /** @return HPO term label of this annotation. */
+    public String getPhenotypeLabel() {
         return phenotypeName;
     }
-
+    /** @return HPO Id of the age of onset, or null. */
     public String getAgeOfOnsetId() {
-        return ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING;
+        return ageOfOnsetId;
     }
-
-    public String getAgeOfOnsetName() {
+    /** @return HPO term label of age of onset or empty string. */
+    public String getAgeOfOnsetLabel() {
         return ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING;
     }
-
+    /** @return evidence for this annotation (one of IEA, PCS, TAS). */
     public String getEvidenceCode() {
         return evidenceCode;
     }
-
+    /** @return String representing the frequency modifier. */
     public String getFrequencyModifier() {
         return frequencyModifier!=null?frequencyModifier:EMPTY_STRING;
     }
-
+    /** @return String represeting the sex (MALE or FEMALE) or Empty string. */
     public String getSex() {
         return sex!=null?sex:EMPTY_STRING;
     }
-
+    /** @return the String "NOT" or the empty string. */
     public String getNegation() {
         return negation!=null?negation:EMPTY_STRING;
     }
+    /** @return list of one or more HPO term ids (as a semicolon-separated String), or emtpry string. */
     public String getModifier() {
         return modifier!=null?modifier:EMPTY_STRING;
     }
-
+    /** @return (optional) free text description. */
     public String getDescription() {
         return description!=null?modifier:EMPTY_STRING;
     }
-
+    /** @return the citation supporting the annotation, e.g., a PubMed ID. */
     public String getPublication() {
         return publication;
     }
-
+    /** @return a string representing the biocuration history. */
     public String getBiocuration() {
         return biocuration;
-    }
-
-
-    /** @return true iff this entry has an N/M style frequency entry */
-    boolean isNofM() {
-        int i = this.frequencyModifier.indexOf('/');
-        int len=this.frequencyModifier.length();
-        // 1. The string must contain the character '/'
-        // 2. The / cannot be on the first (0th) position of the string
-        // 3. The / cannot be the last character of the string
-        return (i>0 && i<len-1);
-    }
-
-    boolean isPercentage() {
-        int i=this.frequencyModifier.indexOf('%');
-        // percentage symbol must be present and cannot be at the first (0th) position
-        if (i<1) return false;
-        String regex="\\d{1,3}\\.?\\d?%";
-        return this.frequencyModifier.matches(regex);
-    }
-
-    boolean isFrequencyTerm() {
-        String regex="HP:\\d{7}";
-        return this.frequencyModifier.matches(regex);
-    }
-
-
-
-    /**
-     * This is the header of the V2 small files.
-     * @return V2 small file header.
-     */
-    public static String getHeaderV2() {
-        return String.join("\t",expectedFields);
     }
 
 
@@ -187,13 +172,13 @@ public class SmallFileEntry {
                            String phenotypeName,
                            String ageOfOnsetId,
                            String ageOfOnsetName,
-                           String evidenceCode,
                            String frequencyString,
                            String sex,
                            String negation,
                            String modifier,
                            String description,
                            String publication,
+                           String evidenceCode,
                            String biocuration) {
         this.diseaseID=disID;
         this.diseaseName=diseaseName;
@@ -201,13 +186,13 @@ public class SmallFileEntry {
         this.phenotypeName=phenotypeName;
         this.ageOfOnsetId=ageOfOnsetId;
         this.ageOfOnsetName=ageOfOnsetName;
-        this.evidenceCode=evidenceCode;
         this.frequencyModifier =frequencyString;
         this.sex=sex;
         this.negation=negation;
         this.modifier=modifier;
         this.description=description;
         this.publication=publication;
+        this.evidenceCode=evidenceCode;
         this.biocuration=biocuration;
     }
 
@@ -229,7 +214,7 @@ public class SmallFileEntry {
                 phenotypeName,
                 ageOfOnsetId!=null?ageOfOnsetId:EMPTY_STRING,
                 ageOfOnsetName!=null?ageOfOnsetName:EMPTY_STRING,
-                frequencyModifier !=null? frequencyModifier:EMPTY_STRING,
+                frequencyModifier!=null?frequencyModifier:EMPTY_STRING,
                 sex!=null?sex:EMPTY_STRING,
                 negation!=null?negation:EMPTY_STRING,
                 modifier!=null?modifier:EMPTY_STRING,
@@ -270,129 +255,258 @@ public class SmallFileEntry {
         String evidenceCode=A[12];
         String biocuration=A[13];
 
-        // Q/C
-        if (! EVIDENCE_CODES.contains(evidenceCode)) {
-            throw new PhenolException(String.format("Did not recognize evidence code \"%s\".", evidenceCode));
-        }
+        SmallFileEntry entry = new SmallFileEntry(diseaseID,
+                 diseaseName,
+                 phenotypeId,
+                 phenotypeName,
+                 ageOfOnsetId,
+                 ageOfOnsetName,
+                 frequencyString,
+                 sex,
+                 negation,
+                 modifier,
+                 description,
+                 publication,
+                 evidenceCode,
+                 biocuration);
+        // if the following method does not throw an Exception, we are good to go!
+        performQualityControl(entry, ontology);
 
-        SmallFileEntry.Builder builder=new SmallFileEntry.Builder(diseaseID,diseaseName,phenotypeId,phenotypeName,evidenceCode,publication,biocuration);
-        if (frequencyString!=null && ! frequencyString.isEmpty()) {
-            builder=builder.frequencyString(frequencyString);
-        }
-        if (sex!=null && !sex.isEmpty()) {
-            builder=builder.sex(sex);
-        }
-        if (negation!=null && !negation.isEmpty()) {
-            builder=builder.negation(negation);
-        }
-        if (modifier!=null && !modifier.isEmpty()) {
-            builder=builder.modifier(modifier);
-        }
-        if (description!=null && ! description.isEmpty()) {
-            builder=builder.description(description);
-        }
-        if (ageOfOnsetId!=null) {
-            builder=builder.ageOfOnsetId(ageOfOnsetId);
-        }
-        if (ageOfOnsetName!=null) {
-            builder=builder.ageOfOnsetName(ageOfOnsetName);
-        }
-        return builder.build();
+        return entry;
     }
 
 
 
+    // Q/C methods
 
-    public static class Builder {
-        /** Field #1 */
-        private  final String diseaseID;
-        /** Field #2 */
-        private  final String diseaseName;
-        /** Field #3 */
-        private  final TermId phenotypeId;
-        /** Field #4 */
-        private  final String phenotypeName;
-        /** Field #5 */
-        private  String ageOfOnsetId=EMPTY_STRING;
-        /** Field #6 */
-        private  String ageOfOnsetName=EMPTY_STRING;
-        /** Field #7 */
-        private  final String evidenceCode;
-        /** Field #8 -- the HPO id for frequency (if available) */
-        private  TermId frequencyId=null;
-        /** Field #9 -- string representing n/m or x% frequency data*/
-        private  String frequencyString=EMPTY_STRING;
-        /** Field #10 */
-        private  String sex=EMPTY_STRING;
-        /** Field #11 */
-        private  String negation=EMPTY_STRING;
-        /** Field #12 */
-        private  String modifier=EMPTY_STRING;
-        /** Field #13 */
-        private  String description=EMPTY_STRING;
-        /** Field #14 */
-        private  final String publication;
-        /** Field #15 */
-        private  final String biocuration;
-        public Builder(String diseaseId,
-                       String diseasename,
-                       TermId phenoId,
-                       String phenoName,
-                       String evidence,
-                       String pub,
-                       String biocuration) {
-            this.diseaseID=diseaseId;
-            this.diseaseName=diseasename;
-            this.phenotypeId=phenoId;
-            this.phenotypeName=phenoName;
-            this.evidenceCode=evidence;
-            this.publication=pub;
-            this.biocuration=biocuration;
+    /**
+     * This method checks all of the fields of the SmallFileEntry. If there is an error, then
+     * it throws an Exception (upon the first error). If no exception is thrown, then the
+     * no errors were found.
+     * @param entry The {@link SmallFileEntry} to be tested.
+     * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
+     * @throws SmallFileException
+     */
+    public static void performQualityControl(SmallFileEntry entry, HpoOntology ontology) throws SmallFileException {
+        checkDB(entry.getDB());
+        checkDiseaseName(entry.getDiseaseName());
+        checkPhenotypeFields(entry.getPhenotypeId(),entry.getPhenotypeLabel(),ontology);
+        checkAgeOfOnsetFields(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetLabel(),ontology);
+        checkFrequency(entry.getFrequencyModifier(),ontology);
+        checkSexEntry(entry.getSex());
+        checkNegation(entry.getNegation());
+        checkModifier(entry.getModifier(),ontology);
+        // description is free text, nothing to check
+        checkPublication(entry.getPublication());
+        checkEvidence(entry.getEvidenceCode());
+        checkBiocuration(entry.getBiocuration());
+    }
+
+    /**
+     * Checks if the database string is in the set of valid strings ({@link #validDatabases})
+     * @param db A database String such as OMIM or ORPHA
+     * @throws SmallFileException if an invalid database code is used
+     */
+    private static void checkDB(String db) throws SmallFileException {
+        if (! validDatabases.contains(db) ) {
+            throw new SmallFileException(String.format("Invalid database symbol: \"%s\"", db));
         }
+    }
 
-        public Builder frequencyId(TermId f) {
-            this.frequencyId=f;
-            return this;
+    /** Check that this disease name is present. */
+    private static void checkDiseaseName(String name) throws SmallFileException {
+        if (name==null || name.isEmpty()) {
+            throw new SmallFileException("Missing disease name");
         }
+    }
 
-        public Builder frequencyString(String f) {
-            this.frequencyString = f;
-            return this;
+
+    /**
+     * Check that the id is not an alt_id (i.e., out of date!)
+     * @param id the {@link TermId} for a phenotype HPO term
+     */
+    private static void checkPhenotypeFields(TermId id, String termLabel, HpoOntology ontology)
+            throws SmallFileException {
+        if (id==null || ! ontology.getTermMap().containsKey(id)) {
+            throw new SmallFileException("Could not find HPO term id for \""+termLabel+"\"");
+        } else {
+            TermId current = ontology.getTermMap().get(id).getId();
+            if (! current.equals(id)) {
+                throw new SmallFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
+                        id.getValue(),
+                        current.getValue(),
+                        ontology.getTermMap().get(id).getName()));
+            }
         }
-
-        public Builder ageOfOnsetId(String t) {
-            this.ageOfOnsetId=t;
-            return this;
+        // if we get here, the TermId of the HPO Term was OK
+        // now check that the label corresponds to the TermId
+        if (termLabel==null || termLabel.isEmpty()) {
+            throw new SmallFileException("Missing HPO term label for id="+id.getValue());
         }
-
-        public Builder ageOfOnsetName(String n) {
-            this.ageOfOnsetName=n;
-            return this;
+        String currentLabel = ontology.getTermMap().get(id).getName();
+        if (! currentLabel.equals(termLabel)) {
+            String errmsg = String.format("Wrong term label %s instead of %s for %s",
+                    termLabel,
+                    currentLabel,
+                    ontology.getTermMap().get(id).getName());
+            throw new SmallFileException(errmsg);
         }
+    }
 
-        public Builder sex(String s) { sex=s; return this; }
 
-        public Builder negation(String n) { this.negation=n; return this; }
+    private static void checkAgeOfOnsetFields(String id, String termLabel, HpoOntology ontology)
+            throws SmallFileException {
+        if (id==null || id.isEmpty() ) {
+            // valid, onset is not required, but let's check that there is not a stray label
+            if (termLabel !=null && ! termLabel.isEmpty()) {
+                throw new SmallFileException("Onset ID empty but Onset label present");
+            } else {
+                return; // OK!
+            }
+        }
+        TermId tid = TermId.of(id);
+        if (! ontology.getTermMap().containsKey(tid)) {
+            throw new SmallFileException(String.format("Onset ID not found: \"%s\"",id));
+        }
+        TermId current = ontology.getTermMap().get(tid).getId();
+        if (! current.equals(tid)) {
+            throw new SmallFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
+                    tid.getValue(),
+                    current.getValue(),
+                    ontology.getTermMap().get(tid).getName()));
+        }
+        if (! onsetSubhierarcyTermIds.contains(tid)) {
+            throw new SmallFileException("Invalid ID in onset ID field: \""+tid.toString()+"\"");
+        }
+        // if we get here, the Age of onset id was OK
+        // now let's check the label
+        if (termLabel==null || termLabel.isEmpty()) {
+            throw new SmallFileException("Missing HPO term label for onset id="+id);
+        }
+        String currentLabel = ontology.getTermMap().get(tid).getName();
+        if (! currentLabel.equals(termLabel)) {
+            String errmsg = String.format("Wrong onset term label %s instead of %s for %s",
+                    termLabel,
+                    currentLabel,
+                    ontology.getTermMap().get(tid).getName());
+            throw new SmallFileException(errmsg);
+        }
+    }
 
-        public Builder modifier(String n) { this.modifier=n; return this; }
+    private static void checkEvidence(String evi) throws SmallFileException {
+        if (! EVIDENCE_CODES.contains(evi)) {
+           throw new SmallFileException(String.format("Invalid evidence code: \"%s\"",evi));
+        }
+    }
 
-        public Builder description(String d) { this.description=d; return this;}
 
-        public SmallFileEntry build() {
-            return new SmallFileEntry(diseaseID,
-                    diseaseName,
-                    phenotypeId,
-                    phenotypeName,
-                    ageOfOnsetId,
-                    ageOfOnsetName,
-                    evidenceCode,
-                    frequencyString,
-                    sex,
-                    negation,
-                    modifier,
-                    description,
-                    publication,
-                    biocuration);
+    /** There are 3 correct formats for frequency. For example, 4/7, 32% (or 32.6%), or
+     * an HPO term from the frequency subontology. */
+    private static void checkFrequency(String freq, HpoOntology ontology) throws SmallFileException {
+        // it is ok not to have frequency data
+        if (freq==null || freq.isEmpty()) {
+            return;
+        }
+        if (freq.matches("\\d+/\\d+") ||
+                freq.matches("\\d{1,3}%") ||
+                freq.matches("\\d{1,3}\\.\\d+%")) {
+            // valid numerical frequencies!
+            return;
+        } else if (! freq.matches("HP:\\d{7}")) {
+            // cannot be a valid frequency term
+            throw new SmallFileException(String.format("Malformed frequency term: \"%s\"", freq));
+        }
+        // if we get here and we can validate that the frequency term comes from the right subontology,
+        // then the item is valid
+        TermId id;
+        try {
+            id = TermId.of(freq);
+        } catch (PhenolRuntimeException pre) {
+            throw new SmallFileException(String.format("Could not parse frequency term id: \"%s\"", freq));
+        }
+        if (! frequencySubhierarcyTermIds.contains(id) ) {
+            throw new SmallFileException(String.format("Usage of incorrect term for frequency: %s [%s]",
+                    ontology.getTermMap().get(id).getName(),
+                    ontology.getTermMap().get(id).getId().getValue()));
+        }
+    }
+
+    private static void checkSexEntry(String sex) throws SmallFileException {
+        if (sex==null || sex.isEmpty()) return; // OK,  not required
+        if (! sex.equals("MALE") && ! sex.equals("FEMALE"))
+            throw new SmallFileException(String.format("Malformed sex entry: \"%s\"", sex));
+    }
+
+    /**
+     * The negation string can be null or empty but if it is present it must be "NOT"
+     * @param negation Must be either the empty/null String or "NOT"
+     */
+    private static void checkNegation(String negation) throws SmallFileException {
+        if ( negation!=null &&  ! negation.isEmpty() && ! negation.equals("NOT")) {
+            throw new SmallFileException(String.format("Malformed negation entry: \"%s\"", negation));
+        }
+    }
+
+    private static void checkModifier(String modifierString, HpoOntology ontology) throws SmallFileException {
+        if (modifierString==null || modifierString.isEmpty()) return; // OK,  not required
+        // If something is present in this field, it must be in the form of
+        // HP:0000001;HP:0000002;...
+        TermId clinicalModifier = TermId.of("HP:0012823");
+        TermId temporalPattern = TermId.of("HP:0011008");
+        TermId paceOfProgression = TermId.of("HP:0003679");
+        String A[] = modifierString.split(";");
+        for (String a: A) {
+            try {
+                TermId tid = TermId.of(a);
+                Set<TermId> ancs = ontology.getAncestorTermIds(tid);
+                if (! ancs.contains(clinicalModifier) && ! ancs.contains(temporalPattern) &&
+                        ! ancs.contains(paceOfProgression)) {
+                    throw new SmallFileException(String.format("Use of wrong HPO term in modifier field: %s [%s]",
+                            ontology.getTermMap().get(tid).getName(),
+                            tid.getValue()));
+                }
+            } catch (PhenolRuntimeException e) {
+                throw new SmallFileException(String.format("Malformed modifier term id: \"%s\"",a));
+            }
+        }
+    }
+
+
+    private static void checkPublication(String pub) throws SmallFileException{
+        if (pub == null || pub.isEmpty()) {
+            throw new SmallFileException("Empty citation string");
+        }
+        int index = pub.indexOf(":");
+        if (index <= 0) { // there needs to be a colon in the middle of the string
+            throw new SmallFileException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
+        }
+        if (pub.contains("::")) { // should only be one colon separating prefix and id
+            throw new SmallFileException(String.format("Malformed citation id (double colon): \"%s\"", pub));
+        }
+        if (pub.contains(" ")) {
+            throw new SmallFileException(String.format("Malformed citation id (contains space): \"%s\"", pub));
+        }
+        String prefix = pub.substring(0,index);
+        if (!VALID_CITATION_PREFIXES.contains(prefix)) {
+            throw new SmallFileException(String.format("Did not recognize publication prefix: \"%s\" ",  pub));
+        }
+        int len = pub.length();
+        if (len-index < 2) {
+            throw new SmallFileException(String.format("Malformed publication string: \"%s\" ", pub));
+        }
+    }
+
+    private static void checkBiocuration(String entrylist) throws SmallFileException{
+        if (entrylist==null || entrylist.isEmpty()) {
+            throw new SmallFileException("empty biocuration entry");
+        }
+        String fields[] = entrylist.split(";");
+        for (String f : fields) {
+            Matcher matcher = biocurationPattern.matcher(f);
+            if (! matcher.find()) {
+                throw new SmallFileException(String.format("Malformed biocuration entry: \"%s\"",f));
+            }
+
         }
     }
 

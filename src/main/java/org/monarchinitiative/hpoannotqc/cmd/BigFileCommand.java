@@ -75,7 +75,7 @@ public class BigFileCommand implements Command {
             writer.initializeV2filehandle();
             writer.setNumberOfDiseasesForHeader(orphanetDisorders.size());
             writer.setOntologyMetadata(ontology.getMetaInfo());
-            writer.outputBigFileV2();
+            writer.outputBigFile();
             writer.appendOrphanetV2(orphanetDisorders);
             writer.closeFileHandle();
         } catch (IOException | HPOException e) {

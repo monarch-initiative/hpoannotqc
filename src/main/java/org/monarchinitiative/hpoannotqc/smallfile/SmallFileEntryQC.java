@@ -328,10 +328,10 @@ public class SmallFileEntryQC {
         checkDiseaseName(entry.getDiseaseName());
         checkNegation(entry.getNegation());
         checkPhenotypeId(entry.getPhenotypeId());
-        checkPhenotypeLabel(entry.getPhenotypeId(),entry.getPhenotypeName());
+        checkPhenotypeLabel(entry.getPhenotypeId(),entry.getPhenotypeLabel());
         checkPublication(entry.getPublication());
         checkAgeOfOnsetId(entry.getAgeOfOnsetId());
-        checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetName());
+        checkAgeOfOnsetLabel(entry.getAgeOfOnsetId(),entry.getAgeOfOnsetLabel());
         checkEvidence(entry.getEvidenceCode());
         checkBiocuration(entry.getBiocuration());
         checkFrequency(entry.getFrequencyModifier());

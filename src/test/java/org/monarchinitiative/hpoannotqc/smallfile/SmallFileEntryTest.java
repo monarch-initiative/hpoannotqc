@@ -6,9 +6,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.phenol.base.PhenolException;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 import org.monarchinitiative.phenol.ontology.data.TermId;
+import sun.awt.image.PNGImageDecoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,26 +33,27 @@ class SmallFileEntryTest {
     }
 
     @Test
-    void testEvidenceCodeNotEmpty() {
-       SmallFileEntryQC qc = new SmallFileEntryQC(ontology);
-        String diseaseId="OMIM:216300";
-        String diseasename="CLEFT PALATE, DEAFNESS, AND OLIGODONTIA";
-        TermId phenoID= TermId.of("HP:0000007");
-        String phenoName="Autosomal recessive inheritance";
-        String evidence="IEA";
-        String pub="OMIM:216300";
-        String ab="HPO:IEA[2009-02-17]";
+    void testEvidenceCodeNotEmpty() throws PhenolException {
 
-        SmallFileEntry.Builder builder = new SmallFileEntry.Builder( diseaseId,
-                 diseasename,
-                 phenoID,
-                 phenoName,
-                 evidence,
-                 pub,
-                 ab
-                 );
-        SmallFileEntry entry=builder.build();
-        qc.checkSmallFileEntry(entry);
+        String[] fields={
+                "OMIM:216300",
+                "CLEFT PALATE, DEAFNESS, AND OLIGODONTIA",
+                "HP:0000007",
+                "Autosomal recessive inheritance",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "OMIM:216300",
+                "IEA",
+                "HPO:probinson[2013-01-09]"};
+        String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"))
+
+        SmallFileEntry entry=SmallFileEntry.fromLine(line,ontology);
+
         assertEquals("IEA",entry.getEvidenceCode());
     }
 

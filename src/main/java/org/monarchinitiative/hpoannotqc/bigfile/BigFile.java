@@ -46,15 +46,17 @@ class BigFile {
     }
 
 
-
-
-
+    /**
+     * This method outputs lines for each of the HPO-project small files into the big file
+     * @param writer Handle for the {@code phenotype.hpoa} file.
+     * @throws IOException if there is a difficulty with the {@code phenotype.hpoa} file.
+     */
     void outputBigFile(BufferedWriter writer) throws IOException {
         int n = 0;
         SmallFileEntryQC v2qc = new SmallFileEntryQC(this.ontology);
         writer.write(getHeaderLine() + "\n");
         for (SmallFile smallFile : v2SmallFileList) {
-            List<SmallFileEntry> entryList = smallFile.getOriginalEntryList();
+            List<SmallFileEntry> entryList = smallFile.getEntryList();
             for (SmallFileEntry entry : entryList) {
                 v2qc.checkSmallFileEntry(entry);
                 try {

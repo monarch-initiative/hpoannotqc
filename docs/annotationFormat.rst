@@ -2,29 +2,25 @@ HPO Annotation File Formats
 ===========================
 
 
-The HPO annotations files are created by editing one file per disease entries (which we will call "small" files here for brevity).
-These files are merged into a single file that has been called ``phenotype_annotation.tab``.
+The HPO annotation files are created by editing one file per disease entries (which we will call "small" files here for brevity).
+These files were merged into a single file that has been called ``phenotype_annotation.tab``. Starting in
+2018, the HPO team is migrating to a new big file format called ``phenotype.hpoa``. In this document,
+we will describe the format of ``phenotype.hpoa``.
 
 
-New and old big file formats
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-THe HPO project has used the file format described `here <http://human-phenotype-ontology.github.io/documentation.html#annot>`_
-for annotation data. The original format is showing its age, and so we will be transitioning
-to the new format in 2018. The new file will be called ``phenotype.hpoa``. During a transition time
-whose duration will be determined by the needs of our users, we will continue to offer the
-``phenotype_annotation.tab`` file.
-
-The following table explains the format of the ``phenotype.hpoa`` file.
+Big file (phenotype.hpoa) format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-The first few lines present metadata (comments) preceeded by hash signs (#) at the beginning of the lines. ::
+The first few lines present metadata (comments) preceeded by hash signs (#) at the beginning of the lines. The
+very next line is a header with the names of the columns. ::
 
-  #description: HPO phenotype annotations for rare diseases
-  #date: YYYY-MM-DD
-  #version: YYYY-MM-DD
-  #source_date: Human Phenotype Ontology (hp.obo) version from XXX
-  #tracker: https://github.com/obophenotype/human-phenotype-ontology
-  #contributor: list of biocurator IDs, and ORCIDs
+   #description: HPO annotations for rare diseases [7377: OMIM; 47: DECIPHER; 3300 ORPHANET]
+   #date: 2019-01-03
+   #tracker: https://github.com/obophenotype/human-phenotype-ontology
+   #HPO-version: http://purl.obolibrary.org/obo/hp/releases/2018-12-21/hp.owl
+   DatabaseID      DiseaseName     Qualifier       HPO_ID  Reference       Evidence        Onset   Frequency       Sex     Modifier        Aspect  Biocuration
+
 
 
 
@@ -46,15 +42,15 @@ The first few lines present metadata (comments) preceeded by hash signs (#) at t
 +----+-------------------+----------+--------------------------------+
 | 7  | Onset             |    No    | HP:0003577                     |
 +----+-------------------+----------+--------------------------------+
-| 8  |Frequency          |    No    | HP:0003577 or 12/45 or 22%     |
+| 8  | Frequency         |    No    | HP:0003577 or 12/45 or 22%     |
 +----+-------------------+----------+--------------------------------+
-| 9  |Sex                |    No    | MALE or FEMALE                 |
+| 9  | Sex               |    No    | MALE or FEMALE                 |
 +----+-------------------+----------+--------------------------------+
-| 10 |Modifier           |    No    | HP:0025257 (";"-separated list)|
+| 10 | Modifier          |    No    | HP:0025257 (";"-separated list)|
 +----+-------------------+----------+--------------------------------+
-| 11 |Aspect             |    Yes   | "P" or "C" or "I" or "M"       |
+| 11 | Aspect            |    Yes   | "P" or "C" or "I" or "M"       |
 +----+-------------------+----------+--------------------------------+
-| 12 |BiocurationBy      |    Yes   | HPO:skoehler[YYYY-MM-DD]       |
+| 12 | BiocurationBy     |    Yes   | HPO:skoehler[YYYY-MM-DD]       |
 +----+-------------------+----------+--------------------------------+
 
 
@@ -63,7 +59,6 @@ The first few lines present metadata (comments) preceeded by hash signs (#) at t
 1. **DatabaseId**: This field refers to the database from which the identifier in DB_Object_ID (column 2) is drawn. At present,
 annotations from the OMIM, ORHPANET, DECIPHER, and the HPO team are available. This field must be formated as a
 valid CURIE, e.g., OMIM:1547800,DECIPHER:22, ORPHANET:5431
-
 
 2. **DB_Name**: This is the name of the disease associated with the DB_Object_ID in the database.
 Only the accepted name should be used, synonyms should not be listed here.
@@ -123,6 +118,3 @@ following a semicolon. So, if Joseph curated on July 5, 2012, and Suzanna curate
 have a field like this: ``HPO:Joseph[2012-07-05];HPO:Suzanna[2015-12-07]``. It is acceptable to use ORCID ids.
 This field is mandatory,
 cardinality 1
-
-13. **Assigned By**:
-
