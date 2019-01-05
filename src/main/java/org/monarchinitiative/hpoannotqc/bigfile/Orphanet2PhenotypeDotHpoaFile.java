@@ -18,7 +18,12 @@ import java.util.stream.Collectors;
 
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
-class Orphanet2BigFile {
+/**
+ * This class helps transform the Orphanet {@code en_product6.xml} file, which contains Orphanet's HPO annotations of
+ * selected diseases, into (part of) the {@code phenotype.hpoa} file (the "big file").
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ */
+class Orphanet2PhenotypeDotHpoaFile {
     private static final Logger logger = LogManager.getLogger();
     private final static String ORPHANET_DB ="ORPHA";
     private final static String EMPTY_STRING="";
@@ -35,16 +40,24 @@ class Orphanet2BigFile {
     private final List<OrphanetDisorder> orphanetDisorders;
     private final  BufferedWriter writer;
 
-    public Orphanet2BigFile(List<OrphanetDisorder> orphDisorders, BufferedWriter bw, HpoOntology ont){
+    /**
+     * Constructor for the class that helps transform a list of Orphanet-XML file derived disease models
+     * (see {@link OrphanetDisorder} into
+     * the {@code phenotype.hpoa} file
+     * @param orphDisorders  a list of Orphanet-XML file derived disease models
+     * @param bw A Buffered writer
+     * @param ont reference to the HPO Ontology
+     */
+    public Orphanet2PhenotypeDotHpoaFile(List<OrphanetDisorder> orphDisorders, BufferedWriter bw, HpoOntology ont){
         this.orphanetDisorders=orphDisorders;
         this.writer=bw;
         this.ontology=ont;
     }
 
 
-    void writeOrphanetV2() {
+    void writeOrphanetDiseaseData() {
         int n=0;
-        System.out.println("V2 orph about to write this many od"+ orphanetDisorders.size());
+        System.out.println("About to write Orphanet diseases. n="+ orphanetDisorders.size());
         try {
             for (OrphanetDisorder disorder : orphanetDisorders) {
                 List<TermId> hpoIds = disorder.getHpoIds();
@@ -60,10 +73,10 @@ class Orphanet2BigFile {
                     }
                 }
             }
-            System.out.println(String.format("We output a total of %d orphanet annotations from %d diseases",n,orphanetDisorders.size()));
+            System.out.println(String.format("We have output a total of %d Orphanet annotations from %d diseases",n,orphanetDisorders.size()));
         } catch (IOException e) {
             logger.fatal(e);
-            System.err.println("Exception trying to write orphnaet");
+            System.err.println("Exception trying to write Orphanet");
             e.printStackTrace();
             logger.fatal("Could not write orphanet disorder ", e);
             logger.fatal("No choice but to terminate program, sorry....");

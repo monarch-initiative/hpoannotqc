@@ -34,10 +34,7 @@ class HpoAnnotationFileTest {
 
     @Test
     void testParse() {
-        int x=1;
-        System.err.println(v2sf.getBasename());
-
-        assertNotNull(v2sf);
+       assertNotNull(v2sf);
     }
 
     @Test

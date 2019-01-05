@@ -8,37 +8,37 @@ import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-
+/**
+ * This class is an XML parser for the Orphanet file with HPO-based disease annotations
+ * ({@code en_product4_HPO.xml} (see http://www.orphadata.org/).
+ */
 public class OrphanetXML2HpoDiseaseModelParser {
     private static final Logger logger = LogManager.getLogger();
+    /** Path to {@code en_product4_HPO.xml} file. */
     private final String orphanetXmlPath;
     /** A list of diseases parsed from Orphanet. */
     private final List<OrphanetDisorder> disorders;
-
-
+    /** Reference to the HPO Ontology. */
     private final HpoOntology ontology;
     private int n_could_not_find_orphanet_HpoId=0;
     private int n_updatedTermId=0;
     private int n_updatedTermLabel=0;
 
 
-    private boolean inDisorderList = false;
-    private boolean inAssociationList = false;
-    private boolean inFrequency = false;
-    private boolean inAssociation = false;
-    private boolean inDiagnosticCriterion = false;
+
 
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, HpoOntology onto) {
@@ -47,7 +47,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         disorders = new ArrayList<>();
         try {
             parse();
-        } catch (Exception e) {
+        } catch (XMLStreamException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -83,7 +83,11 @@ public class OrphanetXML2HpoDiseaseModelParser {
         return null; // needed to avoid warning
     }
 
-    private TermId currentNotAltHpoId(String id) {
+    /**
+     * @param id A String representing an HPO id
+     * @return the current TermId (replaces alt_ids of merged terms if necessary).
+     */
+    private TermId getCurrentHpoId(String id) {
         TermId tid = TermId.of(id);
         if (! ontology.getTermMap().containsKey(tid)) {
             logger.error("[ERROR] Could not find TermId for Orphanet HPO ID \""+ id + "\"");
@@ -97,8 +101,12 @@ public class OrphanetXML2HpoDiseaseModelParser {
         return currentId;
     }
 
+    /**
+     * @param tid An HPO term id
+     * @param orphalabel The HPO label used in the Orphanet file
+     * @return The label (updated to the current version if necessary for merged terms).
+     */
     private String getCurrentHpoLabel(TermId tid, String orphalabel) {
-
         if (! ontology.getTermMap().containsKey(tid)) {
             logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s] -- will skip this annotation", tid.getValue(),orphalabel));
             n_could_not_find_orphanet_HpoId++;
@@ -111,13 +119,24 @@ public class OrphanetXML2HpoDiseaseModelParser {
         return label;
     }
 
+    /**
+     * @return A list of all Orphanet diseases in the dataset.
+     */
     public List<OrphanetDisorder> getDisorders() {
         return disorders;
     }
 
-    private void parse() throws Exception {
+    /**
+     * This method performs the XML parse of the Orphanet file
+     * @throws XMLStreamException If there is an XML stream issue
+     * @throws IOException If the file cannot be opened
+     */
+    private void parse() throws XMLStreamException , IOException {
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new FileInputStream(orphanetXmlPath));
+
+        boolean inFrequency = false;
+        boolean inDiagnosticCriterion = false;
         OrphanetDisorder disorder = null;
         String currentHpoId=null;
         while (xmlEventReader.hasNext()) {
@@ -125,10 +144,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
             if (xmlEvent.isStartElement()) {
                 StartElement startElement = xmlEvent.asStartElement();
                 switch (startElement.getName().getLocalPart()) {
-                    case "DisorderList":
-                        inDisorderList = true; // nothing to do here, we are starting the list of disorders
-
-                        break;
                     case "Disorder":
                         disorder = new OrphanetDisorder();
                         break;
@@ -149,12 +164,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         String diseaseName = xmlEvent.asCharacters().getData();
                         disorder.setName(diseaseName);
                         break;
-                    case "HPODisorderAssociationList":
-                        inAssociationList = true;
-                        break;
-                    case "HPODisorderAssociation":
-                        inAssociation = true;
-                        break;
                     case "HPOId":
                         xmlEvent = xmlEventReader.nextEvent();
                         currentHpoId = xmlEvent.asCharacters().getData();
@@ -162,7 +171,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     case "HPOTerm":
                         xmlEvent = xmlEventReader.nextEvent();
                         if (currentHpoId != null) {
-                            TermId tid = currentNotAltHpoId(currentHpoId);
+                            TermId tid = getCurrentHpoId(currentHpoId);
                             if (tid == null) continue;
                             String termLabel = getCurrentHpoLabel(tid, xmlEvent.asCharacters().getData());
                             disorder.setHPO(tid, termLabel);
@@ -188,18 +197,13 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         // no-op, no need to do anything for the very top level node
                         break;
                     default:
-                        System.out.println("NO MAP: " + xmlEvent.toString());
+                        // no-op, no need to do anything for many node types!
                         break;
                 }
             } else if (xmlEvent.isEndElement()) {
                 EndElement endElement = xmlEvent.asEndElement();
                 String endElementName = endElement.getName().getLocalPart();
-                //System.err.println("END ="+endElement.getName().getLocalPart());
-                if (endElementName.equals("HPODisorderAssociationList")) {
-                    inAssociationList = false;
-                } else if (endElementName.equals("HPODisorderAssociation")) {
-                    inAssociation = false;
-                }else if ( endElementName.equals("HPOFrequency")) {
+                if ( endElementName.equals("HPOFrequency")) {
                     inFrequency = false;
                 } else if ( endElementName.equals("DiagnosticCriteria")) {
                     inDiagnosticCriterion = false;

@@ -113,8 +113,8 @@ public class PhenotypeDotHpoaFileWriter {
     }
 
     public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) {
-        Orphanet2BigFile orph2big = new Orphanet2BigFile(orphanetDisorders, writer,this.ontology);
-        orph2big.writeOrphanetV2();
+        Orphanet2PhenotypeDotHpoaFile orph2big = new Orphanet2PhenotypeDotHpoaFile(orphanetDisorders, writer,this.ontology);
+        orph2big.writeOrphanetDiseaseData();
     }
 
 
