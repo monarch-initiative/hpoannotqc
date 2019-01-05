@@ -2,7 +2,8 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 import java.io.BufferedReader;
@@ -15,19 +16,19 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * This class coordinates the input of all the V2 small files. If an
+ * This class coordinates the input of all the HPO Annotation files ("small files"). If an
  * {@code omit-list.txt} is provided by the user, then these files are
- * omitted. The output of this class is a list of {@link SmallFile} objects
- * @author <a href="mailto:peter.robinson@jjax.org">Peter Robinson</a>
+ * omitted. The output of this class is a list of {@link HpoAnnotationFile} objects
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class SmallFileIngestor {
+public class HpoAnnotationFileIngestor {
     private static final Logger logger = LogManager.getLogger();
     /** Reference to the HPO object. */
-    private HpoOntology ontology;
+    private final HpoOntology ontology;
     /** The paths to all of the v2 small files. */
     private final List<String> v2smallFilePaths;
-    /** List of all of the {@link SmallFile} objects, which represent annotated diseases. */
-    private List<SmallFile> v2SmallFileList =new ArrayList<>();
+    /** List of all of the {@link HpoAnnotationFile} objects, which represent annotated diseases. */
+    private final List<HpoAnnotationFile> v2SmallFileList =new ArrayList<>();
     /** Names of entries (small files) that we will omit because they do not represent diseases. */
     private final Set<String> omitEntries;
 
@@ -38,13 +39,13 @@ public class SmallFileIngestor {
 
     private int n_total_omitted_entries=0;
 
-    private List<String> errors = new ArrayList<>();
+    private final List<String> errors = new ArrayList<>();
 
-    public List<SmallFile> getV2SmallFileEntries() {
+    public List<HpoAnnotationFile> getV2SmallFileEntries() {
         return v2SmallFileList;
     }
 
-    public SmallFileIngestor(String directoryPath, String omitFile, HpoOntology ontology) {
+    public HpoAnnotationFileIngestor(String directoryPath, String omitFile, HpoOntology ontology) {
         omitEntries=getOmitEntries(omitFile);
         v2smallFilePaths=getListOfV2SmallFiles(directoryPath);
         this.ontology=ontology;
@@ -58,17 +59,13 @@ public class SmallFileIngestor {
             if (++i%1000==0) {
                 logger.trace(String.format("Inputting %d-th file at %s",i,path));
             }
-            SmallFileParser parser=new SmallFileParser(path,ontology);
-            Optional<SmallFile> v2sfOpt = parser.parse();
-            if (v2sfOpt.isPresent()) {
-                SmallFile v2sf = v2sfOpt.get();
+            HpoAnnotationFileParser parser=new HpoAnnotationFileParser(path,ontology);
+            try {
+                HpoAnnotationFile v2sf = parser.parse();
                 n_total_annotation_lines += v2sf.getNumberOfAnnotations();
                 v2SmallFileList.add(v2sf);
-            } else {
-                logger.error("Could not parse V2 small file for {}",path);
-            }
-            if (parser.hasErrors()) {
-                this.parseErrors.addAll(parser.getParseErrors());
+            } catch (HpoAnnotationFileException hafe) {
+                logger.error("Errors encountered with V2 small file at {}: {}",path, hafe.getMessage());
             }
         }
         logger.info("Finished with input of {} files with {} annotations",i,n_total_annotation_lines);

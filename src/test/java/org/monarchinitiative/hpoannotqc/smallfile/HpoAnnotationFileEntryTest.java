@@ -5,25 +5,19 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.monarchinitiative.hpoannotqc.exception.SmallFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
 import org.monarchinitiative.phenol.base.PhenolException;
-import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
-import org.monarchinitiative.phenol.ontology.data.TermId;
-import sun.awt.image.PNGImageDecoder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SmallFileEntryTest {
+class HpoAnnotationFileEntryTest {
 
     private static HpoOntology ontology;
 
@@ -56,7 +50,7 @@ class SmallFileEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"))
 
-        SmallFileEntry entry=SmallFileEntry.fromLine(line,ontology);
+        HpoAnnotationFileEntry entry=HpoAnnotationFileEntry.fromLine(line,ontology);
 
         assertEquals("IEA",entry.getEvidenceCode());
     }
@@ -80,7 +74,7 @@ class SmallFileEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"));
         Assertions.assertThrows(PhenolException.class, () -> {
-            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         });
     }
 
@@ -103,8 +97,8 @@ class SmallFileEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        Assertions.assertThrows(SmallFileException.class, () -> {
-            SmallFileEntry entry = SmallFileEntry.fromLine(line, ontology);
+        Assertions.assertThrows(HpoAnnotationFileException.class, () -> {
+            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line, ontology);
         });
     }
 
@@ -112,7 +106,7 @@ class SmallFileEntryTest {
 
     /** Test that an exception is thrown because HP:1230528 does not exist.*/
     @Test
-    void testRecognizeBadHPOId() throws PhenolException {
+    void testRecognizeBadHPOId() {
         String[] fields={
                 "123456",
                 "MADE-UP SYNDROME",
@@ -130,7 +124,7 @@ class SmallFileEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         Assertions.assertThrows(PhenolException.class, () -> {
-            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         });
     }
 
@@ -153,14 +147,14 @@ class SmallFileEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         assertEquals("96.7%",entry.getFrequencyModifier());
     }
 
 
     /** The first entry should be OMIM:123456 and not just 123456.*/
     @Test
-    void testRecognizeBadDatabaseId() throws PhenolException {
+    void testRecognizeBadDatabaseId() {
         String[] fields={
                 "123456",
                 "MADE-UP SYNDROME",
@@ -177,8 +171,8 @@ class SmallFileEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        Assertions.assertThrows(SmallFileException.class, () -> {
-            SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        Assertions.assertThrows(HpoAnnotationFileException.class, () -> {
+            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         });
     }
 
@@ -201,7 +195,7 @@ class SmallFileEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        SmallFileEntry entry = SmallFileEntry.fromLine(line,ontology);
+        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         assertEquals("7/42",entry.getFrequencyModifier());
     }
 

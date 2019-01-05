@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
 import java.io.BufferedWriter;
@@ -17,14 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This class coordinates writing out the {@code phenotype.hpoa}, the so-called "big file", which is
+ * aggregated from the ca. 7000 small files.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class BigFileWriter {
+public class PhenotypeDotHpoaFileWriter {
     private static final Logger logger = LogManager.getLogger();
-    /** List of all of the {@link SmallFile} objects, which represent annotated diseases. */
-    private final List<SmallFile> v2SmallFileList;
+    /** List of all of the {@link HpoAnnotationFile} objects, which represent annotated diseases. */
+    private final List<HpoAnnotationFile> v2SmallFileList;
     /** Representation of the version 2 Big file and all its data for export. */
-    private final BigFile bigFile;
+    private final PhenotypeDotHpoaFile bigFile;
     /** Total number of annotations of all of the annotation files. */
     private int n_total_annotation_lines=0;
     /**Usually "phenotype.hpoa", but may also include path. */
@@ -42,11 +44,11 @@ public class BigFileWriter {
 
 
 
-    public BigFileWriter(HpoOntology ont, List<SmallFile> v2list, String outpath) {
+    public PhenotypeDotHpoaFileWriter(HpoOntology ont, List<HpoAnnotationFile> v2list, String outpath) {
         this.ontology=ont;
         this.v2SmallFileList=v2list;
         this.bigFileOutputNameV2=outpath;
-        this.bigFile =new BigFile(ont,v2SmallFileList);
+        this.bigFile =new PhenotypeDotHpoaFile(ont,v2SmallFileList);
     }
 
     /** This method should be called by client code after finishing the output of the Big File
@@ -66,7 +68,7 @@ public class BigFileWriter {
         this.n_decipher=0;
         this.n_omim=0;
         this.n_unknown=0;
-        for (SmallFile v2f : v2SmallFileList) {
+        for (HpoAnnotationFile v2f : v2SmallFileList) {
             if (v2f.isOMIM()) n_omim++;
             else if (v2f.isDECIPHER()) n_decipher++;
             else n_unknown++;

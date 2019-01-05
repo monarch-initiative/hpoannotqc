@@ -3,8 +3,8 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
@@ -16,11 +16,11 @@ import java.util.List;
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
 /**
- * A class to encapsulate the data related to a V2 (2018 and onwards) "big file" that is called
+ * A class to encapsulate the data related to the "big file" that is called
  * {@code phenotype.hpoa}.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson </a>
  */
-class BigFile {
+class PhenotypeDotHpoaFile {
     private static final Logger logger = LogManager.getLogger();
 
     private final HpoOntology ontology;
@@ -30,16 +30,16 @@ class BigFile {
     private static final TermId CLINICAL_COURSE_ID =TermId.of("HP:0031797");
     private static final TermId CLINICAL_MODIFIER_ID =TermId.of("HP:0012823");
     /** These are the objects that represent the diseases contained in the V2 small files. */
-    private final List<SmallFile> v2SmallFileList;
+    private final List<HpoAnnotationFile> hpoAnnotationFileList;
 
 
     /**
      * @param ont Reference to the HPO Ontology
-     * @param v2SmallFiles List of V2 small files to be converted to the bigfile.
+     * @param smallFiles List of HPO Annotation files to be converted to the bigfile.
      */
-    BigFile(HpoOntology ont, List<SmallFile> v2SmallFiles) {
+    PhenotypeDotHpoaFile(HpoOntology ont, List<HpoAnnotationFile> smallFiles) {
         this.ontology=ont;
-        v2SmallFileList=v2SmallFiles;
+        hpoAnnotationFileList =smallFiles;
     }
 
 
@@ -51,9 +51,9 @@ class BigFile {
     void outputBigFile(BufferedWriter writer) throws IOException {
         int n = 0;
         writer.write(getHeaderLine() + "\n");
-        for (SmallFile smallFile : v2SmallFileList) {
-            List<SmallFileEntry> entryList = smallFile.getEntryList();
-            for (SmallFileEntry entry : entryList) {
+        for (HpoAnnotationFile smallFile : hpoAnnotationFileList) {
+            List<HpoAnnotationFileEntry> entryList = smallFile.getEntryList();
+            for (HpoAnnotationFileEntry entry : entryList) {
                 try {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
@@ -68,13 +68,13 @@ class BigFile {
     }
 
     /**
-     * Transform one line from a Small File (represented as a {@link SmallFileEntry} object)
+     * Transform one line from a Small File (represented as a {@link HpoAnnotationFileEntry} object)
      * into one line of the Big File.
      * @param entry Representing a line from a Small File
      * @return A string that will be one line of the Big file
      * @throws HPOException if the Aspect of the line cannot be determined
      */
-    String transformEntry2BigFileLine(SmallFileEntry entry) throws HPOException{
+    String transformEntry2BigFileLine(HpoAnnotationFileEntry entry) throws HPOException{
 
         String [] elems = {
                 entry.getDiseaseID(), //DB_Object_ID

@@ -3,9 +3,12 @@ Change Log
 ==========
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
-`1.2.4`_(2010-01-02)
+`1.4.0`_(2010-01-05)
 --------------------
 * fixed bug with '#' in header, added test.
+* refactored and simplifed classes.
+* changed name of classes from "SmallFile-*" to "HpoAnnotationFile-*".
+* Added multiple new Q/C features (this part of HpoAnnotQc will be transferred to phenol).
 
 `1.2.4`_(2018-12-11)
 --------------------

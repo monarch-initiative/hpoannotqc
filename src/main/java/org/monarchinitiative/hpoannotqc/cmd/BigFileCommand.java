@@ -3,12 +3,12 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.bigfile.BigFileWriter;
+import org.monarchinitiative.hpoannotqc.bigfile.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.io.SmallFileIngestor;
+import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetXML2HpoDiseaseModelParser;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
@@ -64,9 +64,9 @@ public class BigFileCommand implements Command {
         }
 
         try {
-            SmallFileIngestor v2ingestor = new SmallFileIngestor(v2smallFileDirectory,omitPath, ontology);
-            List<SmallFile> v2entries = v2ingestor.getV2SmallFileEntries();
-            BigFileWriter writer = new BigFileWriter(ontology, v2entries, outputFilePath);
+            HpoAnnotationFileIngestor v2ingestor = new HpoAnnotationFileIngestor(v2smallFileDirectory,omitPath, ontology);
+            List<HpoAnnotationFile> v2entries = v2ingestor.getV2SmallFileEntries();
+            PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology, v2entries, outputFilePath);
 
             OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology);
             List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();

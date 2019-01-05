@@ -4,12 +4,11 @@ import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFile;
-import org.monarchinitiative.hpoannotqc.smallfile.SmallFileEntry;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,17 +18,17 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class BigFileWriterTest {
+class PhenotypeDotHpoaFileWriterTest {
 
 
 
-    private static SmallFileEntry entry;
+    private static HpoAnnotationFileEntry entry;
     private static HpoOntology ontology;
 
     @BeforeAll
     static void init() throws PhenolException, FileNotFoundException {
-        ClassLoader classLoader = BigFileWriterTest.class.getClassLoader();
-        String hpOboPath =classLoader.getResource("hp_head.obo").getFile();
+        ClassLoader classLoader = PhenotypeDotHpoaFileWriterTest.class.getClassLoader();
+        String hpOboPath =Objects.requireNonNull(classLoader.getResource("hp_head.obo")).getFile();
         Objects.requireNonNull(hpOboPath);
         HpOboParser oboparser = new HpOboParser(new File(hpOboPath));
         ontology = oboparser.parse();
@@ -50,7 +49,7 @@ public class BigFileWriterTest {
         String biocuration="HPO:skoehler[2015-07-26]";
         String fields[] ={diseaseID,diseaseName,hpoId,hpoName,age1,age2,freq,sex,negation,mod,description,pub,evidenceCode,biocuration};
         String line = String.join("\t",fields);
-        entry = SmallFileEntry.fromLine(line,ontology);
+        entry = HpoAnnotationFileEntry.fromLine(line,ontology);
     }
 
     /**
@@ -73,8 +72,8 @@ public class BigFileWriterTest {
                 "HPO:skoehler[2015-07-26]", // biocuration
         };
         String expected= String.join("\t", bigFileFields);
-        List<SmallFile> emptyList = ImmutableList.of(); // needed for testing.
-        BigFile v1b = new BigFile(ontology, emptyList);
+        List<HpoAnnotationFile> emptyList = ImmutableList.of(); // needed for testing.
+        PhenotypeDotHpoaFile v1b = new PhenotypeDotHpoaFile(ontology, emptyList);
         String line = v1b.transformEntry2BigFileLine(entry);
         assertEquals(expected,line);
     }
@@ -86,7 +85,7 @@ public class BigFileWriterTest {
     @Test
     void testV2Header() {
         String expected="DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
-        assertEquals(expected,BigFile.getHeaderLine());
+        assertEquals(expected,PhenotypeDotHpoaFile.getHeaderLine());
     }
 
 }

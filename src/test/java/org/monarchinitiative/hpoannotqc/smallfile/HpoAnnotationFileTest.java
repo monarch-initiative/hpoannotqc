@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.monarchinitiative.hpoannotqc.io.SmallFileParser;
+import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileParser;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -12,14 +12,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
 
 import static junit.framework.TestCase.*;
 
-class SmallFileTest {
+class HpoAnnotationFileTest {
     private static HpoOntology ontology;
-    private static SmallFile v2sf=null;
+    private static HpoAnnotationFile v2sf=null;
 
 
     @BeforeAll
@@ -30,13 +28,15 @@ class SmallFileTest {
         ontology = oboparser.parse();
         Path omim123456path = Paths.get("src","test","resources","smallfiles","OMIM-123456.tab");
         String omim123456file = omim123456path.toAbsolutePath().toString();
-        SmallFileParser parser = new SmallFileParser(omim123456file,ontology);
-        Optional<SmallFile> v2opt = parser.parse();
-        v2opt.ifPresent(v2SmallFile -> v2sf = v2SmallFile);
+        HpoAnnotationFileParser parser = new HpoAnnotationFileParser(omim123456file,ontology);
+        v2sf = parser.parse();
     }
 
     @Test
     void testParse() {
+        int x=1;
+        System.err.println(v2sf.getBasename());
+
         assertNotNull(v2sf);
     }
 

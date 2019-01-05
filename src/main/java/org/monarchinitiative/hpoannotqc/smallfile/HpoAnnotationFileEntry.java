@@ -4,7 +4,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.exception.SmallFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * This class represents the contents of a single annotation line.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class SmallFileEntry {
+public class HpoAnnotationFileEntry {
     private static final Logger logger = LogManager.getLogger();
 
     private final static String EMPTY_STRING="";
@@ -165,20 +165,20 @@ public class SmallFileEntry {
 
 
 
-    private SmallFileEntry(String disID,
-                           String diseaseName,
-                           TermId phenotypeId,
-                           String phenotypeName,
-                           String ageOfOnsetId,
-                           String ageOfOnsetName,
-                           String frequencyString,
-                           String sex,
-                           String negation,
-                           String modifier,
-                           String description,
-                           String publication,
-                           String evidenceCode,
-                           String biocuration) {
+    private HpoAnnotationFileEntry(String disID,
+                                   String diseaseName,
+                                   TermId phenotypeId,
+                                   String phenotypeName,
+                                   String ageOfOnsetId,
+                                   String ageOfOnsetName,
+                                   String frequencyString,
+                                   String sex,
+                                   String negation,
+                                   String modifier,
+                                   String description,
+                                   String publication,
+                                   String evidenceCode,
+                                   String biocuration) {
         this.diseaseID=disID;
         this.diseaseName=diseaseName;
         this.phenotypeId=phenotypeId;
@@ -225,7 +225,7 @@ public class SmallFileEntry {
 
 
 
-    public static SmallFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
+    public static HpoAnnotationFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
         String A[] = line.split("\t");
         if (A.length!= NUMBER_OF_FIELDS) {
             logger.error(String.format("We were expecting %d expectedFields but got %d for line %s",NUMBER_OF_FIELDS,A.length,line ));
@@ -246,7 +246,7 @@ public class SmallFileEntry {
         String evidenceCode=A[12];
         String biocuration=A[13];
 
-        SmallFileEntry entry = new SmallFileEntry(diseaseID,
+        HpoAnnotationFileEntry entry = new HpoAnnotationFileEntry(diseaseID,
                  diseaseName,
                  phenotypeId,
                  phenotypeName,
@@ -271,14 +271,14 @@ public class SmallFileEntry {
     // Q/C methods
 
     /**
-     * This method checks all of the fields of the SmallFileEntry. If there is an error, then
+     * This method checks all of the fields of the HpoAnnotationFileEntry. If there is an error, then
      * it throws an Exception (upon the first error). If no exception is thrown, then the
      * no errors were found.
-     * @param entry The {@link SmallFileEntry} to be tested.
+     * @param entry The {@link HpoAnnotationFileEntry} to be tested.
      * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
-     * @throws SmallFileException
+     * @throws HpoAnnotationFileException if any parse error is encountered
      */
-    public static void performQualityControl(SmallFileEntry entry, HpoOntology ontology) throws SmallFileException {
+    private static void performQualityControl(HpoAnnotationFileEntry entry, HpoOntology ontology) throws HpoAnnotationFileException {
         checkDB(entry);
         checkDiseaseName(entry.getDiseaseName());
         checkPhenotypeFields(entry.getPhenotypeId(),entry.getPhenotypeLabel(),ontology);
@@ -296,23 +296,23 @@ public class SmallFileEntry {
     /**
      * Checks if the database string is in the set of valid strings ({@link #validDatabases})
      * @param entry SMallFileEntry to be checked for a database String such as OMIM or ORPHA
-     * @throws SmallFileException if an invalid database code is used
+     * @throws HpoAnnotationFileException if an invalid database code is used
      */
-    private static void checkDB(SmallFileEntry entry) throws SmallFileException {
+    private static void checkDB(HpoAnnotationFileEntry entry) throws HpoAnnotationFileException {
         try {
             String db = entry.getDB();
             if (! validDatabases.contains(db) ) {
-                throw new SmallFileException(String.format("Invalid database symbol: \"%s\"", db));
+                throw new HpoAnnotationFileException(String.format("Invalid database symbol: \"%s\"", db));
             }
         } catch (PhenolRuntimeException r) {
-            throw new SmallFileException("Could not construct database: "+ r.getMessage());
+            throw new HpoAnnotationFileException("Could not construct database: "+ r.getMessage());
         }
     }
 
     /** Check that this disease name is present. */
-    private static void checkDiseaseName(String name) throws SmallFileException {
+    private static void checkDiseaseName(String name) throws HpoAnnotationFileException {
         if (name==null || name.isEmpty()) {
-            throw new SmallFileException("Missing disease name");
+            throw new HpoAnnotationFileException("Missing disease name");
         }
     }
 
@@ -322,13 +322,13 @@ public class SmallFileEntry {
      * @param id the {@link TermId} for a phenotype HPO term
      */
     private static void checkPhenotypeFields(TermId id, String termLabel, HpoOntology ontology)
-            throws SmallFileException {
+            throws HpoAnnotationFileException {
         if (id==null || ! ontology.getTermMap().containsKey(id)) {
-            throw new SmallFileException("Could not find HPO term id for \""+termLabel+"\"");
+            throw new HpoAnnotationFileException("Could not find HPO term id for \""+termLabel+"\"");
         } else {
             TermId current = ontology.getTermMap().get(id).getId();
             if (! current.equals(id)) {
-                throw new SmallFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
+                throw new HpoAnnotationFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
                         id.getValue(),
                         current.getValue(),
                         ontology.getTermMap().get(id).getName()));
@@ -337,7 +337,7 @@ public class SmallFileEntry {
         // if we get here, the TermId of the HPO Term was OK
         // now check that the label corresponds to the TermId
         if (termLabel==null || termLabel.isEmpty()) {
-            throw new SmallFileException("Missing HPO term label for id="+id.getValue());
+            throw new HpoAnnotationFileException("Missing HPO term label for id="+id.getValue());
         }
         String currentLabel = ontology.getTermMap().get(id).getName();
         if (! currentLabel.equals(termLabel)) {
@@ -345,39 +345,39 @@ public class SmallFileEntry {
                     termLabel,
                     currentLabel,
                     ontology.getTermMap().get(id).getName());
-            throw new SmallFileException(errmsg);
+            throw new HpoAnnotationFileException(errmsg);
         }
     }
 
 
     private static void checkAgeOfOnsetFields(String id, String termLabel, HpoOntology ontology)
-            throws SmallFileException {
+            throws HpoAnnotationFileException {
         if (id==null || id.isEmpty() ) {
             // valid, onset is not required, but let's check that there is not a stray label
             if (termLabel !=null && ! termLabel.isEmpty()) {
-                throw new SmallFileException("Onset ID empty but Onset label present");
+                throw new HpoAnnotationFileException("Onset ID empty but Onset label present");
             } else {
                 return; // OK!
             }
         }
         TermId tid = TermId.of(id);
         if (! ontology.getTermMap().containsKey(tid)) {
-            throw new SmallFileException(String.format("Onset ID not found: \"%s\"",id));
+            throw new HpoAnnotationFileException(String.format("Onset ID not found: \"%s\"",id));
         }
         TermId current = ontology.getTermMap().get(tid).getId();
         if (! current.equals(tid)) {
-            throw new SmallFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
+            throw new HpoAnnotationFileException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
                     tid.getValue(),
                     current.getValue(),
                     ontology.getTermMap().get(tid).getName()));
         }
         if (! onsetSubhierarcyTermIds.contains(tid)) {
-            throw new SmallFileException("Invalid ID in onset ID field: \""+tid.toString()+"\"");
+            throw new HpoAnnotationFileException("Invalid ID in onset ID field: \""+tid.toString()+"\"");
         }
         // if we get here, the Age of onset id was OK
         // now let's check the label
         if (termLabel==null || termLabel.isEmpty()) {
-            throw new SmallFileException("Missing HPO term label for onset id="+id);
+            throw new HpoAnnotationFileException("Missing HPO term label for onset id="+id);
         }
         String currentLabel = ontology.getTermMap().get(tid).getName();
         if (! currentLabel.equals(termLabel)) {
@@ -385,20 +385,20 @@ public class SmallFileEntry {
                     termLabel,
                     currentLabel,
                     ontology.getTermMap().get(tid).getName());
-            throw new SmallFileException(errmsg);
+            throw new HpoAnnotationFileException(errmsg);
         }
     }
 
-    private static void checkEvidence(String evi) throws SmallFileException {
+    private static void checkEvidence(String evi) throws HpoAnnotationFileException {
         if (! EVIDENCE_CODES.contains(evi)) {
-           throw new SmallFileException(String.format("Invalid evidence code: \"%s\"",evi));
+           throw new HpoAnnotationFileException(String.format("Invalid evidence code: \"%s\"",evi));
         }
     }
 
 
     /** There are 3 correct formats for frequency. For example, 4/7, 32% (or 32.6%), or
      * an HPO term from the frequency subontology. */
-    private static void checkFrequency(String freq, HpoOntology ontology) throws SmallFileException {
+    private static void checkFrequency(String freq, HpoOntology ontology) throws HpoAnnotationFileException {
         // it is ok not to have frequency data
         if (freq==null || freq.isEmpty()) {
             return;
@@ -410,7 +410,7 @@ public class SmallFileEntry {
             return;
         } else if (! freq.matches("HP:\\d{7}")) {
             // cannot be a valid frequency term
-            throw new SmallFileException(String.format("Malformed frequency term: \"%s\"", freq));
+            throw new HpoAnnotationFileException(String.format("Malformed frequency term: \"%s\"", freq));
         }
         // if we get here and we can validate that the frequency term comes from the right subontology,
         // then the item is valid
@@ -418,10 +418,10 @@ public class SmallFileEntry {
         try {
             id = TermId.of(freq);
         } catch (PhenolRuntimeException pre) {
-            throw new SmallFileException(String.format("Could not parse frequency term id: \"%s\"", freq));
+            throw new HpoAnnotationFileException(String.format("Could not parse frequency term id: \"%s\"", freq));
         }
         if (! frequencySubhierarcyTermIds.contains(id) ) {
-            throw new SmallFileException(String.format("Usage of incorrect term for frequency: %s [%s]",
+            throw new HpoAnnotationFileException(String.format("Usage of incorrect term for frequency: %s [%s]",
                     ontology.getTermMap().get(id).getName(),
                     ontology.getTermMap().get(id).getId().getValue()));
         }
@@ -431,25 +431,25 @@ public class SmallFileEntry {
      * The sex entry is used for annotations that are specific to either males or females. It is usually
      * empty. If present, it must be either MALE or FEMALE (for now we do no enforce capitalization).
      * @param sex THe sex-specificity entry
-     * @throws SmallFileException
+     * @throws HpoAnnotationFileException if the sex-specifity field is malformed.
      */
-    private static void checkSexEntry(String sex) throws SmallFileException {
+    private static void checkSexEntry(String sex) throws HpoAnnotationFileException {
         if (sex==null || sex.isEmpty()) return; // OK,  not required
         if (! sex.equalsIgnoreCase("MALE") && ! sex.equalsIgnoreCase("FEMALE"))
-            throw new SmallFileException(String.format("Malformed sex entry: \"%s\"", sex));
+            throw new HpoAnnotationFileException(String.format("Malformed sex entry: \"%s\"", sex));
     }
 
     /**
      * The negation string can be null or empty but if it is present it must be "NOT"
      * @param negation Must be either the empty/null String or "NOT"
      */
-    private static void checkNegation(String negation) throws SmallFileException {
+    private static void checkNegation(String negation) throws HpoAnnotationFileException {
         if ( negation!=null &&  ! negation.isEmpty() && ! negation.equals("NOT")) {
-            throw new SmallFileException(String.format("Malformed negation entry: \"%s\"", negation));
+            throw new HpoAnnotationFileException(String.format("Malformed negation entry: \"%s\"", negation));
         }
     }
 
-    private static void checkModifier(String modifierString, HpoOntology ontology) throws SmallFileException {
+    private static void checkModifier(String modifierString, HpoOntology ontology) throws HpoAnnotationFileException {
         if (modifierString==null || modifierString.isEmpty()) return; // OK,  not required
         // If something is present in this field, it must be in the form of
         // HP:0000001;HP:0000002;...
@@ -463,50 +463,50 @@ public class SmallFileEntry {
                 Set<TermId> ancs = ontology.getAncestorTermIds(tid);
                 if (! ancs.contains(clinicalModifier) && ! ancs.contains(temporalPattern) &&
                         ! ancs.contains(paceOfProgression)) {
-                    throw new SmallFileException(String.format("Use of wrong HPO term in modifier field: %s [%s]",
+                    throw new HpoAnnotationFileException(String.format("Use of wrong HPO term in modifier field: %s [%s]",
                             ontology.getTermMap().get(tid).getName(),
                             tid.getValue()));
                 }
             } catch (PhenolRuntimeException e) {
-                throw new SmallFileException(String.format("Malformed modifier term id: \"%s\"",a));
+                throw new HpoAnnotationFileException(String.format("Malformed modifier term id: \"%s\"",a));
             }
         }
     }
 
 
-    private static void checkPublication(String pub) throws SmallFileException{
+    private static void checkPublication(String pub) throws HpoAnnotationFileException {
         if (pub == null || pub.isEmpty()) {
-            throw new SmallFileException("Empty citation string");
+            throw new HpoAnnotationFileException("Empty citation string");
         }
         int index = pub.indexOf(":");
         if (index <= 0) { // there needs to be a colon in the middle of the string
-            throw new SmallFileException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
+            throw new HpoAnnotationFileException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
         }
         if (pub.contains("::")) { // should only be one colon separating prefix and id
-            throw new SmallFileException(String.format("Malformed citation id (double colon): \"%s\"", pub));
+            throw new HpoAnnotationFileException(String.format("Malformed citation id (double colon): \"%s\"", pub));
         }
         if (pub.contains(" ")) {
-            throw new SmallFileException(String.format("Malformed citation id (contains space): \"%s\"", pub));
+            throw new HpoAnnotationFileException(String.format("Malformed citation id (contains space): \"%s\"", pub));
         }
         String prefix = pub.substring(0,index);
         if (!VALID_CITATION_PREFIXES.contains(prefix)) {
-            throw new SmallFileException(String.format("Did not recognize publication prefix: \"%s\" ",  pub));
+            throw new HpoAnnotationFileException(String.format("Did not recognize publication prefix: \"%s\" ",  pub));
         }
         int len = pub.length();
         if (len-index < 2) {
-            throw new SmallFileException(String.format("Malformed publication string: \"%s\" ", pub));
+            throw new HpoAnnotationFileException(String.format("Malformed publication string: \"%s\" ", pub));
         }
     }
 
-    private static void checkBiocuration(String entrylist) throws SmallFileException{
+    private static void checkBiocuration(String entrylist) throws HpoAnnotationFileException {
         if (entrylist==null || entrylist.isEmpty()) {
-            throw new SmallFileException("empty biocuration entry");
+            throw new HpoAnnotationFileException("empty biocuration entry");
         }
         String fields[] = entrylist.split(";");
         for (String f : fields) {
             Matcher matcher = biocurationPattern.matcher(f);
             if (! matcher.find()) {
-                throw new SmallFileException(String.format("Malformed biocuration entry: \"%s\"",f));
+                throw new HpoAnnotationFileException(String.format("Malformed biocuration entry: \"%s\"",f));
             }
 
         }
