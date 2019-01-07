@@ -378,8 +378,10 @@ public class HpoAnnotationFileEntry {
      */
     private static void checkPhenotypeFields(TermId id, String termLabel, HpoOntology ontology)
             throws HpoAnnotationFileException {
-        if (id==null || ! ontology.getTermMap().containsKey(id)) {
-            throw new HpoAnnotationFileException("Could not find HPO term id for \""+termLabel+"\"");
+        if (id==null) {
+            throw new HpoAnnotationFileException("Phenotype id was for \""+termLabel+"\"");
+        } else if (id==null || ! ontology.getTermMap().containsKey(id)) {
+            throw new HpoAnnotationFileException(String.format("Could not find HPO term id (\"%s\") for \"%s\"",id,termLabel));
         } else {
             TermId current = ontology.getTermMap().get(id).getId();
             if (! current.equals(id)) {

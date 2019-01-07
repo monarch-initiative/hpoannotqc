@@ -4,7 +4,6 @@ package org.monarchinitiative.hpoannotqc.bigfile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
@@ -23,8 +22,10 @@ import java.util.Map;
  */
 public class PhenotypeDotHpoaFileWriter {
     private static final Logger logger = LogManager.getLogger();
-    /** List of all of the {@link HpoAnnotationFile} objects, which represent annotated diseases. */
-    private final List<HpoAnnotationFile> v2SmallFileList;
+    /** List of all of the {@link HpoAnnotationFile} objects from our annotations (OMIM and DECIPHER). */
+    private final List<HpoAnnotationFile> internalAnnotFileList;
+    /** List of all of the {@link HpoAnnotationFile} objects derived from the Orphanet XML file. */
+    private final List<HpoAnnotationFile> orphanetSmallFileList;
     /** Representation of the version 2 Big file and all its data for export. */
     private final PhenotypeDotHpoaFile bigFile;
     /** Total number of annotations of all of the annotation files. */
@@ -44,11 +45,12 @@ public class PhenotypeDotHpoaFileWriter {
 
 
 
-    public PhenotypeDotHpoaFileWriter(HpoOntology ont, List<HpoAnnotationFile> v2list, String outpath) {
+    public PhenotypeDotHpoaFileWriter(HpoOntology ont, List<HpoAnnotationFile> internalAnnotFileList, List<HpoAnnotationFile> orphaList, String outpath) {
         this.ontology=ont;
-        this.v2SmallFileList=v2list;
+        this.internalAnnotFileList =internalAnnotFileList;
+        this.orphanetSmallFileList=orphaList;
         this.bigFileOutputNameV2=outpath;
-        this.bigFile =new PhenotypeDotHpoaFile(ont,v2SmallFileList);
+        this.bigFile =new PhenotypeDotHpoaFile(ont, this.internalAnnotFileList);
     }
 
     /** This method should be called by client code after finishing the output of the Big File
@@ -68,7 +70,7 @@ public class PhenotypeDotHpoaFileWriter {
         this.n_decipher=0;
         this.n_omim=0;
         this.n_unknown=0;
-        for (HpoAnnotationFile v2f : v2SmallFileList) {
+        for (HpoAnnotationFile v2f : internalAnnotFileList) {
             if (v2f.isOMIM()) n_omim++;
             else if (v2f.isDECIPHER()) n_decipher++;
             else n_unknown++;
@@ -112,10 +114,7 @@ public class PhenotypeDotHpoaFileWriter {
         this.bigFile.outputBigFile(this.writer);
     }
 
-    public void appendOrphanetV2(List<OrphanetDisorder> orphanetDisorders) {
-        Orphanet2PhenotypeDotHpoaFile orph2big = new Orphanet2PhenotypeDotHpoaFile(orphanetDisorders, writer,this.ontology);
-        orph2big.writeOrphanetDiseaseData();
-    }
+
 
 
 }
