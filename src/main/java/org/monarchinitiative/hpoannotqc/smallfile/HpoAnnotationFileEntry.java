@@ -89,7 +89,7 @@ public class HpoAnnotationFileEntry {
     private static final Set<String> EVIDENCE_CODES = ImmutableSet.of("IEA","TAS","PCS");
 
     private static final Set<String> VALID_CITATION_PREFIXES = ImmutableSet.of("PMID","OMIM","http","https","DECIPHER",
-            "ISBN", "ISBN-10","ISBN-13");
+           "ORPHA", "ISBN", "ISBN-10","ISBN-13");
     /** regex for patterns such as HPO:skoehler[2018-09-22] */
     private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})\\]";
     /** The pattern that corresponds to {@link #biocurationRegex}. */
@@ -292,6 +292,9 @@ public class HpoAnnotationFileEntry {
                                                        TermId frequency,
                                                        HpoOntology ontology,
                                                        String biocuration) throws HpoAnnotationFileException {
+       if (hpoId==null) {
+           throw new HpoAnnotationFileException("Null String passed as hpoId for disease " + diseaseID!=null?diseaseID:"n/a");
+       }
         TermId phenotypeId = TermId.of(hpoId);
         // replace the frequency termid with its string equivalent
         // except if it is Excluded, which we treat as a negative annotation

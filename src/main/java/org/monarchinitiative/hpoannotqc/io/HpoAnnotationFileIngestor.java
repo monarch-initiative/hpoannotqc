@@ -49,10 +49,10 @@ public class HpoAnnotationFileIngestor {
         omitEntries=getOmitEntries(omitFile);
         v2smallFilePaths=getListOfV2SmallFiles(directoryPath);
         this.ontology=ontology;
-        inputV2files();
+        inputHpoAnnotationFiles();
     }
 
-    private void inputV2files() {
+    private void inputHpoAnnotationFiles() {
         logger.trace("We found " + v2smallFilePaths.size() + " small files.");
         int i=0;
         for (String path : v2smallFilePaths) {

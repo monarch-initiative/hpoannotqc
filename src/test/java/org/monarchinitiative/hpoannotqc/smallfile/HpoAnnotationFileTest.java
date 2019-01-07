@@ -13,7 +13,8 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static junit.framework.TestCase.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class HpoAnnotationFileTest {
     private static HpoOntology ontology;

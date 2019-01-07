@@ -7,7 +7,7 @@ import org.monarchinitiative.hpoannotqc.bigfile.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.orphanet.OrphanetDisorder;
-import org.monarchinitiative.hpoannotqc.orphanet.OrphanetXML2HpoDiseaseModelParser;
+import org.monarchinitiative.hpoannotqc.io.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
