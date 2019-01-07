@@ -91,7 +91,7 @@ class Orphanet2PhenotypeDotHpoaFile {
      * @param tid An HPO term id for which we want to get the aspect
      * @return A one-letter String representing the aspect (P,I,C,M).
      */
-    private String getAspectV2(TermId tid) throws HPOException {
+    private String getAspect(TermId tid) throws HPOException {
         Term term = ontology.getTermMap().get(tid);
         if (term==null) {
             logger.error("Invalid HPO tid="+tid.getValue());
@@ -131,7 +131,7 @@ class Orphanet2PhenotypeDotHpoaFile {
                 entry.getFrequency().getValue(),// Frequency (An HPO TermId, always)
                 EMPTY_STRING, // Sex (not used)
                 EMPTY_STRING, // Modifier (not used)
-                getAspectV2(hpoId),
+                getAspect(hpoId),
                 biocuration// Assigned by
         };
         return Arrays.stream(elems).collect(Collectors.joining("\t"));

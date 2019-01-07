@@ -9,6 +9,7 @@ This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-
 * refactored and simplifed classes.
 * changed name of classes from "SmallFile-*" to "HpoAnnotationFile-*".
 * Added multiple new Q/C features (this part of HpoAnnotQc will be transferred to phenol).
+* Unifying Orphanet ingest with small file ingest by creating HpoAnnotationFileEntry from XML data
 
 `1.2.4`_(2018-12-11)
 --------------------

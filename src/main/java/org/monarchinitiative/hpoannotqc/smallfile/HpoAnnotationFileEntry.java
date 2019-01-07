@@ -95,6 +95,8 @@ public class HpoAnnotationFileEntry {
     /** The pattern that corresponds to {@link #biocurationRegex}. */
     private static final Pattern biocurationPattern = Pattern.compile(biocurationRegex);
 
+    private static final TermId EXCLUDED = TermId.of("HP:0040285");
+
     public String getDiseaseID() {
         return diseaseID;
     }
@@ -225,6 +227,9 @@ public class HpoAnnotationFileEntry {
 
 
 
+
+
+
     public static HpoAnnotationFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
         String A[] = line.split("\t");
         if (A.length!= NUMBER_OF_FIELDS) {
@@ -260,6 +265,53 @@ public class HpoAnnotationFileEntry {
                  publication,
                  evidenceCode,
                  biocuration);
+        // if the following method does not throw an Exception, we are good to go!
+        performQualityControl(entry, ontology);
+
+        return entry;
+    }
+
+
+    /**
+     * If the frequency of an HPO term is listed in Orphanet as Excluded (0%), then we encode it as
+     * a NOT (negated) term.
+     * @param diseaseID Orphanet ID, e.g., ORPHA:99776
+     * @param diseaseName Orphanet disease name, e.g., Moasic trisomy 9
+     * @param hpoId HPO id (e.g., HP:0001234) as String
+     * @param hpoLabel corresponding HPO term Label
+     * @param frequency Orphanet frequency data as TermId
+     * @param ontology reference to HPO ontology
+     * @param biocuration A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
+     * @return corresponding HpoAnnotationFileEntry object
+     * @throws HpoAnnotationFileException
+     */
+    public static HpoAnnotationFileEntry fromOrphaData(String diseaseID,
+                                                       String diseaseName,
+                                                       String hpoId,
+                                                       String hpoLabel,
+                                                       TermId frequency,
+                                                       HpoOntology ontology,
+                                                       String biocuration) throws HpoAnnotationFileException {
+        TermId phenotypeId = TermId.of(hpoId);
+        // replace the frequency termid with its string equivalent
+        // except if it is Excluded, which we treat as a negative annotation
+        String frequencyString = frequency.equals(EXCLUDED) ? EMPTY_STRING : frequency.getValue();
+        String negationString = frequency.equals(EXCLUDED) ? "NOT" : EMPTY_STRING;
+
+        HpoAnnotationFileEntry entry = new HpoAnnotationFileEntry(diseaseID,
+                diseaseName,
+                phenotypeId,
+                hpoLabel,
+                EMPTY_STRING,
+                EMPTY_STRING,
+                frequencyString,
+                EMPTY_STRING,
+                negationString,
+                EMPTY_STRING,
+                EMPTY_STRING,
+                diseaseID,
+                "TAS",
+                biocuration);
         // if the following method does not throw an Exception, we are good to go!
         performQualityControl(entry, ontology);
 

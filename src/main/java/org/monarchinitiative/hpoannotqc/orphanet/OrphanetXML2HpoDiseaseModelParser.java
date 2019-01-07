@@ -3,13 +3,17 @@ package org.monarchinitiative.hpoannotqc.orphanet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -23,7 +27,33 @@ import javax.xml.stream.events.XMLEvent;
 
 /**
  * This class is an XML parser for the Orphanet file with HPO-based disease annotations
- * ({@code en_product4_HPO.xml} (see http://www.orphadata.org/).
+ * ({@code en_product4_HPO.xml} (see http://www.orphadata.org/). Note that the section of the
+ * XML that denotes an individual HPO annotation with frequency is like this
+ * <pre>
+ *     <HPODisorderAssociation id="2603">
+ *        <HPO id="58">
+ *          <HPOId>HP:0010535</HPOId>
+ *          <HPOTerm>Sleep apnea</HPOTerm>
+ *         </HPO>
+ *         <HPOFrequency id="28426">
+ *            <OrphaNumber>453313</OrphaNumber>
+ *             <Name lang="en">Occasional (29-5%)</Name>
+ *        </HPOFrequency>
+ *       <DiagnosticCriteria/>
+ *    </HPODisorderAssociation>
+ * </pre>
+ * That is, one line of the annotation is contained with an {@code HPODisorderAssociation} node.
+ * Each disease begins like this
+ * <pre>
+ *      <Disorder id="160">
+ *       <OrphaNumber>437</OrphaNumber>
+ *       <Name lang="en">Hypophosphatemic rickets</Name>
+ *       <HPODisorderAssociationList count="11">
+ *         <HPODisorderAssociation id="2574">
+ *             (...)
+ * </pre>
+ * That is, we extract the Orphanumber and the name and then there is a list of annotations.
+ * @author Peter Robinson
  */
 public class OrphanetXML2HpoDiseaseModelParser {
     private static final Logger logger = LogManager.getLogger();
@@ -36,6 +66,10 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private int n_could_not_find_orphanet_HpoId=0;
     private int n_updatedTermId=0;
     private int n_updatedTermLabel=0;
+
+    private final String todaysDate;
+    /** A String of the form ORPHA:orphadata[2019-01-05] that we will use as the biocuration entry. */
+     private final String orphanetBiocurationString;
 
 
 
@@ -50,6 +84,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
         } catch (XMLStreamException | IOException e) {
             e.printStackTrace();
         }
+        todaysDate=getTodaysDate();
+        orphanetBiocurationString=String.format("ORPHA:orphadata[%s]",todaysDate);
     }
 
 
@@ -139,6 +175,10 @@ public class OrphanetXML2HpoDiseaseModelParser {
         boolean inDiagnosticCriterion = false;
         OrphanetDisorder disorder = null;
         String currentHpoId=null;
+        String currentHpoTermLabel=null;
+        TermId currentFrequencyTermId=null;
+        String currentOrphanumber=null;
+        String currentDiseaseName=null;
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
@@ -173,8 +213,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         if (currentHpoId != null) {
                             TermId tid = getCurrentHpoId(currentHpoId);
                             if (tid == null) continue;
-                            String termLabel = getCurrentHpoLabel(tid, xmlEvent.asCharacters().getData());
-                            disorder.setHPO(tid, termLabel);
+                            currentHpoTermLabel = getCurrentHpoLabel(tid, xmlEvent.asCharacters().getData());
+                            disorder.setHPO(tid, currentHpoTermLabel);
                         }
                         currentHpoId = null;
                         break;
@@ -182,8 +222,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         // if we are here, then we can grab the frequency from the id attribute.
                         Attribute idAttr = startElement.getAttributeByName(new QName("id"));
                         if (idAttr != null) {
-                            TermId freq = string2frequency(idAttr.getValue());
-                            disorder.setFrequency(freq);
+                            currentFrequencyTermId = string2frequency(idAttr.getValue());
+                            disorder.setFrequency(currentFrequencyTermId);
                         }
                         inFrequency = true;
                         break;
@@ -209,13 +249,43 @@ public class OrphanetXML2HpoDiseaseModelParser {
                     inDiagnosticCriterion = false;
                 } else if ( endElementName.equals("JDBOR")) {
                     logger.trace("Done parsing Orphanet XML document");
-                } else if (endElementName.equals("Disorder")) {
+                } else if (endElementName.equals("HPODisorderAssociationList")) {
+                    // We should have data for HPO Id, HPo Label, and a Frequency term
+                    try {
+                        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromOrphaData(
+                                String.format("ORPHA:%s",currentOrphanumber),
+                                currentDiseaseName,
+                                currentHpoId,
+                                currentHpoTermLabel,
+                                currentFrequencyTermId,
+                                ontology,
+                                orphanetBiocurationString);
+                        currentHpoId=null;
+                        currentHpoTermLabel=null;
+                        currentFrequencyTermId=null;// reset
+
+                    } catch (HpoAnnotationFileException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } if (endElementName.equals("Disorder")) {
                     if (disorder != null) {
                         disorders.add(disorder);
                     }
                 }
             }
         }
+    }
+
+
+    /** We are using this to supply a date created value for the Orphanet annotations.
+     * After some research, no better way of getting the current date was found.
+     * @return A String such as 2018-02-22
+     */
+    private String getTodaysDate() {
+        Date date = new Date();
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
 
 
