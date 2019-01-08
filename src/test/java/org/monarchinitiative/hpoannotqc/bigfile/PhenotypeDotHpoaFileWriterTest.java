@@ -73,7 +73,7 @@ class PhenotypeDotHpoaFileWriterTest {
         };
         String expected= String.join("\t", bigFileFields);
         List<HpoAnnotationFile> emptyList = ImmutableList.of(); // needed for testing.
-        PhenotypeDotHpoaFile v1b = new PhenotypeDotHpoaFile(ontology, emptyList);
+        PhenotypeDotHpoaFileWriter v1b = new PhenotypeDotHpoaFileWriter(ontology, emptyList, emptyList,"");
         String line = v1b.transformEntry2BigFileLine(entry);
         assertEquals(expected,line);
     }
@@ -85,7 +85,7 @@ class PhenotypeDotHpoaFileWriterTest {
     @Test
     void testV2Header() {
         String expected="DatabaseID\tDiseaseName\tQualifier\tHPO_ID\tReference\tEvidence\tOnset\tFrequency\tSex\tModifier\tAspect\tBiocuration";
-        assertEquals(expected,PhenotypeDotHpoaFile.getHeaderLine());
+        assertEquals(expected,PhenotypeDotHpoaFileWriter.getHeaderLine());
     }
 
 }

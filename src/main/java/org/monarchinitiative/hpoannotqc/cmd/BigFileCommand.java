@@ -4,7 +4,6 @@ package org.monarchinitiative.hpoannotqc.cmd;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.bigfile.PhenotypeDotHpoaFileWriter;
-import org.monarchinitiative.hpoannotqc.exception.HPOException;
 import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.io.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
@@ -68,43 +67,11 @@ public class BigFileCommand implements Command {
             OrphanetXML2HpoDiseaseModelParser orphaParser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology);
             List<HpoAnnotationFile> orphaFileEntryList = orphaParser.getOrphanetDiseaseModels();
             PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology, hpoFileEntryList, orphaFileEntryList, outputFilePath);
-            writer.initializeV2filehandle();
             writer.setOntologyMetadata(ontology.getMetaInfo());
             writer.outputBigFile();
-        } catch (IOException | HPOException e) {
-        logger.fatal("[ERROR] Could not output phenotype.hpoa (big file). ",e);
+        } catch (IOException e) {
+            logger.fatal("[ERROR] Could not output phenotype.hpoa (big file). ",e);
+        }
     }
-
-
-
-        /* try {
-            HpoAnnotationFileIngestor v2ingestor = new HpoAnnotationFileIngestor(v2smallFileDirectory,omitPath, ontology);
-            List<HpoAnnotationFile> v2entries = v2ingestor.getV2SmallFileEntries();
-            PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology, v2entries, outputFilePath);
-
-            OrphanetXML2HpoDiseaseModelParser parser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology);
-           List<OrphanetDisorder> orphanetDisorders = parser.getDisorders();
-            debugPrintOrphanetDisorders(orphanetDisorders);
-            /// output the V2 version of the big file
-            writer.initializeV2filehandle();
-            writer.setNumberOfDiseasesForHeader(orphanetDisorders.size());
-            writer.setOntologyMetadata(ontology.getMetaInfo());
-            writer.outputBigFile();
-            writer.appendOrphanetV2(orphanetDisorders);
-            writer.closeFileHandle();
-        } catch (IOException | HPOException e) {
-            logger.fatal("[ERROR] Could not output V2 big file",e);
-        }*/
-    }
-
-
-
-//   private void debugPrintOrphanetDisorders(List<OrphanetDisorder> orphanetDisorders){
-//        int n_annot=0;
-//        for (OrphanetDisorder od : orphanetDisorders) {
-//            n_annot += od.getHpoIds().size();
-//        }
-//        System.out.println(String.format("We extracted %d orphanet disorders with %d annotations ",orphanetDisorders.size(),n_annot));
-//   }
 
 }
