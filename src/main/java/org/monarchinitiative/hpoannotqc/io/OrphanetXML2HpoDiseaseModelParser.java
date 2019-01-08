@@ -4,8 +4,8 @@ package org.monarchinitiative.hpoannotqc.io;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -70,16 +70,17 @@ public class OrphanetXML2HpoDiseaseModelParser {
      private final String orphanetBiocurationString;
     /** A list of diseases parsed from Orphanet. */
     private final List<HpoAnnotationModel> orphanetDiseaseList=new ArrayList<>();
-
-    boolean replaceObsoleteTermId=true;
-
-
+    /** If true, replace obsolete term ids without throwing Exception. */
+    private boolean replaceObsoleteTermId;
 
 
 
-    public OrphanetXML2HpoDiseaseModelParser(String xmlpath, HpoOntology onto) {
+
+
+    public OrphanetXML2HpoDiseaseModelParser(String xmlpath, HpoOntology onto, boolean tolerant) {
         orphanetXmlPath = xmlpath;
         this.ontology=onto;
+        this.replaceObsoleteTermId=tolerant;
         String todaysDate = getTodaysDate();
         orphanetBiocurationString=String.format("ORPHA:orphadata[%s]", todaysDate);
         try {
@@ -142,7 +143,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         TermId currentFrequencyTermId=null;
         String currentOrphanumber=null;
         String currentDiseaseName=null;
-        List<HpoAnnotationFileEntry> currentAnnotationEntryList=new ArrayList<>();
+        List<HpoAnnotationEntry> currentAnnotationEntryList=new ArrayList<>();
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
@@ -205,7 +206,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                 } else if (endElementName.equals("HPODisorderAssociation")) {
                     // We should have data for HPO Id, HPo Label, and a Frequency term
                     try {
-                        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromOrphaData(
+                        HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaData(
                                 String.format("ORPHA:%s", currentOrphanumber),
                                 currentDiseaseName,
                                 currentHpoId,

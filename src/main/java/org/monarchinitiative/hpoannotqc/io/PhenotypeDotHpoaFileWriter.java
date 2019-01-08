@@ -4,8 +4,8 @@ package org.monarchinitiative.hpoannotqc.io;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -31,10 +31,8 @@ public class PhenotypeDotHpoaFileWriter {
     private final List<HpoAnnotationModel> internalAnnotFileList;
     /** List of all of the {@link HpoAnnotationModel} objects derived from the Orphanet XML file. */
     private final List<HpoAnnotationModel> orphanetSmallFileList;
-    /** Total number of annotations of all of the annotation files. */
-    //private int n_total_annotation_lines=0;
     /**Usually "phenotype.hpoa", but may also include path. */
-    private final String bigFileOutputName;
+    private final String outputFileName;
     private final static String EMPTY_STRING="";
     private static final TermId phenotypeRoot= TermId.of("HP:0000118");
     private static final TermId INHERITANCE_TERM_ID =TermId.of("HP:0000005");
@@ -56,7 +54,7 @@ public class PhenotypeDotHpoaFileWriter {
         this.ontology=ont;
         this.internalAnnotFileList =internalAnnotFileList;
         this.orphanetSmallFileList=orphaList;
-        this.bigFileOutputName=outpath;
+        this.outputFileName =outpath;
     }
 
 
@@ -70,11 +68,12 @@ public class PhenotypeDotHpoaFileWriter {
         this.n_decipher=0;
         this.n_omim=0;
         this.n_unknown=0;
-        for (HpoAnnotationModel v2f : internalAnnotFileList) {
-            if (v2f.isOMIM()) n_omim++;
-            else if (v2f.isDECIPHER()) n_decipher++;
+        for (HpoAnnotationModel diseaseModel : internalAnnotFileList) {
+            if (diseaseModel.isOMIM()) n_omim++;
+            else if (diseaseModel.isDECIPHER()) n_decipher++;
             else n_unknown++;
         }
+        this.n_orphanet = orphanetSmallFileList.size();
     }
 
 
@@ -95,7 +94,7 @@ public class PhenotypeDotHpoaFileWriter {
     public void outputBigFile() throws IOException {
         String description = String.format("#description: HPO annotations for rare diseases [%d: OMIM; %d: DECIPHER; %d ORPHANET]",n_omim,n_decipher,n_orphanet);
         if (n_unknown>0) description=String.format("%s -- warning: %d entries could not be assigned to a database",description,n_unknown);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(bigFileOutputName));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
         writer.write(description + "\n");
         writer.write(String.format("#date: %s\n",getDate()));
         writer.write("#tracker: https://github.com/obophenotype/human-phenotype-ontology\n");
@@ -108,8 +107,8 @@ public class PhenotypeDotHpoaFileWriter {
         int n = 0;
         writer.write(getHeaderLine() + "\n");
         for (HpoAnnotationModel smallFile : this.internalAnnotFileList) {
-            List<HpoAnnotationFileEntry> entryList = smallFile.getEntryList();
-            for (HpoAnnotationFileEntry entry : entryList) {
+            List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
+            for (HpoAnnotationEntry entry : entryList) {
                 try {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
@@ -123,8 +122,8 @@ public class PhenotypeDotHpoaFileWriter {
         System.out.println("We output a total of " + n + " big file lines from internal HPO Annotation files");
         int m=0;
         for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
-            List<HpoAnnotationFileEntry> entryList = smallFile.getEntryList();
-            for (HpoAnnotationFileEntry entry : entryList) {
+            List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
+            for (HpoAnnotationEntry entry : entryList) {
                 try {
                     String bigfileLine = transformEntry2BigFileLine(entry);
                     writer.write(bigfileLine + "\n");
@@ -142,13 +141,13 @@ public class PhenotypeDotHpoaFileWriter {
 
 
     /**
-     * Transform one line from a Small File (represented as a {@link HpoAnnotationFileEntry} object)
+     * Transform one line from a Small File (represented as a {@link HpoAnnotationEntry} object)
      * into one line of the Big File.
      * @param entry Representing a line from a Small File
      * @return A string that will be one line of the Big file
      * @throws HPOException if the Aspect of the line cannot be determined
      */
-    String transformEntry2BigFileLine(HpoAnnotationFileEntry entry) throws HPOException{
+    String transformEntry2BigFileLine(HpoAnnotationEntry entry) throws HPOException{
 
         String [] elems = {
                 entry.getDiseaseID(), //DB_Object_ID

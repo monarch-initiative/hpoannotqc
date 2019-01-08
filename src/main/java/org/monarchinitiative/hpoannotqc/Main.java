@@ -1,10 +1,15 @@
 package org.monarchinitiative.hpoannotqc;
 
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
 import org.monarchinitiative.hpoannotqc.cmd.Command;
-import org.monarchinitiative.hpoannotqc.io.Commandline;
+import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
+
 
 
 
@@ -17,10 +22,66 @@ import org.monarchinitiative.hpoannotqc.io.Commandline;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger();
+    @Parameter(names = {"-h", "--help"}, help = true, description = "display this help message")
+    private boolean usageHelpRequested;
+
+
     public static void main(String[] args) {
         logger.trace("Starting HPO AnnotQC");
-        Commandline clp = new Commandline(args);
-        Command command = clp.getCommand();
-        command.execute();
+
+        DownloadCommand download = new DownloadCommand();
+        BigFileCommand bigfile = new BigFileCommand();
+
+        Main main = new Main();
+
+        JCommander jc = JCommander.newBuilder()
+                .addObject(main)
+                .addCommand("download", download)
+                .addCommand("big-file", bigfile)
+                .build();
+        jc.setProgramName("java -jar HpoAnnotQc.jar");
+        try {
+            jc.parse(args);
+        } catch (ParameterException e) {
+            System.err.println("[ERROR] "+e.getMessage());
+            jc.usage();
+            System.exit(1);
+        }
+
+        if (jc.getParsedCommand()==null ) {
+            System.err.println("[ERROR] no command passed");
+            jc.usage();
+            System.exit(1);
+        }
+
+        if ( main.usageHelpRequested) {
+            jc.usage();
+            System.exit(1);
+        }
+
+        String command = jc.getParsedCommand();
+        Command qccommand=null;
+
+        switch (command) {
+            case "download":
+                qccommand=download;
+                break;
+            case "big-file":
+                qccommand=bigfile;
+                break;
+            default:
+                System.err.println(String.format("[ERROR] command \"%s\" not recognized",command));
+                jc.usage();
+                System.exit(1);
+        }
+        try {
+            qccommand.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        Commandline clp = new Commandline(args);
+//        Command command = clp.getCommand();
+//        command.execute();
     }
 }

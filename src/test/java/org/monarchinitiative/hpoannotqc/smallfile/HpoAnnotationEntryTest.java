@@ -50,7 +50,7 @@ class HpoAnnotationEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"))
 
-        HpoAnnotationFileEntry entry=HpoAnnotationFileEntry.fromLine(line,ontology);
+        HpoAnnotationEntry entry= HpoAnnotationEntry.fromLine(line,ontology);
 
         assertEquals("IEA",entry.getEvidenceCode());
     }
@@ -74,7 +74,7 @@ class HpoAnnotationEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);//Arrays.stream(fields).collect(Collectors.joining("\t"));
         Assertions.assertThrows(PhenolException.class, () -> {
-            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+            HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line,ontology);
         });
     }
 
@@ -98,7 +98,7 @@ class HpoAnnotationEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         Assertions.assertThrows(HpoAnnotationModelException.class, () -> {
-            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line, ontology);
+            HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, ontology);
         });
     }
 
@@ -124,7 +124,7 @@ class HpoAnnotationEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         Assertions.assertThrows(PhenolException.class, () -> {
-            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+            HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line,ontology);
         });
     }
 
@@ -147,7 +147,7 @@ class HpoAnnotationEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+        HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line,ontology);
         assertEquals("96.7%",entry.getFrequencyModifier());
     }
 
@@ -172,7 +172,7 @@ class HpoAnnotationEntryTest {
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
         Assertions.assertThrows(HpoAnnotationModelException.class, () -> {
-            HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+            HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line,ontology);
         });
     }
 
@@ -195,7 +195,7 @@ class HpoAnnotationEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+        HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line,ontology);
         assertEquals("7/42",entry.getFrequencyModifier());
     }
 

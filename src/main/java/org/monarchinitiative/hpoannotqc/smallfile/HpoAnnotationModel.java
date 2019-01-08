@@ -17,8 +17,8 @@ import java.util.*;
 public class HpoAnnotationModel {
     /** The base name of the HPO Annotation file. */
     private final String basename;
-    /** List of {@link HpoAnnotationFileEntry} objects representing the original lines of the small file */
-    private final List<HpoAnnotationFileEntry> entryList;
+    /** List of {@link HpoAnnotationEntry} objects representing the original lines of the small file */
+    private final List<HpoAnnotationEntry> entryList;
     /** These are the databases currently represented in our data resource. */
     private enum Database {OMIM,DECIPHER,UNKNOWN}
     /** What is the source of the current HpoAnnotationModel? */
@@ -27,12 +27,12 @@ public class HpoAnnotationModel {
     /** @return The base name of the HPO Annotation file.*/
     public String getBasename() { return basename; }
 
-    /** The constructor creates an immutable copy of the original list of {@link HpoAnnotationFileEntry} objects
+    /** The constructor creates an immutable copy of the original list of {@link HpoAnnotationEntry} objects
      * provided by the parser
      * @param name Name of the "small file"
-     * @param entries List of {@link HpoAnnotationFileEntry} objects -- one per line of the small file.
+     * @param entries List of {@link HpoAnnotationEntry} objects -- one per line of the small file.
      */
-    public HpoAnnotationModel(String name, List<HpoAnnotationFileEntry> entries) {
+    public HpoAnnotationModel(String name, List<HpoAnnotationEntry> entries) {
         basename=name;
         entryList = ImmutableList.copyOf(entries);
         if (basename.contains("OMIM")) this.database=Database.OMIM;
@@ -45,8 +45,8 @@ public class HpoAnnotationModel {
     public boolean isDECIPHER() { return this.database.equals(Database.DECIPHER);}
 
 
-    /** @return the {@link HpoAnnotationFileEntry} objects -- one per line of the small file.*/
-    public List<HpoAnnotationFileEntry> getEntryList() {
+    /** @return the {@link HpoAnnotationEntry} objects -- one per line of the small file.*/
+    public List<HpoAnnotationEntry> getEntryList() {
         return entryList;
     }
 

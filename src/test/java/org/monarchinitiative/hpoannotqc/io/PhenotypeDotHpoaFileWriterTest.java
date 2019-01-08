@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -22,7 +22,7 @@ class PhenotypeDotHpoaFileWriterTest {
 
 
 
-    private static HpoAnnotationFileEntry entry;
+    private static HpoAnnotationEntry entry;
     private static HpoOntology ontology;
 
     @BeforeAll
@@ -49,7 +49,7 @@ class PhenotypeDotHpoaFileWriterTest {
         String biocuration="HPO:skoehler[2015-07-26]";
         String fields[] ={diseaseID,diseaseName,hpoId,hpoName,age1,age2,freq,sex,negation,mod,description,pub,evidenceCode,biocuration};
         String line = String.join("\t",fields);
-        entry = HpoAnnotationFileEntry.fromLine(line,ontology);
+        entry = HpoAnnotationEntry.fromLine(line,ontology);
     }
 
     /**

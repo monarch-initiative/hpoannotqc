@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * This class represents the contents of a single annotation line.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class HpoAnnotationFileEntry {
+public class HpoAnnotationEntry {
     private static final Logger logger = LogManager.getLogger();
 
     private final static String EMPTY_STRING="";
@@ -169,20 +169,20 @@ public class HpoAnnotationFileEntry {
 
 
 
-    private HpoAnnotationFileEntry(String disID,
-                                   String diseaseName,
-                                   TermId phenotypeId,
-                                   String phenotypeName,
-                                   String ageOfOnsetId,
-                                   String ageOfOnsetName,
-                                   String frequencyString,
-                                   String sex,
-                                   String negation,
-                                   String modifier,
-                                   String description,
-                                   String publication,
-                                   String evidenceCode,
-                                   String biocuration) {
+    private HpoAnnotationEntry(String disID,
+                               String diseaseName,
+                               TermId phenotypeId,
+                               String phenotypeName,
+                               String ageOfOnsetId,
+                               String ageOfOnsetName,
+                               String frequencyString,
+                               String sex,
+                               String negation,
+                               String modifier,
+                               String description,
+                               String publication,
+                               String evidenceCode,
+                               String biocuration) {
         this.diseaseID=disID;
         this.diseaseName=diseaseName;
         this.phenotypeId=phenotypeId;
@@ -229,14 +229,14 @@ public class HpoAnnotationFileEntry {
 
 
     /**
-     * Create an {@link HpoAnnotationFileEntry} object for a line in an HPO Annotation file. By default, we do not
+     * Create an {@link HpoAnnotationEntry} object for a line in an HPO Annotation file. By default, we do not
      * replace obsolete term ids here, this should be done with PhenoteFX in the original files.
      * @param line A line from an HPO Annotation file (small file)
      * @param ontology reference to HPO ontology
-     * @return corresponding {@link HpoAnnotationFileEntry} object
+     * @return corresponding {@link HpoAnnotationEntry} object
      * @throws PhenolException if there were Q/C problems with the line.
      */
-    public static HpoAnnotationFileEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
+    public static HpoAnnotationEntry fromLine(String line, HpoOntology ontology) throws PhenolException {
         String A[] = line.split("\t");
         if (A.length!= NUMBER_OF_FIELDS) {
             logger.error(String.format("We were expecting %d expectedFields but got %d for line %s",NUMBER_OF_FIELDS,A.length,line ));
@@ -257,7 +257,7 @@ public class HpoAnnotationFileEntry {
         String evidenceCode=A[12];
         String biocuration=A[13];
 
-        HpoAnnotationFileEntry entry = new HpoAnnotationFileEntry(diseaseID,
+        HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseID,
                  diseaseName,
                  phenotypeId,
                  phenotypeName,
@@ -278,13 +278,13 @@ public class HpoAnnotationFileEntry {
 
 
     /**
-     * Create an {@link HpoAnnotationFileEntry} object for a line in an HPO Annotation file. By default, we do not
+     * Create an {@link HpoAnnotationEntry} object for a line in an HPO Annotation file. By default, we do not
      * replace obsolete term ids here, this should be done with PhenoteFX in the original files.
      * @param line A line from an HPO Annotation file (small file)
      * @param ontology reference to HPO ontology
-     * @return corresponding {@link HpoAnnotationFileEntry} object
+     * @return corresponding {@link HpoAnnotationEntry} object
      */
-    public static Optional<HpoAnnotationFileEntry> fromLineReplaceObsoletePhenotypeData(String line, HpoOntology ontology)  {
+    public static Optional<HpoAnnotationEntry> fromLineReplaceObsoletePhenotypeData(String line, HpoOntology ontology)  {
         String A[] = line.split("\t");
         if (A.length != NUMBER_OF_FIELDS) {
             logger.error(String.format("We were expecting %d expectedFields but got %d for line %s", NUMBER_OF_FIELDS, A.length, line));
@@ -309,7 +309,7 @@ public class HpoAnnotationFileEntry {
         phenotypeId = ontology.getTermMap().get(phenotypeId).getId();
         phenotypeName = ontology.getTermMap().get(phenotypeId).getName();
         // if the following method does not throw an Exception, we are good to go!
-        HpoAnnotationFileEntry entry = new HpoAnnotationFileEntry(diseaseID,
+        HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseID,
                 diseaseName,
                 phenotypeId,
                 phenotypeName,
@@ -345,17 +345,17 @@ public class HpoAnnotationFileEntry {
      * @param ontology reference to HPO ontology
      * @param biocuration A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
      * @param replaceObsoleteTermId if true, correct obsolete term ids and do not throw an exception.
-     * @return corresponding HpoAnnotationFileEntry object
+     * @return corresponding HpoAnnotationEntry object
      * @throws HpoAnnotationModelException if there is a Q/C problem with the data
      */
-    public static HpoAnnotationFileEntry fromOrphaData(String diseaseID,
-                                                       String diseaseName,
-                                                       String hpoId,
-                                                       String hpoLabel,
-                                                       TermId frequency,
-                                                       HpoOntology ontology,
-                                                       String biocuration,
-                                                       boolean replaceObsoleteTermId) throws HpoAnnotationModelException {
+    public static HpoAnnotationEntry fromOrphaData(String diseaseID,
+                                                   String diseaseName,
+                                                   String hpoId,
+                                                   String hpoLabel,
+                                                   TermId frequency,
+                                                   HpoOntology ontology,
+                                                   String biocuration,
+                                                   boolean replaceObsoleteTermId) throws HpoAnnotationModelException {
 
         if (hpoId==null) {
             throw new HpoAnnotationModelException("Null String passed as hpoId for disease " + (diseaseID!=null?diseaseID:"n/a"));
@@ -386,7 +386,7 @@ public class HpoAnnotationFileEntry {
             }
         }
 
-        HpoAnnotationFileEntry entry = new HpoAnnotationFileEntry(diseaseID,
+        HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseID,
                 diseaseName,
                 phenotypeId,
                 hpoLabel,
@@ -410,14 +410,14 @@ public class HpoAnnotationFileEntry {
     // Q/C methods
 
     /**
-     * This method checks all of the fields of the HpoAnnotationFileEntry. If there is an error, then
+     * This method checks all of the fields of the HpoAnnotationEntry. If there is an error, then
      * it throws an Exception (upon the first error). If no exception is thrown, then the
      * no errors were found.
-     * @param entry The {@link HpoAnnotationFileEntry} to be tested.
+     * @param entry The {@link HpoAnnotationEntry} to be tested.
      * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
      * @throws HpoAnnotationModelException if any parse error is encountered
      */
-    private static void performQualityControl(HpoAnnotationFileEntry entry, HpoOntology ontology) throws HpoAnnotationModelException {
+    private static void performQualityControl(HpoAnnotationEntry entry, HpoOntology ontology) throws HpoAnnotationModelException {
         checkDB(entry);
         checkDiseaseName(entry.getDiseaseName());
         checkPhenotypeFields(entry,ontology);
@@ -437,7 +437,7 @@ public class HpoAnnotationFileEntry {
      * @param entry SMallFileEntry to be checked for a database String such as OMIM or ORPHA
      * @throws HpoAnnotationModelException if an invalid database code is used
      */
-    private static void checkDB(HpoAnnotationFileEntry entry) throws HpoAnnotationModelException {
+    private static void checkDB(HpoAnnotationEntry entry) throws HpoAnnotationModelException {
         try {
             String db = entry.getDB();
             if (! validDatabases.contains(db) ) {
@@ -458,9 +458,9 @@ public class HpoAnnotationFileEntry {
 
     /**
      * Check that the id is not an alt_id (i.e., out of date!)
-     * @param entry the {@link HpoAnnotationFileEntry} to be checked
+     * @param entry the {@link HpoAnnotationEntry} to be checked
      */
-    private static void checkPhenotypeFields(HpoAnnotationFileEntry entry, HpoOntology ontology)
+    private static void checkPhenotypeFields(HpoAnnotationEntry entry, HpoOntology ontology)
             throws HpoAnnotationModelException {
         TermId id = entry.getPhenotypeId();
         String termLabel = entry.getPhenotypeLabel();

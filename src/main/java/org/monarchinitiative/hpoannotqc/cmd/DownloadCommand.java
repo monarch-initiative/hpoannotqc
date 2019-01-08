@@ -2,6 +2,8 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
@@ -22,20 +24,19 @@ import java.net.URL;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * @version 0.0.2 (Jan 2, 2019)
  */
+@Parameters(commandDescription = "Download files")
 public final class DownloadCommand implements Command {
     private static final Logger LOGGER = LogManager.getLogger();
     /** Directory to which to download the files. */
-    private final String downloadDirectory;
+    @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
+    private String downloadDirectory="data";
     /** Overwrite previously downloaded files if true. */
-    private final boolean overwrite;
+    @Parameter(names={"-o","--overwrite"}, description = "overwrite prevously downloaded files, if any")
+    private boolean overwrite;
 
-    /**
-     * @param downloadDir directory to download to
-     * @param overw Overwrite previously downloaded files if true.
-     */
-    public DownloadCommand(String downloadDir, boolean overw)  {
-        this.downloadDirectory=downloadDir;
-        this.overwrite=overw;
+
+    public DownloadCommand()  {
+
     }
 
     /**

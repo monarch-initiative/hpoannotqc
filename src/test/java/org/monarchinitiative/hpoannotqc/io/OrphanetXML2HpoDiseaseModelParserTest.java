@@ -2,8 +2,8 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -19,7 +19,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OrphanetXML2HpoDiseaseModelParserTest {
+class OrphanetXML2HpoDiseaseModelParserTest {
 
     static private OrphanetXML2HpoDiseaseModelParser parser;
 
@@ -36,7 +36,7 @@ public class OrphanetXML2HpoDiseaseModelParserTest {
         HpOboParser oboparser = new HpOboParser(new File(hpOboFile));
         HpoOntology ontology = oboparser.parse();
         try {
-            parser = new OrphanetXML2HpoDiseaseModelParser(orphaXMLpath, ontology);
+            parser = new OrphanetXML2HpoDiseaseModelParser(orphaXMLpath, ontology, false);
         } catch (Exception e) {
             System.err.println("Could not parse Orpha " + e.getMessage());
             throw e;
@@ -62,23 +62,23 @@ public class OrphanetXML2HpoDiseaseModelParserTest {
     void  testPhenotypesAndFrequenciesOfDisease1() {
         List<HpoAnnotationModel> diseaseModels = parser.getOrphanetDiseaseModels();
         HpoAnnotationModel file = diseaseModels.get(0);
-        List<HpoAnnotationFileEntry> entrylist = file.getEntryList();
+        List<HpoAnnotationEntry> entrylist = file.getEntryList();
         // the first disease has three annotations
         int expectNumberOfAnnotations=3;
         assertEquals(expectNumberOfAnnotations,entrylist.size());
         // first HPO is HP:0100886</HPOId>
         //                        <HPOTerm>Abnormality of globe location
         TermId AbnGlobeLoc = TermId.of("HP:0100886");
-        HpoAnnotationFileEntry entry1 = entrylist.get(0);
+        HpoAnnotationEntry entry1 = entrylist.get(0);
         assertEquals(AbnGlobeLoc,entry1.getPhenotypeId());
         assertEquals(veryFrequent.getValue(),entry1.getFrequencyModifier());
 
-        HpoAnnotationFileEntry entry2 = entrylist.get(1);
+        HpoAnnotationEntry entry2 = entrylist.get(1);
         TermId Anophthalmia = TermId.of("HP:0000528");
         assertEquals(Anophthalmia,entry2.getPhenotypeId());
         assertEquals(veryFrequent.getValue(),entry2.getFrequencyModifier());
 
-        HpoAnnotationFileEntry entry3 = entrylist.get(2);
+        HpoAnnotationEntry entry3 = entrylist.get(2);
         TermId LacrimationAbnormality = TermId.of("HP:0000632");
         assertEquals(LacrimationAbnormality,entry3.getPhenotypeId());
         assertEquals(veryFrequent.getValue(),entry3.getFrequencyModifier());
@@ -89,14 +89,14 @@ public class OrphanetXML2HpoDiseaseModelParserTest {
     void  testPhenotypesAndFrequenciesOfDisease2() {
         List<HpoAnnotationModel> diseaseModels = parser.getOrphanetDiseaseModels();
         HpoAnnotationModel file = diseaseModels.get(1);
-        List<HpoAnnotationFileEntry> entrylist = file.getEntryList();
+        List<HpoAnnotationEntry> entrylist = file.getEntryList();
         // the first disease has three annotations
         int expectNumberOfAnnotations = 2;
-        HpoAnnotationFileEntry entry1 = entrylist.get(0);
+        HpoAnnotationEntry entry1 = entrylist.get(0);
         TermId Anophthalmia = TermId.of("HP:0000528");
         assertEquals(Anophthalmia,entry1.getPhenotypeId());
         assertEquals(occasional.getValue(),entry1.getFrequencyModifier());
-        HpoAnnotationFileEntry entry2 = entrylist.get(1);
+        HpoAnnotationEntry entry2 = entrylist.get(1);
         TermId AbnormalPupillaryFunction = TermId.of("HP:0007686");
         assertEquals(AbnormalPupillaryFunction,entry2.getPhenotypeId());
         assertEquals(occasional.getValue(),entry1.getFrequencyModifier());

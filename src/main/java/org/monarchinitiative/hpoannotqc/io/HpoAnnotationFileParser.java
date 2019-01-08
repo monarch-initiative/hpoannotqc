@@ -2,8 +2,8 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
 import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermIdException;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
@@ -71,7 +71,7 @@ public class HpoAnnotationFileParser {
      */
     public HpoAnnotationModel parse(boolean faultTolerant) throws HpoAnnotationModelException {
         String basename=(new File(pathToHpoAnnotationFile).getName());
-        List<HpoAnnotationFileEntry> entryList=new ArrayList<>();
+        List<HpoAnnotationEntry> entryList=new ArrayList<>();
         this.parseErrors=new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(pathToHpoAnnotationFile));
@@ -79,11 +79,11 @@ public class HpoAnnotationFileParser {
             qcHeaderLine(line);
             while ((line=br.readLine())!=null) {
                 try {
-                    HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line, ontology);
+                    HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, ontology);
                     entryList.add(entry);
                 } catch (ObsoleteTermIdException obsE) {
                     // try to rescue obsolete termid!
-                    Optional<HpoAnnotationFileEntry> entryOpt = HpoAnnotationFileEntry.fromLineReplaceObsoletePhenotypeData(line, ontology);
+                    Optional<HpoAnnotationEntry> entryOpt = HpoAnnotationEntry.fromLineReplaceObsoletePhenotypeData(line, ontology);
                     if (entryOpt.isPresent()) {
                         entryList.add(entryOpt.get());
                     }

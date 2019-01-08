@@ -3,6 +3,12 @@ Change Log
 ==========
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
+
+`1.4.2`_(2010-01-09)
+--------------------
+* refactored to use JCommander
+* simplified class structure, now using only two classes to represent content (HpoAnnotationModel and HpoAnnotationEntry)
+
 `1.4.0`_(2010-01-05)
 --------------------
 * fixed bug with '#' in header, added test.
