@@ -3,10 +3,10 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.bigfile.PhenotypeDotHpoaFileWriter;
+import org.monarchinitiative.hpoannotqc.io.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.io.OrphanetXML2HpoDiseaseModelParser;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
@@ -22,8 +22,8 @@ import java.util.List;
  */
 public class BigFileCommand implements Command {
     private static final Logger logger = LogManager.getLogger();
-    /** Path to directory where we will write the new "small files". */
-    private final String v2smallFileDirectory;
+    /** Path to directory with the ca. 7000 HPO Annotation files ("small files"). */
+    private final String hpoAnnotationFileDirectory;
     /** Path to the {@code hp.obo} file. */
     private final String hpOboPath;
     /** Path to the downloaded Orphanet XML file */
@@ -42,10 +42,10 @@ public class BigFileCommand implements Command {
      */
     public BigFileCommand(String hpopath, String dir, String orphaXML, String outpath) {
         hpOboPath=hpopath;
-        v2smallFileDirectory =dir;
+        hpoAnnotationFileDirectory =dir;
         orphanetXMLpath=orphaXML;
         outputFilePath=outpath;
-        omitPath=String.format("%s%s%s",v2smallFileDirectory,File.separator,"omit-list.txt");
+        omitPath=String.format("%s%s%s", hpoAnnotationFileDirectory,File.separator,"omit-list.txt");
     }
 
     @Override
@@ -60,12 +60,14 @@ public class BigFileCommand implements Command {
             logger.fatal("Unable to recover, stopping execution");
             return;
         }
-        System.err.println("!!!!SKIPPING THIS DO NOT FORGET");
         try {
-            HpoAnnotationFileIngestor annotationFileIngestor = new HpoAnnotationFileIngestor(v2smallFileDirectory, omitPath, ontology);
-            List<HpoAnnotationFile> hpoFileEntryList = annotationFileIngestor.getV2SmallFileEntries();
+            // 1. Get the HPO project annotation files
+            HpoAnnotationFileIngestor annotationFileIngestor = new HpoAnnotationFileIngestor(hpoAnnotationFileDirectory, omitPath, ontology);
+            List<HpoAnnotationModel> hpoFileEntryList = annotationFileIngestor.getV2SmallFileEntries();
+            // 2. Get the Orphanet annotation file
             OrphanetXML2HpoDiseaseModelParser orphaParser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology);
-            List<HpoAnnotationFile> orphaFileEntryList = orphaParser.getOrphanetDiseaseModels();
+            List<HpoAnnotationModel> orphaFileEntryList = orphaParser.getOrphanetDiseaseModels();
+            // 3. Combine both and output to phenotype.hpoa ("big file")
             PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology, hpoFileEntryList, orphaFileEntryList, outputFilePath);
             writer.setOntologyMetadata(ontology.getMetaInfo());
             writer.outputBigFile();

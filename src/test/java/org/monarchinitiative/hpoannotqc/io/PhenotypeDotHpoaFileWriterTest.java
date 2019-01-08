@@ -1,10 +1,10 @@
-package org.monarchinitiative.hpoannotqc.bigfile;
+package org.monarchinitiative.hpoannotqc.io;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -72,7 +72,7 @@ class PhenotypeDotHpoaFileWriterTest {
                 "HPO:skoehler[2015-07-26]", // biocuration
         };
         String expected= String.join("\t", bigFileFields);
-        List<HpoAnnotationFile> emptyList = ImmutableList.of(); // needed for testing.
+        List<HpoAnnotationModel> emptyList = ImmutableList.of(); // needed for testing.
         PhenotypeDotHpoaFileWriter v1b = new PhenotypeDotHpoaFileWriter(ontology, emptyList, emptyList,"");
         String line = v1b.transformEntry2BigFileLine(entry);
         assertEquals(expected,line);

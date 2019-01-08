@@ -14,14 +14,14 @@ import java.util.*;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
-public class HpoAnnotationFile {
+public class HpoAnnotationModel {
     /** The base name of the HPO Annotation file. */
     private final String basename;
     /** List of {@link HpoAnnotationFileEntry} objects representing the original lines of the small file */
     private final List<HpoAnnotationFileEntry> entryList;
     /** These are the databases currently represented in our data resource. */
     private enum Database {OMIM,DECIPHER,UNKNOWN}
-    /** What is the source of the current HpoAnnotationFile? */
+    /** What is the source of the current HpoAnnotationModel? */
     private final Database database;
 
     /** @return The base name of the HPO Annotation file.*/
@@ -32,7 +32,7 @@ public class HpoAnnotationFile {
      * @param name Name of the "small file"
      * @param entries List of {@link HpoAnnotationFileEntry} objects -- one per line of the small file.
      */
-    public HpoAnnotationFile(String name, List<HpoAnnotationFileEntry> entries) {
+    public HpoAnnotationModel(String name, List<HpoAnnotationFileEntry> entries) {
         basename=name;
         entryList = ImmutableList.copyOf(entries);
         if (basename.contains("OMIM")) this.database=Database.OMIM;

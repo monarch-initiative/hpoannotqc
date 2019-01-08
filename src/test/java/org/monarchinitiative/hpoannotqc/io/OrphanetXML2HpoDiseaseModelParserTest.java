@@ -2,7 +2,7 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -53,15 +53,15 @@ public class OrphanetXML2HpoDiseaseModelParserTest {
     @Test
     void testTwoDiseases() {
         int expectedNumberOfDiseases=2;
-        List<HpoAnnotationFile> diseaseModels = parser.getOrphanetDiseaseModels();
+        List<HpoAnnotationModel> diseaseModels = parser.getOrphanetDiseaseModels();
         assertEquals(expectedNumberOfDiseases,diseaseModels.size());
     }
 
     /** consult the XML file en_product4_HPO.small.xml for the source of the ground truth here. */
     @Test
     void  testPhenotypesAndFrequenciesOfDisease1() {
-        List<HpoAnnotationFile> diseaseModels = parser.getOrphanetDiseaseModels();
-        HpoAnnotationFile file = diseaseModels.get(0);
+        List<HpoAnnotationModel> diseaseModels = parser.getOrphanetDiseaseModels();
+        HpoAnnotationModel file = diseaseModels.get(0);
         List<HpoAnnotationFileEntry> entrylist = file.getEntryList();
         // the first disease has three annotations
         int expectNumberOfAnnotations=3;
@@ -87,8 +87,8 @@ public class OrphanetXML2HpoDiseaseModelParserTest {
     /** consult the XML file en_product4_HPO.small.xml for the source of the ground truth here. */
     @Test
     void  testPhenotypesAndFrequenciesOfDisease2() {
-        List<HpoAnnotationFile> diseaseModels = parser.getOrphanetDiseaseModels();
-        HpoAnnotationFile file = diseaseModels.get(1);
+        List<HpoAnnotationModel> diseaseModels = parser.getOrphanetDiseaseModels();
+        HpoAnnotationModel file = diseaseModels.get(1);
         List<HpoAnnotationFileEntry> entrylist = file.getEntryList();
         // the first disease has three annotations
         int expectNumberOfAnnotations = 2;

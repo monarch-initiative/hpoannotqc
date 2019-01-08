@@ -16,9 +16,9 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class HpoAnnotationFileTest {
+class HpoAnnotationModelTest {
     private static HpoOntology ontology;
-    private static HpoAnnotationFile v2sf=null;
+    private static HpoAnnotationModel v2sf=null;
 
 
     @BeforeAll

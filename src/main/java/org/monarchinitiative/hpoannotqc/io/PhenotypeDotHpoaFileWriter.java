@@ -1,10 +1,10 @@
-package org.monarchinitiative.hpoannotqc.bigfile;
+package org.monarchinitiative.hpoannotqc.io;
 
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HPOException;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.ontology.data.Term;
@@ -27,10 +27,10 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  */
 public class PhenotypeDotHpoaFileWriter {
     private static final Logger logger = LogManager.getLogger();
-    /** List of all of the {@link HpoAnnotationFile} objects from our annotations (OMIM and DECIPHER). */
-    private final List<HpoAnnotationFile> internalAnnotFileList;
-    /** List of all of the {@link HpoAnnotationFile} objects derived from the Orphanet XML file. */
-    private final List<HpoAnnotationFile> orphanetSmallFileList;
+    /** List of all of the {@link HpoAnnotationModel} objects from our annotations (OMIM and DECIPHER). */
+    private final List<HpoAnnotationModel> internalAnnotFileList;
+    /** List of all of the {@link HpoAnnotationModel} objects derived from the Orphanet XML file. */
+    private final List<HpoAnnotationModel> orphanetSmallFileList;
     /** Total number of annotations of all of the annotation files. */
     //private int n_total_annotation_lines=0;
     /**Usually "phenotype.hpoa", but may also include path. */
@@ -52,7 +52,7 @@ public class PhenotypeDotHpoaFileWriter {
 
 
 
-    public PhenotypeDotHpoaFileWriter(HpoOntology ont, List<HpoAnnotationFile> internalAnnotFileList, List<HpoAnnotationFile> orphaList, String outpath) {
+    public PhenotypeDotHpoaFileWriter(HpoOntology ont, List<HpoAnnotationModel> internalAnnotFileList, List<HpoAnnotationModel> orphaList, String outpath) {
         this.ontology=ont;
         this.internalAnnotFileList =internalAnnotFileList;
         this.orphanetSmallFileList=orphaList;
@@ -70,7 +70,7 @@ public class PhenotypeDotHpoaFileWriter {
         this.n_decipher=0;
         this.n_omim=0;
         this.n_unknown=0;
-        for (HpoAnnotationFile v2f : internalAnnotFileList) {
+        for (HpoAnnotationModel v2f : internalAnnotFileList) {
             if (v2f.isOMIM()) n_omim++;
             else if (v2f.isDECIPHER()) n_decipher++;
             else n_unknown++;
@@ -107,7 +107,7 @@ public class PhenotypeDotHpoaFileWriter {
         }
         int n = 0;
         writer.write(getHeaderLine() + "\n");
-        for (HpoAnnotationFile smallFile : this.internalAnnotFileList) {
+        for (HpoAnnotationModel smallFile : this.internalAnnotFileList) {
             List<HpoAnnotationFileEntry> entryList = smallFile.getEntryList();
             for (HpoAnnotationFileEntry entry : entryList) {
                 try {
@@ -122,7 +122,7 @@ public class PhenotypeDotHpoaFileWriter {
         }
         System.out.println("We output a total of " + n + " big file lines from internal HPO Annotation files");
         int m=0;
-        for (HpoAnnotationFile smallFile : this.orphanetSmallFileList) {
+        for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
             List<HpoAnnotationFileEntry> entryList = smallFile.getEntryList();
             for (HpoAnnotationFileEntry entry : entryList) {
                 try {

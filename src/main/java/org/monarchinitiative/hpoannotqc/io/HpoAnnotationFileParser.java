@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.io;
 
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Parse of a single HPO Annotation File into a {@link HpoAnnotationFile} object. The HPO project uses a single
+ * Parse of a single HPO Annotation File into a {@link HpoAnnotationModel} object. The HPO project uses a single
  * tab-separated file with 14 fields (see {@link #expectedFields}) to store information about individual
  * diseases. Colloquially, we have called these files "small-files" to distinguish them from the
  * {@code phenotype.hpoa} file that is created by combining the information from all ca. 7000 small files
@@ -62,13 +62,13 @@ public class HpoAnnotationFileParser {
 
     /**
      * Parse a single HPO Annotation file. If {@code faultTolerant} is set to true, then we will parse as
-     * much as we can of an annotation file and return the {@link HpoAnnotationFile} object, even if one or more
+     * much as we can of an annotation file and return the {@link HpoAnnotationModel} object, even if one or more
      * parse errors occured. Otherwise, an {@link HpoAnnotationFileException} will be thrown
      * @param faultTolerant If true, report errors to STDERR but do not throw an exception
-     * @return A {@link HpoAnnotationFile} object corresponding to the data in the HPO Annotation file
+     * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
      * @throws HpoAnnotationFileException if faultTolerant is false, parse errors are not thrown, rather only IO exceptions are thrown
      */
-    public HpoAnnotationFile parse(boolean faultTolerant) throws HpoAnnotationFileException {
+    public HpoAnnotationModel parse(boolean faultTolerant) throws HpoAnnotationFileException {
         String basename=(new File(pathToHpoAnnotationFile).getName());
         List<HpoAnnotationFileEntry> entryList=new ArrayList<>();
         this.parseErrors=new ArrayList<>();
@@ -95,7 +95,7 @@ public class HpoAnnotationFileParser {
                           pathToHpoAnnotationFile, errstr));
               }
             }
-            return new HpoAnnotationFile(basename,entryList);
+            return new HpoAnnotationModel(basename,entryList);
         } catch (IOException e) {
             throw new HpoAnnotationFileException(String.format("Error parsing %s: %s", pathToHpoAnnotationFile, e.getMessage()));
         }
@@ -106,7 +106,7 @@ public class HpoAnnotationFileParser {
      * error is encountered, throw an {@link HpoAnnotationFileException}.
      * @throws HpoAnnotationFileException if any parse error of IO problem is encountered.
      */
-    public HpoAnnotationFile parse() throws HpoAnnotationFileException {
+    public HpoAnnotationModel parse() throws HpoAnnotationFileException {
         return parse(false);
     }
 

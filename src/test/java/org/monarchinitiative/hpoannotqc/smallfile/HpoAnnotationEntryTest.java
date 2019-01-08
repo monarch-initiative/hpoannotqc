@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertEquals;
 
-class HpoAnnotationFileEntryTest {
+class HpoAnnotationEntryTest {
 
     private static HpoOntology ontology;
 

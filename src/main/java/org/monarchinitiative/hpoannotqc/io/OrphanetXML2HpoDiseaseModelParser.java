@@ -4,7 +4,7 @@ package org.monarchinitiative.hpoannotqc.io;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFile;
+import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
@@ -69,7 +69,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     /** A String of the form ORPHA:orphadata[2019-01-05] that we will use as the biocuration entry. */
      private final String orphanetBiocurationString;
     /** A list of diseases parsed from Orphanet. */
-    private final List<HpoAnnotationFile> orphanetDiseaseList=new ArrayList<>();
+    private final List<HpoAnnotationModel> orphanetDiseaseList=new ArrayList<>();
 
 
 
@@ -88,7 +88,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     }
 
 
-    public List<HpoAnnotationFile> getOrphanetDiseaseModels() { return this.orphanetDiseaseList;}
+    public List<HpoAnnotationModel> getOrphanetDiseaseModels() { return this.orphanetDiseaseList;}
 
 
 
@@ -244,7 +244,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         //e.printStackTrace();
                     }
                 } else if (endElementName.equals("Disorder")) {
-                    HpoAnnotationFile file = new HpoAnnotationFile(String.format("ORPHA:%s", currentOrphanumber),
+                    HpoAnnotationModel file = new HpoAnnotationModel(String.format("ORPHA:%s", currentOrphanumber),
                             currentAnnotationEntryList);
                     orphanetDiseaseList.add(file);
                     currentOrphanumber=null;

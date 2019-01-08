@@ -24,13 +24,10 @@ import java.net.URL;
  */
 public final class DownloadCommand implements Command {
     private static final Logger LOGGER = LogManager.getLogger();
+    /** Directory to which to download the files. */
     private final String downloadDirectory;
     /** Overwrite previously downloaded files if true. */
     private final boolean overwrite;
-
-    private final static String MONDO_URL="https://raw.githubusercontent.com/monarch-initiative/monarch-disease-ontology/master/src/mondo/mondo.obo";
-
-    public String getName() { return "download"; }
 
     /**
      * @param downloadDir directory to download to
@@ -112,9 +109,6 @@ public final class DownloadCommand implements Command {
             fde.printStackTrace();
         }
     }
-
-
-
 
 
     /**
