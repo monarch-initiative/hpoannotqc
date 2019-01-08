@@ -5,7 +5,7 @@ package org.monarchinitiative.hpoannotqc.smallfile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
@@ -97,7 +97,7 @@ class HpoAnnotationEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        Assertions.assertThrows(HpoAnnotationFileException.class, () -> {
+        Assertions.assertThrows(HpoAnnotationModelException.class, () -> {
             HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line, ontology);
         });
     }
@@ -171,7 +171,7 @@ class HpoAnnotationEntryTest {
                 "PCS",
                 "HPO:probinson[2013-01-09]"};
         String line = String.join("\t",fields);
-        Assertions.assertThrows(HpoAnnotationFileException.class, () -> {
+        Assertions.assertThrows(HpoAnnotationModelException.class, () -> {
             HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line,ontology);
         });
     }

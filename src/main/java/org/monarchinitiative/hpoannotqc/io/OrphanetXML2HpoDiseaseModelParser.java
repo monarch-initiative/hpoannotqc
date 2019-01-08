@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.formats.hpo.HpoFrequencyTermIds;
@@ -71,6 +71,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
     /** A list of diseases parsed from Orphanet. */
     private final List<HpoAnnotationModel> orphanetDiseaseList=new ArrayList<>();
 
+    boolean replaceObsoleteTermId=true;
+
 
 
 
@@ -122,23 +124,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
         return null; // needed to avoid warning
     }
 
-    /**
-     * @param tid An HPO term id
-     * @param orphalabel The HPO label used in the Orphanet file
-     * @return The label (updated to the current version if necessary for merged terms).
-
-    private String getCurrentHpoLabel(TermId tid, String orphalabel) {
-        if (! ontology.getTermMap().containsKey(tid)) {
-            logger.error(String.format("[ERROR] Using label for non-findable TermId for Orphanet HPO ID %s[%s] -- will skip this annotation", tid.getValue(),orphalabel));
-            n_could_not_find_orphanet_HpoId++;
-            return orphalabel; // probably an obsolete term.
-        }
-        String label = ontology.getTermMap().get(tid).getName();
-        if (! label.equals(orphalabel)) {
-            n_updatedTermLabel++;
-        }
-        return label;
-    }  */
 
     /**
      * This method performs the XML parse of the Orphanet file
@@ -227,14 +212,15 @@ public class OrphanetXML2HpoDiseaseModelParser {
                                 currentHpoTermLabel,
                                 currentFrequencyTermId,
                                 ontology,
-                                orphanetBiocurationString);
+                                orphanetBiocurationString,
+                                replaceObsoleteTermId);
                         currentHpoId = null;
                         currentHpoTermLabel = null;
                         currentFrequencyTermId = null;// reset
 
                         currentAnnotationEntryList.add(entry);
 
-                    } catch (HpoAnnotationFileException e) {
+                    } catch (HpoAnnotationModelException e) {
                         logger.error(String.format("Parse error for %s [ORPHA:%s] HPOid: %s (%s)",
                                 currentDiseaseName != null ? currentDiseaseName : "n/a",
                                 currentOrphanumber != null ? currentOrphanumber : "n/a",

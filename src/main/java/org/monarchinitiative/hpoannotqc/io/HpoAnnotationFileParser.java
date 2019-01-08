@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.io;
 
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermIdException;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationFileEntry;
 import org.monarchinitiative.phenol.base.PhenolException;
@@ -63,12 +64,12 @@ public class HpoAnnotationFileParser {
     /**
      * Parse a single HPO Annotation file. If {@code faultTolerant} is set to true, then we will parse as
      * much as we can of an annotation file and return the {@link HpoAnnotationModel} object, even if one or more
-     * parse errors occured. Otherwise, an {@link HpoAnnotationFileException} will be thrown
+     * parse errors occured. Otherwise, an {@link HpoAnnotationModelException} will be thrown
      * @param faultTolerant If true, report errors to STDERR but do not throw an exception
      * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
-     * @throws HpoAnnotationFileException if faultTolerant is false, parse errors are not thrown, rather only IO exceptions are thrown
+     * @throws HpoAnnotationModelException if faultTolerant is false, parse errors are not thrown, rather only IO exceptions are thrown
      */
-    public HpoAnnotationModel parse(boolean faultTolerant) throws HpoAnnotationFileException {
+    public HpoAnnotationModel parse(boolean faultTolerant) throws HpoAnnotationModelException {
         String basename=(new File(pathToHpoAnnotationFile).getName());
         List<HpoAnnotationFileEntry> entryList=new ArrayList<>();
         this.parseErrors=new ArrayList<>();
@@ -80,6 +81,12 @@ public class HpoAnnotationFileParser {
                 try {
                     HpoAnnotationFileEntry entry = HpoAnnotationFileEntry.fromLine(line, ontology);
                     entryList.add(entry);
+                } catch (ObsoleteTermIdException obsE) {
+                    // try to rescue obsolete termid!
+                    Optional<HpoAnnotationFileEntry> entryOpt = HpoAnnotationFileEntry.fromLineReplaceObsoletePhenotypeData(line, ontology);
+                    if (entryOpt.isPresent()) {
+                        entryList.add(entryOpt.get());
+                    }
                 } catch (PhenolException e) {
                     parseErrors.add(String.format("%s:%s", pathToHpoAnnotationFile,e.getMessage()));
                 }
@@ -91,22 +98,22 @@ public class HpoAnnotationFileParser {
                   System.err.println(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
                           pathToHpoAnnotationFile,errstr));
               } else {
-                  throw new HpoAnnotationFileException(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
+                  throw new HpoAnnotationModelException(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
                           pathToHpoAnnotationFile, errstr));
               }
             }
             return new HpoAnnotationModel(basename,entryList);
         } catch (IOException e) {
-            throw new HpoAnnotationFileException(String.format("Error parsing %s: %s", pathToHpoAnnotationFile, e.getMessage()));
+            throw new HpoAnnotationModelException(String.format("Error parsing %s: %s", pathToHpoAnnotationFile, e.getMessage()));
         }
     }
 
     /**
      * Parse a single HPO Annotation file with the default setting of no fault-tolerance, i.e. if even a single parse
-     * error is encountered, throw an {@link HpoAnnotationFileException}.
-     * @throws HpoAnnotationFileException if any parse error of IO problem is encountered.
+     * error is encountered, throw an {@link HpoAnnotationModelException}.
+     * @throws HpoAnnotationModelException if any parse error of IO problem is encountered.
      */
-    public HpoAnnotationModel parse() throws HpoAnnotationFileException {
+    public HpoAnnotationModel parse() throws HpoAnnotationModelException {
         return parse(false);
     }
 
@@ -129,16 +136,16 @@ public class HpoAnnotationFileParser {
      * @param line a header line of a V2 small file
      * @throws if the number of fields in the head is not equal to {@link #NUMBER_OF_FIELDS} or if a column header is incorrect
      */
-    private void qcHeaderLine(String line) throws HpoAnnotationFileException {
+    private void qcHeaderLine(String line) throws HpoAnnotationModelException {
         String fields[] = line.split("\t");
         if (fields.length != NUMBER_OF_FIELDS) {
             String msg = String.format("Malformed header line\n"+line+
             "\nExpecting %d fields but got %d", NUMBER_OF_FIELDS, fields.length);
-            throw new HpoAnnotationFileException(msg);
+            throw new HpoAnnotationModelException(msg);
         }
         for (int i=0;i<fields.length;i++) {
             if (! fields[i].equals(expectedFields[i])) {
-                throw new HpoAnnotationFileException(String.format("Malformed field %d. Expected %s but got %s",
+                throw new HpoAnnotationModelException(String.format("Malformed field %d. Expected %s but got %s",
                         i,expectedFields[i],fields[i]));
             }
         }

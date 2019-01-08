@@ -2,7 +2,7 @@ package org.monarchinitiative.hpoannotqc.io;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationFileException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
 import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
 
@@ -64,7 +64,7 @@ public class HpoAnnotationFileIngestor {
                 HpoAnnotationModel v2sf = parser.parse();
                 n_total_annotation_lines += v2sf.getNumberOfAnnotations();
                 v2SmallFileList.add(v2sf);
-            } catch (HpoAnnotationFileException hafe) {
+            } catch (HpoAnnotationModelException hafe) {
                 logger.error("Errors encountered with V2 small file at {}: {}",path, hafe.getMessage());
             }
         }
