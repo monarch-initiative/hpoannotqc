@@ -5,11 +5,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.monarchinitiative.hpoannotqc.io.PhenotypeDotHpoaFileWriter;
-import org.monarchinitiative.hpoannotqc.io.HpoAnnotationFileIngestor;
-import org.monarchinitiative.hpoannotqc.io.OrphanetXML2HpoDiseaseModelParser;
-import org.monarchinitiative.hpoannotqc.smallfile.HpoAnnotationModel;
+import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
 import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.annotations.hpo.HpoAnnotationFileIngestor;
+import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetXML2HpoDiseaseModelParser;
+import org.monarchinitiative.phenol.io.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
 
 import java.io.*;

@@ -8,8 +8,8 @@ These files were merged into a single file that has been called ``phenotype_anno
 we will describe the format of ``phenotype.hpoa``.
 
 
-Big file (phenotype.hpoa) format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+phenotype.hpoa format
+~~~~~~~~~~~~~~~~~~~~~
 
 
 The first few lines present metadata (comments) preceeded by hash signs (#) at the beginning of the lines. The
