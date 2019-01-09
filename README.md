@@ -4,12 +4,7 @@ HPO Annotation QC
 
 
 ## Building the application
-hpoannotqc depends on the forked version of opntolib called OLPG available at
-https://github.com/monarch-initiative/OLPG
-Install this locally on the machine you are building hpoannotqc on.
-```aidl
-$ mvn install
-```
+hpoannotqc depends on phenol; currently, the latest version of phenol needs to be installed locally, but soon this will all be in maven central.
 
 ## Running the application
 We need to pass the application the location of the hp.obo file as well
@@ -23,12 +18,11 @@ The application will download several required files to a (new) subdirectory cal
 $ java -jar target/HpoAnnotQc.jar download
 ```
 
-### Creation of the 'big file'
+### Creation of phenotype.hpoa
 
-The following command converts the
-new files in v2files into a new phenotype_annotation2.tab file.
+The following command converts the HPO Annotation files ("small files) into the phenotype_annotation.tab file.
 ```aidl
-$ java -jar target/HpoAnnotQc.jar big-file -s /path/hpo-annotation-data/rare-diseases/annotated
+$ java -jar target/HpoAnnotQc.jar big-file -a /path/hpo-annotation-data/rare-diseases/annotated
 ```
 This command will output the ``phenotype.hpoa`` file as well as a log file
  named ``hpoannotQC.log.date``. The ``phenotype.hpoa`` file can be used as input for phenol.
