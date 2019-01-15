@@ -8,6 +8,7 @@ This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-
 --------------------
 * refactored to use JCommander
 * simplified class structure, now using only two classes to represent content (HpoAnnotationModel and HpoAnnotationEntry)
+* Update/refactor for phenol 1.3.2
 
 `1.4.0`_(2010-01-05)
 --------------------

@@ -6,11 +6,11 @@ import com.beust.jcommander.Parameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
-import org.monarchinitiative.phenol.formats.hpo.HpoOntology;
+import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.io.annotations.hpo.HpoAnnotationFileIngestor;
 import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.phenol.io.annotations.hpo.PhenotypeDotHpoaFileWriter;
-import org.monarchinitiative.phenol.io.obo.hpo.HpOboParser;
+import org.monarchinitiative.phenol.ontology.data.Ontology;
 
 import java.io.*;
 import java.util.List;
@@ -51,16 +51,7 @@ public class BigFileCommand implements Command {
 
     @Override
     public void execute() {
-        HpoOntology ontology;
-        try {
-            logger.trace("Parsing hp.obo ...");
-            HpOboParser hpoOboParser = new HpOboParser(new File(hpOboPath));
-            ontology = hpoOboParser.parse();
-        } catch (Exception e) {
-            logger.fatal("Unable to parse hp.obo file at " + hpOboPath);
-            logger.fatal("Unable to recover, stopping execution");
-            return;
-        }
+        Ontology ontology = OntologyLoader.loadOntology(new File(hpOboPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
         String omitPath=String.format("%s%s%s", hpoAnnotationFileDirectory,File.separator,"omit-list.txt");
         System.err.println("[INFO] annotation="+hpoAnnotationFileDirectory);
