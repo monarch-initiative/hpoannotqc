@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Create phenotype.hpoa file")
 public class BigFileCommand implements Command {
-    final Logger LOGGER = LoggerFactory.getLogger(BigFileCommand.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(BigFileCommand.class);
     /** Path to the {@code hp.obo} file. */
     private final String hpOboPath;
     /** Path to the downloaded Orphanet XML file */

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 @Parameters(commandDescription = "Download files")
 public final class DownloadCommand implements Command {
-    final Logger LOGGER = LoggerFactory.getLogger(DownloadCommand.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(DownloadCommand.class);
 
     /** Directory to which to download the files. */
     @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )

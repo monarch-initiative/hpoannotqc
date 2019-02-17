@@ -23,7 +23,7 @@ import java.net.URLConnection;
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>
  */
 public class FileDownloader {
-    final Logger LOGGER = LoggerFactory.getLogger(FileDownloader.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(FileDownloader.class);
     static class ProxyOptions {
         final String host = null;
         final int port = -1;
