@@ -3,14 +3,15 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.io.annotations.hpo.HpoAnnotationFileIngestor;
 import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.phenol.io.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 @Parameters(commandDescription = "Create phenotype.hpoa file")
 public class BigFileCommand implements Command {
-    private static final Logger logger = LogManager.getLogger();
+    final Logger LOGGER = LoggerFactory.getLogger(BigFileCommand.class);
     /** Path to the {@code hp.obo} file. */
     private final String hpOboPath;
     /** Path to the downloaded Orphanet XML file */
@@ -67,7 +68,7 @@ public class BigFileCommand implements Command {
             writer.setOntologyMetadata(ontology.getMetaInfo());
             writer.outputBigFile();
         } catch (IOException e) {
-            logger.fatal("[ERROR] Could not output phenotype.hpoa (big file). ",e);
+            LOGGER.error("[ERROR] Could not output phenotype.hpoa (big file).",e);
         }
     }
 

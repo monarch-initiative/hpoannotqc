@@ -4,9 +4,9 @@ package org.monarchinitiative.hpoannotqc.io;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.*;
@@ -23,8 +23,7 @@ import java.net.URLConnection;
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>
  */
 public class FileDownloader {
-    private static final Logger LOGGER = LogManager.getLogger();
-
+    final Logger LOGGER = LoggerFactory.getLogger(FileDownloader.class);
     static class ProxyOptions {
         final String host = null;
         final int port = -1;

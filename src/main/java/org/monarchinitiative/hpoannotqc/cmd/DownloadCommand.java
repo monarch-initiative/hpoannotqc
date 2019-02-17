@@ -4,14 +4,18 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+
 import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
 import org.monarchinitiative.hpoannotqc.io.FileDownloader;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 
@@ -26,7 +30,8 @@ import java.net.URL;
  */
 @Parameters(commandDescription = "Download files")
 public final class DownloadCommand implements Command {
-    private static final Logger LOGGER = LogManager.getLogger();
+    final Logger LOGGER = LoggerFactory.getLogger(DownloadCommand.class);
+
     /** Directory to which to download the files. */
     @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
     private String downloadDirectory="data";
