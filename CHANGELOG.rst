@@ -4,13 +4,19 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
-`1.4.2`_(2010-01-09)
+`1.4.3`_(2018-01-09)
+--------------------
+* fixing logging error
+* Update for phenol 1.3.3
+
+
+`1.4.2`_(2018-01-09)
 --------------------
 * refactored to use JCommander
 * simplified class structure, now using only two classes to represent content (HpoAnnotationModel and HpoAnnotationEntry)
 * Update/refactor for phenol 1.3.2
 
-`1.4.0`_(2010-01-05)
+`1.4.0`_(2018-01-05)
 --------------------
 * fixed bug with '#' in header, added test.
 * refactored and simplifed classes.

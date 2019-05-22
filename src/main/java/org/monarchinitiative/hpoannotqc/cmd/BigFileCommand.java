@@ -6,6 +6,7 @@ import com.beust.jcommander.Parameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.io.annotations.hpo.HpoAnnotationFileIngestor;
 import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetXML2HpoDiseaseModelParser;
@@ -32,7 +33,6 @@ public class BigFileCommand implements Command {
     /** Directory with hp.obo and en_product>HPO.xml files. */
     @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
     private String downloadDirectory="data";
-
     @Parameter(names={"-a","--annot"},description = "Path to directory with the ca. 7000 HPO Annotation files ", required = true)
     private String hpoAnnotationFileDirectory;
     /** Should usually be phenotype.hpoa, may also include path */
@@ -68,6 +68,8 @@ public class BigFileCommand implements Command {
             writer.outputBigFile();
         } catch (IOException e) {
             logger.fatal("[ERROR] Could not output phenotype.hpoa (big file). ",e);
+        } catch (PhenolRuntimeException pre) {
+            logger.fatal("Caught phenol runtime exception: "+ pre.getMessage());
         }
     }
 
