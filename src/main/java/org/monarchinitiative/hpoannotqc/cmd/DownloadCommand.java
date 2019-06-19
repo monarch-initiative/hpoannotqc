@@ -52,6 +52,7 @@ public final class DownloadCommand implements Command {
         createDownloadDir(downloadDirectory);
         downloadHpObo();
         downloadOrphanet();
+        downloadOrphanetInheritance();
     }
 
     /**
@@ -80,6 +81,38 @@ public final class DownloadCommand implements Command {
                 System.out.println(msg);
             } else {
                 LOGGER.error("Could not download en_product4_HPO.xml to " + downloadLocation);
+            }
+        } catch (FileDownloadException | MalformedURLException fde) {
+            fde.printStackTrace();
+        }
+    }
+
+    /**
+     * Download the Oprhanet HPO annotations, which are in XML
+     */
+    private void downloadOrphanetInheritance() {
+        //http://www.orphadata.org/data/xml/en_product4_HPO.xml
+        String downloadLocation=String.format("%s%sen_product9_ages.xml",downloadDirectory, File.separator);
+        File f = new File(downloadLocation);
+        if (f.exists()) {
+            if (overwrite) {
+                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
+            } else {
+                LOGGER.trace("cowardly refusing to download sen_product9_ages.xml, since it is already there");
+                System.out.println("cowardly refusing to download sen_product9_ages.xml, since it is already there");
+                return;
+            }
+        }
+        try {
+            URL url = new URL("http://www.orphadata.org/data/xml/en_product9_ages.xml");
+            FileDownloader downloader = new FileDownloader();
+            boolean result = downloader.copyURLToFile(url, f);
+            if (result) {
+                String msg = String.format("Downloaded en_product9_ages.xml to \"%s\"", downloadLocation);
+                LOGGER.trace(msg);
+                System.out.println(msg);
+            } else {
+                LOGGER.error("Could not download en_product9_ages.xml to " + downloadLocation);
             }
         } catch (FileDownloadException | MalformedURLException fde) {
             fde.printStackTrace();
