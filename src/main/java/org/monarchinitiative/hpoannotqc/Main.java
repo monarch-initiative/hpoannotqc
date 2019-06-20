@@ -9,7 +9,6 @@ import com.beust.jcommander.ParameterException;
 import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
 import org.monarchinitiative.hpoannotqc.cmd.Command;
 import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
-import org.monarchinitiative.hpoannotqc.io.OrphaInheritanceParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +30,6 @@ public class Main {
 
     public static void main(String[] args) {
         logger.trace("Starting HPO AnnotQC");
-
-        String testfile="src/test/resources/en_product9_ages-small.xml";
-       // OrphaInheritanceParser op = new OrphaInheritanceParser(new File("data/en_product9_ages.xml"));
-        OrphaInheritanceParser op = new OrphaInheritanceParser(new File(testfile));
-
-        if (3<5){
-            System.exit(42);
-        }
-
         DownloadCommand download = new DownloadCommand();
         BigFileCommand bigfile = new BigFileCommand();
 
