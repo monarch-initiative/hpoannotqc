@@ -59,26 +59,14 @@ public class BigFileCommand implements Command {
     public void execute() {
         Ontology ontology = OntologyLoader.loadOntology(new File(hpOboPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
-        String omitPath=String.format("%s%s%s", hpoAnnotationFileDirectory,File.separator,"omit-list.txt");
         System.err.println("[INFO] annotation="+hpoAnnotationFileDirectory);
         try {
-            // 1. Get the HPO project annotation files
-            HpoAnnotationFileIngestor annotationFileIngestor = new HpoAnnotationFileIngestor(hpoAnnotationFileDirectory, omitPath, ontology);
-            List<HpoAnnotationModel> hpoFileEntryList = annotationFileIngestor.getV2SmallFileEntries();
-            // 2. Get the Orphanet Inheritance Annotations
-            OrphanetInheritanceXMLParser inheritanceXMLParser = new OrphanetInheritanceXMLParser(orphanetInheritanceXmlPath, ontology);
-            Multimap<TermId,HpoAnnotationEntry> inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
-            // 2. Get the Orphanet annotation file
-            OrphanetXML2HpoDiseaseModelParser orphaParser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology, tolerant);
-            List<HpoAnnotationModel> orphaFileEntryList = orphaParser.getOrphanetDiseaseModels();
-            // 3. Combine all three and output to phenotype.hpoa ("big file")
-            PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology,
-                    hpoFileEntryList,
-                    orphaFileEntryList,
-                    inheritanceMultiMap,
+            PhenotypeDotHpoaFileWriter pwriter = PhenotypeDotHpoaFileWriter.factory(ontology,
+                    hpoAnnotationFileDirectory,
+                    orphanetXMLpath,
+                    orphanetInheritanceXmlPath,
                     outputFilePath);
-            writer.setOntologyMetadata(ontology.getMetaInfo());
-            writer.outputBigFile();
+            pwriter.outputBigFile();
         } catch (IOException e) {
             logger.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
         } catch (PhenolRuntimeException pre) {
