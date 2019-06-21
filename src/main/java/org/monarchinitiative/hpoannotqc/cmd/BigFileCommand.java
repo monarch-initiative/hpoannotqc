@@ -3,13 +3,17 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.google.common.collect.Multimap;
+import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.io.annotations.hpo.HpoAnnotationFileIngestor;
+import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetInheritanceXMLParser;
 import org.monarchinitiative.phenol.io.annotations.hpo.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.phenol.io.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +34,8 @@ public class BigFileCommand implements Command {
     private final String hpOboPath;
     /** Path to the downloaded Orphanet XML file */
     private final String orphanetXMLpath;
+    /** Path to the dowloaded Orphanet inheritance file, {@code en_product9_ages.xml}.*/
+    private final String orphanetInheritanceXmlPath;
     /** Directory with hp.obo and en_product>HPO.xml files. */
     @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
     private String downloadDirectory="data";
@@ -44,9 +50,9 @@ public class BigFileCommand implements Command {
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
-        hpOboPath=String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
-        orphanetXMLpath=String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
-
+        hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
+        orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
+        orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
     }
 
     @Override
@@ -59,11 +65,18 @@ public class BigFileCommand implements Command {
             // 1. Get the HPO project annotation files
             HpoAnnotationFileIngestor annotationFileIngestor = new HpoAnnotationFileIngestor(hpoAnnotationFileDirectory, omitPath, ontology);
             List<HpoAnnotationModel> hpoFileEntryList = annotationFileIngestor.getV2SmallFileEntries();
+            // 2. Get the Orphanet Inheritance Annotations
+            OrphanetInheritanceXMLParser inheritanceXMLParser = new OrphanetInheritanceXMLParser(orphanetInheritanceXmlPath, ontology);
+            Multimap<TermId,HpoAnnotationEntry> inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
             // 2. Get the Orphanet annotation file
             OrphanetXML2HpoDiseaseModelParser orphaParser = new OrphanetXML2HpoDiseaseModelParser(this.orphanetXMLpath, ontology, tolerant);
             List<HpoAnnotationModel> orphaFileEntryList = orphaParser.getOrphanetDiseaseModels();
-            // 3. Combine both and output to phenotype.hpoa ("big file")
-            PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology, hpoFileEntryList, orphaFileEntryList, outputFilePath);
+            // 3. Combine all three and output to phenotype.hpoa ("big file")
+            PhenotypeDotHpoaFileWriter writer = new PhenotypeDotHpoaFileWriter(ontology,
+                    hpoFileEntryList,
+                    orphaFileEntryList,
+                    inheritanceMultiMap,
+                    outputFilePath);
             writer.setOntologyMetadata(ontology.getMetaInfo());
             writer.outputBigFile();
         } catch (IOException e) {
