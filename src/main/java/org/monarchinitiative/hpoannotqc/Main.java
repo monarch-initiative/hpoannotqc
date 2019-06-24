@@ -40,7 +40,7 @@ public class Main {
                 .addObject(main)
                 .addCommand("download", download)
                 .addCommand("big-file", bigfile)
-                .addCommand("genes2phenes",genes2phenes)
+                .addCommand("gene2phen",genes2phenes)
                 .build();
         jc.setProgramName("java -jar HpoAnnotQc.jar");
         try {
@@ -72,7 +72,7 @@ public class Main {
             case "big-file":
                 qccommand = bigfile;
                 break;
-            case "gene2phens":
+            case "gene2phen":
                 qccommand = genes2phenes;
                 break;
             default:

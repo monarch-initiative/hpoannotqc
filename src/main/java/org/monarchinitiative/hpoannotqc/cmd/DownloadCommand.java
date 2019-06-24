@@ -59,6 +59,10 @@ public final class DownloadCommand implements Command {
 
     private final static String ORPHANET_INHERITANCE_XML_URL = "http://www.orphadata.org/data/xml/en_product9_ages.xml";
 
+    private final static String ORPHANET_GENES_XML = "en_product6.xml";
+
+    private final static String ORPHANET_GENES_XML_URL = "http://www.orphadata.org/data/xml/en_product6.xml";
+
 
     public DownloadCommand()  {
 
@@ -74,6 +78,7 @@ public final class DownloadCommand implements Command {
         downloadFile(ORPHANET_XML,ORPHANET_XML_URL,overwrite);
         downloadFile(ORPHANET_INHERITANCE_XML,ORPHANET_INHERITANCE_XML_URL,overwrite);
         downloadFile(GENE_INFO,GENE_INFO_URL,overwrite);
+        downloadFile(ORPHANET_GENES_XML,ORPHANET_GENES_XML_URL,overwrite);
         downloadFile(MIM2GENE_MEDGEN,MIM2GENE_MEDGEN_URL,overwrite);
     }
 

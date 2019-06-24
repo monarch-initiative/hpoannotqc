@@ -5,15 +5,13 @@ import com.beust.jcommander.Parameters;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.io.assoc.HpoAssociationParser;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.io.File;
+import java.util.Map;
 
 @Parameters(commandDescription = "Create genes to phenotypes file")
 public class Genes2PhenotypesCommand implements Command  {
-    /** Path to the {@code hp.obo} file. */
-    private String hpOboPath;
-    /** Path to the downloaded Orphanet XML file */
-    private String orphanetXMLpath;
     /** Directory with hp.obo and en_product>HPO.xml files. */
     @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
     private String downloadDirectory="data";
@@ -24,8 +22,11 @@ public class Genes2PhenotypesCommand implements Command  {
 
 
     public void execute() {
-        hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
-        orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
+        String hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
+        String orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
+        String orphanetGenesXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product6.xml" );
+        String mimgenepath = String.format("%s%s%s",downloadDirectory,File.separator, "mim2gene_medgen" );
+        String geneinfopath =  String.format("%s%s%s",downloadDirectory,File.separator, "Homo_sapiens_gene_info.gz" );
 
         File hpoFile = new File(hpOboPath);
         if (! hpoFile.exists()) {
@@ -34,14 +35,16 @@ public class Genes2PhenotypesCommand implements Command  {
        Ontology ontology = OntologyLoader.loadOntology(hpoFile);
 
 
-       // HpoAssociationParser parser = new HpoAssociationParser();
+       HpoAssociationParser parser = new HpoAssociationParser(geneinfopath,mimgenepath,new File(orphanetGenesXMLpath),ontology);
+       Map<TermId,String > mp = parser.getGeneIdToSymbolMap();
+       if (mp==null) {
+           System.err.println("[ERROR] Could not parse gene assocs");
+           return;
+       }
+       for (TermId v: mp.keySet()) {
+           System.out.println(v +": " + mp.get(v));
+       }
 
-//
-//               (String geneInfoPath, String mim2geneMedgenPath, File orphaToGenePath, Ontology hpoOntology){
-//
-//            this.homoSapiensGeneInfoPath = geneInfoPath;
-//            this.mim2geneMedgenPath = mim2geneMedgenPath;
-//            this.orphaToGenePath = orphaToGenePath;
 
     }
 
