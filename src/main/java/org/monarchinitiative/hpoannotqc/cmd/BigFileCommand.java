@@ -57,7 +57,8 @@ public class BigFileCommand implements Command {
                     hpoAnnotationFileDirectory,
                     orphanetXMLpath,
                     orphanetInheritanceXmlPath,
-                    outputFilePath);
+                    outputFilePath,
+                    tolerant);
             pwriter.outputBigFile();
         } catch (IOException e) {
             logger.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
