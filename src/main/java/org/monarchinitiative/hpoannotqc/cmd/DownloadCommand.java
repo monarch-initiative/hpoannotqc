@@ -39,6 +39,30 @@ public final class DownloadCommand implements Command {
     @Parameter(names={"-o","--overwrite"}, description = "overwrite prevously downloaded files, if any")
     private boolean overwrite;
 
+    private final static String MIM2GENE_MEDGEN = "mim2gene_medgen";
+
+    private final static String MIM2GENE_MEDGEN_URL = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen";
+
+    private final static String GENE_INFO = "Homo_sapiens_gene_info.gz";
+
+    private final static String GENE_INFO_URL = "ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz";
+
+    private final static String HP_OBO = "hp.obo";
+    /** URL of the hp.obo file. */
+    private final static String HP_OBO_URL ="https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo";
+
+    private final static String ORPHANET_XML = "en_product4_HPO.xml";
+
+    private final static String ORPHANET_XML_URL = "http://www.orphadata.org/data/xml/en_product4_HPO.xml";
+
+    private final static String ORPHANET_INHERITANCE_XML = "en_product9_ages.xml";
+
+    private final static String ORPHANET_INHERITANCE_XML_URL = "http://www.orphadata.org/data/xml/en_product9_ages.xml";
+
+    private final static String ORPHANET_GENES_XML = "en_product6.xml";
+
+    private final static String ORPHANET_GENES_XML_URL = "http://www.orphadata.org/data/xml/en_product6.xml";
+
 
     public DownloadCommand()  {
 
@@ -50,102 +74,38 @@ public final class DownloadCommand implements Command {
     @Override
     public void execute()  {
         createDownloadDir(downloadDirectory);
-        downloadHpObo();
-        downloadOrphanet();
-        downloadOrphanetInheritance();
-    }
-
-    /**
-     * Download the Oprhanet HPO annotations, which are in XML
-     */
-    private void downloadOrphanet() {
-        //http://www.orphadata.org/data/xml/en_product4_HPO.xml
-        String downloadLocation=String.format("%s%sen_product4_HPO.xml",downloadDirectory, File.separator);
-        File f = new File(downloadLocation);
-        if (f.exists()) {
-            if (overwrite) {
-                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
-            } else {
-                LOGGER.trace("cowardly refusing to download en_product4_HPO.xml, since it is already there");
-                System.out.println("cowardly refusing to download en_product4_HPO.xml, since it is already there");
-                return;
-            }
-        }
-        try {
-            URL url = new URL("http://www.orphadata.org/data/xml/en_product4_HPO.xml");
-            FileDownloader downloader = new FileDownloader();
-            boolean result = downloader.copyURLToFile(url, f);
-            if (result) {
-                String msg = String.format("Downloaded en_product4_HPO.xml to \"%s\"", downloadLocation);
-                LOGGER.trace(msg);
-                System.out.println(msg);
-            } else {
-                LOGGER.error("Could not download en_product4_HPO.xml to " + downloadLocation);
-            }
-        } catch (FileDownloadException | MalformedURLException fde) {
-            fde.printStackTrace();
-        }
-    }
-
-    /**
-     * Download the Oprhanet HPO annotations, which are in XML
-     */
-    private void downloadOrphanetInheritance() {
-        //http://www.orphadata.org/data/xml/en_product4_HPO.xml
-        String downloadLocation=String.format("%s%sen_product9_ages.xml",downloadDirectory, File.separator);
-        File f = new File(downloadLocation);
-        if (f.exists()) {
-            if (overwrite) {
-                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
-            } else {
-                LOGGER.trace("cowardly refusing to download sen_product9_ages.xml, since it is already there");
-                System.out.println("cowardly refusing to download sen_product9_ages.xml, since it is already there");
-                return;
-            }
-        }
-        try {
-            URL url = new URL("http://www.orphadata.org/data/xml/en_product9_ages.xml");
-            FileDownloader downloader = new FileDownloader();
-            boolean result = downloader.copyURLToFile(url, f);
-            if (result) {
-                String msg = String.format("Downloaded en_product9_ages.xml to \"%s\"", downloadLocation);
-                LOGGER.trace(msg);
-                System.out.println(msg);
-            } else {
-                LOGGER.error("Could not download en_product9_ages.xml to " + downloadLocation);
-            }
-        } catch (FileDownloadException | MalformedURLException fde) {
-            fde.printStackTrace();
-        }
+        downloadFile(HP_OBO,HP_OBO_URL,overwrite);
+        downloadFile(ORPHANET_XML,ORPHANET_XML_URL,overwrite);
+        downloadFile(ORPHANET_INHERITANCE_XML,ORPHANET_INHERITANCE_XML_URL,overwrite);
+        downloadFile(GENE_INFO,GENE_INFO_URL,overwrite);
+        downloadFile(ORPHANET_GENES_XML,ORPHANET_GENES_XML_URL,overwrite);
+        downloadFile(MIM2GENE_MEDGEN,MIM2GENE_MEDGEN_URL,overwrite);
     }
 
 
 
-    private void downloadHpObo() {
-        String downloadLocation=String.format("%s%shp.obo",downloadDirectory, File.separator);
-        File f = new File(downloadLocation);
-        if (f.exists()) {
-            if (overwrite) {
-                LOGGER.trace("Will overwrite existing file " + f.getAbsolutePath());
-            } else {
-                LOGGER.trace("cowardly refusing to hp.obo, since it is already there");
-                System.out.println("cowardly refusing to download hp.obo, since it is already there");
-                return;
-            }
+
+
+
+    private void downloadFile(String filename, String webAddress, boolean overwrite) {
+        File f = new File(String.format("%s%s%s",downloadDirectory,File.separator,filename));
+        if (f.exists() && (! overwrite)) {
+            LOGGER.trace(String.format("Cowardly refusing to download %s since we found it at %s",
+                    filename,
+                    f.getAbsolutePath()));
+            return;
         }
+        FileDownloader downloader=new FileDownloader();
         try {
-            URL url = new URL("https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo");
-            FileDownloader downloader = new FileDownloader();
-            boolean result = downloader.copyURLToFile(url, f);
-            if (result) {
-                String msg =String.format("Downloaded hp.obo to %s",downloadLocation );
-                        LOGGER.trace( msg);
-                        System.out.println(msg);
-            } else {
-                LOGGER.error("Could not download hp.obo to " + downloadLocation);
-            }
-        } catch (FileDownloadException | MalformedURLException fde) {
-            fde.printStackTrace();
+            URL url = new URL(webAddress);
+            LOGGER.debug("Created url from "+webAddress+": "+url.toString());
+            downloader.copyURLToFile(url, new File(f.getAbsolutePath()));
+        } catch (MalformedURLException e) {
+            LOGGER.error(String.format("Malformed URL for %s [%s]",filename, webAddress));
+            LOGGER.error(e.getMessage());
+        } catch (FileDownloadException e) {
+            LOGGER.error(String.format("Error downloading %s from %s" ,filename, webAddress));
+            LOGGER.error(e.getMessage());
         }
     }
 

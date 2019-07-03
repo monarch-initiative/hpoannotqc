@@ -9,6 +9,7 @@ import com.beust.jcommander.ParameterException;
 import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
 import org.monarchinitiative.hpoannotqc.cmd.Command;
 import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
+import org.monarchinitiative.hpoannotqc.cmd.Genes2PhenotypesCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +33,14 @@ public class Main {
         logger.trace("Starting HPO AnnotQC");
         DownloadCommand download = new DownloadCommand();
         BigFileCommand bigfile = new BigFileCommand();
-
+        Genes2PhenotypesCommand genes2phenes = new Genes2PhenotypesCommand();
         Main main = new Main();
 
         JCommander jc = JCommander.newBuilder()
                 .addObject(main)
                 .addCommand("download", download)
                 .addCommand("big-file", bigfile)
+                .addCommand("gene2phen",genes2phenes)
                 .build();
         jc.setProgramName("java -jar HpoAnnotQc.jar");
         try {
@@ -65,10 +67,13 @@ public class Main {
 
         switch (command) {
             case "download":
-                qccommand=download;
+                qccommand = download;
                 break;
             case "big-file":
-                qccommand=bigfile;
+                qccommand = bigfile;
+                break;
+            case "gene2phen":
+                qccommand = genes2phenes;
                 break;
             default:
                 System.err.println(String.format("[ERROR] command \"%s\" not recognized",command));
