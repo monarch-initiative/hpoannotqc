@@ -13,8 +13,6 @@ import org.monarchinitiative.hpoannotqc.cmd.Genes2PhenotypesCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 
 /**
  * This application will perform Q/C on the HPO rare disease "small file" annotation files, will transform the

@@ -66,16 +66,17 @@ public class FileDownloader {
      * @throws FileDownloadException
      *             on problems with downloading
      */
-    public boolean copyURLToFile(URL src, File dest) throws FileDownloadException {
+    public void copyURLToFile(URL src, File dest) throws FileDownloadException {
         if (!dest.getParentFile().exists()) {
             LOGGER.info("Creating directory {}", dest.getParentFile());
             dest.getParentFile().mkdirs();
         }
 
-        if (src.getProtocol().equals("ftp") && options.ftp.host != null)
-            return copyURLToFileWithFTP(src, dest);
-        else
-            return copyURLToFileThroughURL(src, dest);
+        if (src.getProtocol().equals("ftp") && options.ftp.host != null) {
+            copyURLToFileWithFTP(src, dest);
+        } else {
+            copyURLToFileThroughURL(src, dest);
+        }
     }
 
     private boolean copyURLToFileWithFTP(URL src, File dest) throws FileDownloadException {
@@ -134,7 +135,7 @@ public class FileDownloader {
                 throw new FileNotFoundException("Could not open connection for file " + fileName);
             out = new FileOutputStream(dest);
             BufferedInputStream inBf = new BufferedInputStream(in);
-            byte buffer[] = new byte[128 * 1024];
+            byte [] buffer = new byte[128 * 1024];
             int readCount;
             long pos = 0;
             if (pb != null)
@@ -217,7 +218,7 @@ public class FileDownloader {
                 LOGGER.info("(server did not tell us the file size, no progress bar)");
 
             // Download file.
-            byte buffer[] = new byte[128 * 1024];
+            byte [] buffer = new byte[128 * 1024];
             int readCount;
             long pos = 0;
             if (pb != null)

@@ -4,6 +4,11 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.6.0`_(2019-06-20)
+--------------------
+* Creates as version of the phenotype_to_genes file.
+
+
 `1.5.0`_(2019-06-20)
 --------------------
 * Adding support for Orphanet inheritance annotations
