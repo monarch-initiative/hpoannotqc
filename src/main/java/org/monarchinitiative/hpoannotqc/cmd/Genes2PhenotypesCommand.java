@@ -31,7 +31,6 @@ public class Genes2PhenotypesCommand implements Command  {
 
     public void execute() {
         String hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
-        String orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
         String orphanetGenesXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product6.xml" );
         String mimgenepath = String.format("%s%s%s",downloadDirectory,File.separator, "mim2gene_medgen" );
         String geneinfopath =  String.format("%s%s%s",downloadDirectory,File.separator, "Homo_sapiens_gene_info.gz" );
