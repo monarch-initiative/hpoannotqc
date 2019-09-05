@@ -36,7 +36,8 @@ public class BigFileCommand implements Command {
     /** Should usually be phenotype.hpoa, may also include path */
     @Parameter(names={"-o","--output"},description="name of output file")
     private String outputFilePath="phenotype.hpoa";
-
+    @Parameter(names={"-m","--merge"},description="merge frequency data")
+    private boolean merge_frequency = false;
     @Parameter(names="--tolerant",description = "tolerant mode (update obsolte term ids if possible)")
     private boolean tolerant=true;
 
@@ -58,7 +59,8 @@ public class BigFileCommand implements Command {
                     orphanetXMLpath,
                     orphanetInheritanceXmlPath,
                     outputFilePath,
-                    tolerant);
+                    tolerant,
+                    merge_frequency);
             pwriter.outputBigFile();
         } catch (IOException e) {
             logger.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);

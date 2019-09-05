@@ -16,6 +16,7 @@
 
     <Loggers>
         <logger name="org.monarchinitiative.phenol.io.obo.hpo.HpOboParser" level="error"/>
+        <logger name="org.apache.logging.log4j2" level="error"/>
         <Root level="warn">
             <AppenderRef ref="Console" />
             <AppenderRef ref="MyLog" />
