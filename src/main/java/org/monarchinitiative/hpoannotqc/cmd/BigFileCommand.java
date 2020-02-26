@@ -3,9 +3,9 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.monarchinitiative.phenol.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
-import org.monarchinitiative.phenol.io.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
