@@ -4,6 +4,12 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.8.0`_(2020-06-02)
+--------------------
+* Add a '#' to the start of the header line
+* phenol 1.6.0
+* Reduce number of warnings to shell (Set logging level back to trace to see everything, including obsolete labels from ORPHA)
+
 `1.7.0`_(2019-10-10)
 --------------------
 Set default to error tolerant parsing (minor errors such as out of date hp ids are now corrected automatically).
