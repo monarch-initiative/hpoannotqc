@@ -16,8 +16,10 @@
 
     <Loggers>
         <logger name="org.monarchinitiative.phenol.io.obo.hpo.HpOboParser" level="error"/>
+        <logger name="org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationEntry" level="error" additivity="false"/>
+        <logger name="org.monarchinitiative.phenol.annotations.hpo.OrphanetXML2HpoDiseaseModelParser" level="error" additivity="false"/>
         <logger name="org.apache.logging.log4j2" level="error"/>
-        <Root level="warn">
+        <Root level="error">
             <AppenderRef ref="Console" />
             <AppenderRef ref="MyLog" />
         </Root>

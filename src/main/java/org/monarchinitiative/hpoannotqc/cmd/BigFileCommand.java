@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
 import org.monarchinitiative.phenol.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
@@ -52,7 +53,7 @@ public class BigFileCommand implements Command {
     public void execute() {
         Ontology ontology = OntologyLoader.loadOntology(new File(hpOboPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
-        System.err.println("[INFO] annotation="+hpoAnnotationFileDirectory);
+        logger.info("annotation directory = "+hpoAnnotationFileDirectory);
         try {
             PhenotypeDotHpoaFileWriter pwriter = PhenotypeDotHpoaFileWriter.factory(ontology,
                     hpoAnnotationFileDirectory,
