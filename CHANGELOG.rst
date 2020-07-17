@@ -7,7 +7,8 @@ This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-
 
 `1.8.1`_(2020-06-02)
 --------------------
-* changed path for product4_HPO.xml due to chage at Orphanet
+* changed path for product4_HPO.xml due to change at Orphanet
+* updating XML parser in phenol (currently using phenol-1.6.1-SNAPSHOT)
 
 `1.8.0`_(2020-06-02)
 --------------------
