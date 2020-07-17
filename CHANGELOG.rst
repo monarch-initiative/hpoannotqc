@@ -4,6 +4,11 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+
+`1.8.1`_(2020-06-02)
+--------------------
+* changed path for product4_HPO.xml due to chage at Orphanet
+
 `1.8.0`_(2020-06-02)
 --------------------
 * Add a '#' to the start of the header line

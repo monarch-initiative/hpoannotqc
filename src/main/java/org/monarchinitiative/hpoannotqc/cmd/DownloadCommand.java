@@ -51,9 +51,9 @@ public final class DownloadCommand implements Command {
     /** URL of the hp.obo file. */
     private final static String HP_OBO_URL ="https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo";
 
-    private final static String ORPHANET_XML = "en_product4_HPO.xml";
+    private final static String ORPHANET_XML = "en_product4.xml";
 
-    private final static String ORPHANET_XML_URL = "http://www.orphadata.org/data/xml/en_product4_HPO.xml";
+    private final static String ORPHANET_XML_URL = "http://www.orphadata.org/data/xml/en_product4.xml";
 
     private final static String ORPHANET_INHERITANCE_XML = "en_product9_ages.xml";
 
