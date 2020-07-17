@@ -45,7 +45,7 @@ public class BigFileCommand implements Command {
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
         hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
-        orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4_HPO.xml" );
+        orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4.xml" );
         orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
     }
 
