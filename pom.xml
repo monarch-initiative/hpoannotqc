@@ -5,7 +5,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -103,12 +103,13 @@
             <version>${guava.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+        <!-- https://mvnrepository.com/artifact/info.picocli/picocli -->
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.78</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.5.0</version>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>

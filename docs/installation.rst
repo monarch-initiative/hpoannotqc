@@ -14,6 +14,15 @@ https://github.com/monarch-initiative/hpoannotqc, and build HPO Workbench using 
 This will create an executable jar file.  ::
 
     $ java -jar target/HpoAnnotQc.jar
+        Usage: java -jar HpoAnnotQc.jar [-hV] [COMMAND]
+        Variant-motif visualization tool.
+        -h, --help      Show this help message and exit.
+        -V, --version   Print version information and exit.
+       Commands:
+        download, D  download files
+        big-file, B  Create phenotype.hpoa file
+        gene2phen    Create genes to phenotypes file
+
 
 
 We will update this as soon as phenol-1.3.2 is released in maven central.

@@ -1,17 +1,12 @@
 package org.monarchinitiative.hpoannotqc;
-
-
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-
-
 import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
-import org.monarchinitiative.hpoannotqc.cmd.Command;
 import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
 import org.monarchinitiative.hpoannotqc.cmd.Genes2PhenotypesCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+
+import java.util.concurrent.Callable;
 
 
 /**
@@ -20,69 +15,35 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * @version 0.1.16 (2018-01-02)
  */
-
-public class Main {
+@CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
+        mixinStandardHelpOptions = true,
+        version = "hpoannotqc 1.8.2",
+        description = "Variant-motif visualization tool.")
+public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-    @Parameter(names = {"-h", "--help"}, help = true, description = "display this help message")
-    private boolean usageHelpRequested;
+//    @Parameter(names = {"-h", "--help"}, help = true, description = "display this help message")
+//    private boolean usageHelpRequested;
 
 
     public static void main(String[] args) {
         logger.trace("Starting HPO AnnotQC");
-        DownloadCommand download = new DownloadCommand();
-        BigFileCommand bigfile = new BigFileCommand();
-        Genes2PhenotypesCommand genes2phenes = new Genes2PhenotypesCommand();
-        Main main = new Main();
-
-        JCommander jc = JCommander.newBuilder()
-                .addObject(main)
-                .addCommand("download", download)
-                .addCommand("big-file", bigfile)
-                .addCommand("gene2phen",genes2phenes)
-                .build();
-        jc.setProgramName("java -jar HpoAnnotQc.jar");
-        try {
-            jc.parse(args);
-        } catch (ParameterException e) {
-            System.err.println("[ERROR] "+e.getMessage());
-            jc.usage();
-            System.exit(1);
+        CommandLine cline = new CommandLine(new Main()).
+                addSubcommand("download", new DownloadCommand()).
+                addSubcommand("big-file", new BigFileCommand()).
+                addSubcommand("gene2phen", new Genes2PhenotypesCommand());
+        cline.setToggleBooleanFlags(false);
+        if (args.length == 0) {
+            // this will cause a help message to be shown if the user calls the
+            // program with no arguments whatsoever.
+            args = new String[]{"-h"};
         }
+        int exitCode = cline.execute(args);
+        System.exit(exitCode);
+    }
 
-        if (jc.getParsedCommand()==null ) {
-            System.err.println("[ERROR] no command passed");
-            jc.usage();
-            System.exit(1);
-        }
-
-        if ( main.usageHelpRequested) {
-            jc.usage();
-            System.exit(1);
-        }
-
-        String command = jc.getParsedCommand();
-        Command qccommand=null;
-
-        switch (command) {
-            case "download":
-                qccommand = download;
-                break;
-            case "big-file":
-                qccommand = bigfile;
-                break;
-            case "gene2phen":
-                qccommand = genes2phenes;
-                break;
-            default:
-                System.err.println(String.format("[ERROR] command \"%s\" not recognized",command));
-                jc.usage();
-                System.exit(1);
-        }
-        try {
-            qccommand.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+    @Override
+    public Integer call() {
+        // work done in subcommands
+        return 0;
     }
 }

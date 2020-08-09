@@ -27,22 +27,22 @@ public class FileDownloader {
     static class ProxyOptions {
         final String host = null;
         final int port = -1;
-        String user = null;
-        String password = null;
+        final String user = null;
+        final String password = null;
     }
 
     /**
      * Configuration for the {@link FileDownloader}.
      */
     static class Options {
-        boolean printProgressBar = false;
-        ProxyOptions http = new ProxyOptions();
-        ProxyOptions https = new ProxyOptions();
-        ProxyOptions ftp = new ProxyOptions();
+        final boolean printProgressBar = false;
+        final ProxyOptions http = new ProxyOptions();
+        final ProxyOptions https = new ProxyOptions();
+        final ProxyOptions ftp = new ProxyOptions();
     }
 
     /** configuration for the downloader */
-    private Options options;
+    private final Options options;
 
     /** Initializer FileDownloader with the given options string */
     public FileDownloader(Options options) {
@@ -62,7 +62,6 @@ public class FileDownloader {
      *            {@link URL} with file to download
      * @param dest
      *            {@link File} with destination path
-     * @return <code>true</code> if the file was downloaded and <code>false</code> if not.
      * @throws FileDownloadException
      *             on problems with downloading
      */

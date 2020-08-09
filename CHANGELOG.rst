@@ -4,6 +4,10 @@ Change Log
 
 This document records all notable changes to `HpoAnnotQc <http://hpo-annotation-qc.readthedocs.io/en/latest/#>`_.
 
+`1.8.2`_(2020-08-09)
+--------------------
+* update to picocli
+* update to phenol 1.6.1 for new Orphanet XML structure
 
 `1.8.1`_(2020-06-02)
 --------------------
