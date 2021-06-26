@@ -1,6 +1,5 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import jdk.nashorn.internal.codegen.CompilerConstants;
 import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
 import org.monarchinitiative.hpoannotqc.io.FileDownloader;
 

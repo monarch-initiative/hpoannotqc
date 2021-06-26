@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <phenol.version>1.6.1-SNAPSHOT</phenol.version>
+        <phenol.version>1.6.2</phenol.version>
         <guava.version>29.0-jre</guava.version>
         <junit.version>5.1.0</junit.version>
     </properties>

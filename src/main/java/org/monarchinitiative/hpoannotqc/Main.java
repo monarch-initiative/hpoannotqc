@@ -21,8 +21,6 @@ import java.util.concurrent.Callable;
         description = "Variant-motif visualization tool.")
 public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-//    @Parameter(names = {"-h", "--help"}, help = true, description = "display this help message")
-//    private boolean usageHelpRequested;
 
 
     public static void main(String[] args) {

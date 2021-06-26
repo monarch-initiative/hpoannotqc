@@ -150,8 +150,6 @@ public class FileDownloader {
             out.close();
             if (pb != null && pos != pb.getMax())
                 pb.print(fileSize);
-            // if (!ftp.completePendingCommand())
-            // throw new IOException("Could not finish download!");
 
         } catch (IOException e) {
             dest.delete();
@@ -181,13 +179,6 @@ public class FileDownloader {
                     // swallow, nothing we can do
                 }
             }
-            // if (ftp != null) {
-            // try {
-            // ftp.completePendingCommand();
-            // } catch (IOException e) {
-            // // swallow, nothing we can do
-            // }
-            // }
         }
         return false;
     }
