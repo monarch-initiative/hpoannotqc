@@ -1,17 +1,15 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-
 import org.monarchinitiative.phenol.annotations.hpo.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 import java.io.*;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -20,8 +18,8 @@ import java.io.*;
  * with the {@link DownloadCommand}).
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-@Parameters(commandDescription = "Create phenotype.hpoa file")
-public class BigFileCommand implements Command {
+@CommandLine.Command(name = "big-file", aliases = {"B"}, mixinStandardHelpOptions = true, description = "Create phenotype.hpoa file")
+public class BigFileCommand implements Callable<Integer> {
     private final Logger logger = LoggerFactory.getLogger(BigFileCommand.class);
     /** Path to the {@code hp.obo} file. */
     private final String hpOboPath;
@@ -30,17 +28,23 @@ public class BigFileCommand implements Command {
     /** Path to the dowloaded Orphanet inheritance file, {@code en_product9_ages.xml}.*/
     private final String orphanetInheritanceXmlPath;
     /** Directory with hp.obo and en_product>HPO.xml files. */
-    @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
-    private String downloadDirectory="data";
-    @Parameter(names={"-a","--annot"},description = "Path to directory with the ca. 7000 HPO Annotation files ", required = true)
+    @CommandLine.Option(names = {"-d", "--data"},
+            description = "directory to download data (default: ${DEFAULT-VALUE})")
+    private String downloadDirectory = "data";
+    @CommandLine.Option(names={"-a","--annot"},
+            description = "Path to directory with the ca. 7900 HPO Annotation files",
+            required = true)
     private String hpoAnnotationFileDirectory;
     /** Should usually be phenotype.hpoa, may also include path */
-    @Parameter(names={"-o","--output"},description="name of output file")
-    private String outputFilePath="phenotype.hpoa";
-    @Parameter(names={"-m","--merge"},description="merge frequency data")
-    private boolean merge_frequency = false;
-    @Parameter(names="--tolerant",description = "tolerant mode (update obsolte term ids if possible)")
-    private boolean tolerant=true;
+    @CommandLine.Option(names={"-o","--output"},
+            description="name of output file (default: ${DEFAULT-VALUE})")
+    private String outputFilePath = "phenotype.hpoa";
+    @CommandLine.Option(names={"-m","--merge"},
+            description="merge frequency data (default: ${DEFAULT-VALUE})")
+    private boolean merge_frequency=true;
+   @CommandLine.Option(names="--tolerant",
+           description = "tolerant mode (update obsolete term ids if possible; default: ${DEFAULT-VALUE})")
+    private boolean tolerant = true;
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
@@ -50,7 +54,7 @@ public class BigFileCommand implements Command {
     }
 
     @Override
-    public void execute() {
+    public Integer call()  {
         Ontology ontology = OntologyLoader.loadOntology(new File(hpOboPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
         logger.info("annotation directory = "+hpoAnnotationFileDirectory);
@@ -68,6 +72,7 @@ public class BigFileCommand implements Command {
         } catch (PhenolRuntimeException pre) {
             logger.error("Caught phenol runtime exception: "+ pre.getMessage());
         }
+        return 0;
     }
 
 }

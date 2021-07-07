@@ -1,22 +1,16 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-
-
 import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
 import org.monarchinitiative.hpoannotqc.io.FileDownloader;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
+import picocli.CommandLine;
 
 
 /**
@@ -28,16 +22,16 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * @version 0.0.2 (Jan 2, 2019)
  */
-@Parameters(commandDescription = "Download files")
-public final class DownloadCommand implements Command {
+@CommandLine.Command(name = "download", aliases = {"D"}, mixinStandardHelpOptions = true, description = "download files")
+public final class DownloadCommand implements Callable<Integer> {
     private final Logger LOGGER = LoggerFactory.getLogger(DownloadCommand.class);
-
     /** Directory to which to download the files. */
-    @Parameter(names={"-d","--data"}, description ="directory to download data (default: data)" )
-    private String downloadDirectory="data";
+    @CommandLine.Option(names = {"-d", "--data"}, description = "directory to download data (default: ${DEFAULT-VALUE})")
+    private String downloadDirectory = "data";
     /** Overwrite previously downloaded files if true. */
-    @Parameter(names={"-o","--overwrite"}, description = "overwrite prevously downloaded files, if any")
-    private boolean overwrite;
+    @CommandLine.Option(names={"-o","--overwrite"},
+            description = "overwrite previously downloaded files, if any (default: ${DEFAULT-VALUE})")
+    private boolean overwrite = false;
 
     private final static String MIM2GENE_MEDGEN = "mim2gene_medgen";
 
@@ -64,15 +58,14 @@ public final class DownloadCommand implements Command {
     private final static String ORPHANET_GENES_XML_URL = "http://www.orphadata.org/data/xml/en_product6.xml";
 
 
-    public DownloadCommand()  {
-
+    public DownloadCommand() {
     }
 
     /**
      * Perform the downloading.
      */
     @Override
-    public void execute()  {
+    public Integer call() {
         createDownloadDir(downloadDirectory);
         downloadFile(HP_OBO,HP_OBO_URL,overwrite);
         downloadFile(ORPHANET_XML,ORPHANET_XML_URL,overwrite);
@@ -80,10 +73,8 @@ public final class DownloadCommand implements Command {
         downloadFile(GENE_INFO,GENE_INFO_URL,overwrite);
         downloadFile(ORPHANET_GENES_XML,ORPHANET_GENES_XML_URL,overwrite);
         downloadFile(MIM2GENE_MEDGEN,MIM2GENE_MEDGEN_URL,overwrite);
+        return 0;
     }
-
-
-
 
 
 

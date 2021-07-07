@@ -39,3 +39,7 @@ bla.pl~
 compareSmall.pl~
 dependency-reduced-pom.xml
 docs/_build/
+/phenotype_to_genes.tsv
+/.classpath
+/.factorypath
+/.project
