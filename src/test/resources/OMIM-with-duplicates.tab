@@ -1,0 +1,9 @@
+#diseaseID	diseaseName	phenotypeID	phenotypeName	onsetID	onsetName	frequency	sex	negation	modifier	description	publication	evidence	biocuration
+OMIM:120330	Papillorenal syndrome	HP:0000006	Autosomal dominant inheritance								OMIM:120330	IEA	HPO:iea[2009-02-17]
+OMIM:120330	Papillorenal syndrome	HP:0000518	Cataract			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > LENS OPACITY (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-16]
+OMIM:120330	Papillorenal syndrome	HP:0000608	Macular degeneration			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > MACULAR DEGENERATION (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-16]
+OMIM:120330	Papillorenal syndrome	HP:0012019	Lens luxation			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > POSTERIOR LENS LUXATION (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-16]
+OMIM:120330	Papillorenal syndrome	HP:0000541	Retinal detachment			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > RETINAL DETACHMENT (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-16]
+OMIM:120330	Papillorenal syndrome	HP:0000608	Macular degeneration			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > MACULAR DEGENERATION (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-18]
+OMIM:120330	Papillorenal syndrome	HP:0000541	Retinal detachment			HP:0040283				OMIM-CS:HEAD AND NECK_EYES > RETINAL DETACHMENT (RARE)	OMIM:120330	TAS	HPO:skoehler[2012-11-18]
+OMIM:120330	Papillorenal syndrome	HP:0025514	Morning glory anomaly							OMIM-CS:headandneckeyes > MORNING GLORY OPTIC DISC	OMIM:120330	TAS	HPO:skoehler[2017-07-13]

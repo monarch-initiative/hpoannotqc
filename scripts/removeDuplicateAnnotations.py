@@ -7,6 +7,13 @@ import csv
 
 ## This script removes duplicate lines and changes the files in place.
 
+## Original -- 128964 ; after processing cat OMIM-*.tab | wc -l   127914
+
+## original $ wc -l phenotype.hpoa 
+# 216578 phenotype.hpoa
+
+
+
 
 args = sys.argv
 if len(args) < 2:
@@ -100,6 +107,6 @@ print("[INFO] We found {} small files (HPO disease models)".format(len(small_fil
 
 for sfile in small_files:
     unique_lines = get_unique_lines_from_small_file(sfile)
-    write_unique_lines(sfile=sfile, lines=unique_lines)
+    #write_unique_lines(sfile=sfile, lines=unique_lines)
     #break
 

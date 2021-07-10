@@ -24,11 +24,11 @@ public class UniqueAnnotation {
             throw new PhenolRuntimeException("Bad number of fields:" + fields.length);
         }
         // #DatabaseID	DiseaseName	Qualifier	HPO_ID	Reference	Evidence	Onset	Frequency	Sex	Modifier	Aspect	Biocuration
-        hpoid = fields[3]; // e.g., HP:0000510
-        reference = fields[4]; // eg OMIM:400004	TAS
-        evidence = fields[5]; //e.g., TAS, IEA
-        onset = fields[6];
-        frequency = fields[7];
+        hpoid = fields[2]; // e.g., HP:0000510
+        reference = fields[11]; // eg OMIM:400004	TAS
+        evidence = fields[12]; //e.g., TAS, IEA
+        onset = fields[4];
+        frequency = fields[6];
         biocuration = fields[13];
 
         if (! hpoid.startsWith("HP:")) {

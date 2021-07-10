@@ -9,7 +9,7 @@ import java.util.*;
 
 public class SmallFileCleaner {
 
-
+    private String header;
     private List<String> lines;
 
     private String preferredLabel;
@@ -24,6 +24,17 @@ public class SmallFileCleaner {
         } catch (IOException e) {
             throw new PhenolRuntimeException("Could not read " + pathToSmallFile + " (small file)");
         }
+        this.header = lines.get(0);
+        lines.remove(0);
+    }
+
+    /**
+     * Just for testing
+     * @return
+     */
+    public SmallFileCleaner(List<String> mylines, String header) {
+        this.lines = mylines;
+        this.header = header;
     }
 
 
@@ -62,7 +73,7 @@ public class SmallFileCleaner {
         for (String line : lines) {
             UniqueAnnotation ua = new UniqueAnnotation(line);
             if (seenAnnotations.contains(ua)) {
-                System.out.println("DUPLCIATE LINE" + line);
+                System.out.println("DUPLICATE LINE" + line);
                 continue;
             } else {
                 seenAnnotations.add(ua);
