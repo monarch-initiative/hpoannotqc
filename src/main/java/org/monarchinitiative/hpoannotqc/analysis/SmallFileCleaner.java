@@ -58,7 +58,15 @@ public class SmallFileCleaner {
     public List<String> getCleansedLines() {
         String preferedName = getPreferredLabel();
         List<String> newlines = new ArrayList<>();
+        Set<UniqueAnnotation> seenAnnotations = new HashSet<>();
         for (String line : lines) {
+            UniqueAnnotation ua = new UniqueAnnotation(line);
+            if (seenAnnotations.contains(ua)) {
+                System.out.println("DUPLCIATE LINE" + line);
+                continue;
+            } else {
+                seenAnnotations.add(ua);
+            }
             line = replaceWithPreferedName(line,preferedName);
             newlines.add(line);
         }
