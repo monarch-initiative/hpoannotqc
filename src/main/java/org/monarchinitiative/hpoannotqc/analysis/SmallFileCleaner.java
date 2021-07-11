@@ -9,8 +9,8 @@ import java.util.*;
 
 public class SmallFileCleaner {
 
-    private String header;
-    private List<String> lines;
+    private final String header;
+    private final List<String> lines;
 
     private String preferredLabel;
 

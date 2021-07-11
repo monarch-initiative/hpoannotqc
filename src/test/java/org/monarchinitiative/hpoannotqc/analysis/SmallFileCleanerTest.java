@@ -54,7 +54,7 @@ public class SmallFileCleanerTest {
 
 
     @Test
-    public void testDifferentEvidenceCode() throws IOException{
+    public void testDifferentEvidenceCode() {
        List<String> lines = new ArrayList<>();
        lines.add(originalLine);
         String pcsLine = lineWithEvidenceCode("PCS");
@@ -66,7 +66,7 @@ public class SmallFileCleanerTest {
     }
 
     @Test
-    public void testDifferentFrequency() throws IOException{
+    public void testDifferentFrequency() {
         List<String> lines = new ArrayList<>();
         lines.add(originalLine);
         String lineWithDifferentFrequency = lineWithChangeAtIndex("1/2", 6);
@@ -78,7 +78,7 @@ public class SmallFileCleanerTest {
     }
 
     @Test
-    public void testDifferentDescription() throws IOException{
+    public void testDifferentDescription() {
         List<String> lines = new ArrayList<>();
         lines.add(originalLine);
         String lineWithDifferentDescription = lineWithChangeAtIndex("new description", 10);
