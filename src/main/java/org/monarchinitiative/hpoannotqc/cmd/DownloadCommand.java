@@ -89,7 +89,7 @@ public final class DownloadCommand implements Callable<Integer> {
         FileDownloader downloader=new FileDownloader();
         try {
             URL url = new URL(webAddress);
-            LOGGER.debug("Created url from "+webAddress+": "+url.toString());
+            LOGGER.debug("Created url from "+webAddress+": "+ url);
             downloader.copyURLToFile(url, new File(f.getAbsolutePath()));
         } catch (MalformedURLException e) {
             LOGGER.error(String.format("Malformed URL for %s [%s]",filename, webAddress));
