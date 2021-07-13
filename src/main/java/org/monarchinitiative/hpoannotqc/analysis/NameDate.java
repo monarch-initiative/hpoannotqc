@@ -44,8 +44,8 @@ public class NameDate implements Comparable<NameDate> {
 
     /**
      * Return true (SHOUT) if a label has multiple words and any second character is capitalized
-     * @param label
-     * @return
+     * @param label the original label assigned to the HPO entry
+     * @return true if the label is in all caps
      */
     private boolean isShouting(String label) {
         String [] fields = label.split("\\s+");
@@ -63,12 +63,12 @@ public class NameDate implements Comparable<NameDate> {
         return n_shouting_words == fields.length;
     }
 
-    /** Check if a word is like 1 or 12 or 34 */
+    /** Check if a word is like 1 or 12A (type number)*/
     private boolean isNumeral(String word) {
         for (char c : word.toCharArray()) {
-            if (! Character.isDigit(c)) return false;
+            if (Character.isDigit(c)) return true;
         }
-        return true;
+        return false;
     }
 
     private boolean isTypeNumber(String label) {
@@ -94,18 +94,29 @@ public class NameDate implements Comparable<NameDate> {
         }
     }
 
+    private boolean isSpecialWord(String w) {
+        if (w.equals("DNA")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private String unshout(String label) {
         String [] fields = label.split("\\s+");
         String firstWord = Character.toTitleCase(fields[0].charAt(0)) + fields[0].substring(1).toLowerCase(Locale.ROOT);
         List<String> newfields = new ArrayList<>();
         newfields.add(firstWord);
         for (int i = 1; i < fields.length; i++) {
-            if (isRomanNumber(fields[i])) {
-                newfields.add(fields[i]);
-            } else if (isTypeNumber(fields[i]) ){
-                newfields.add(fields[i]);
+            String word = fields[i];
+            if (isSpecialWord(word)) {
+                newfields.add(word);
+            } else if (isRomanNumber(word)) {
+                newfields.add(word);
+            } else if (isTypeNumber(word) ){
+                newfields.add(word);
             } else{
-                newfields.add((fields[i].toLowerCase(Locale.ROOT)));
+                newfields.add((word.toLowerCase(Locale.ROOT)));
             }
         }
         return String.join(" ", newfields);

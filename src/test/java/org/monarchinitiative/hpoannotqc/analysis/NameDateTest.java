@@ -84,4 +84,15 @@ public class NameDateTest {
         Assertions.assertEquals(expected, nd.getPrettyVersion());
     }
 
+
+    @Test
+    public void as() {
+        String original = "MITOCHONDRIAL DNA DEPLETION SYNDROME 12A (CARDIOMYOPATHIC TYPE), AUTOSOMAL DOMINANT; MTDPS12A";
+        String expected = "Mitochondrial DNA depletion syndrome 12A (cardiomyopathic type), autosomal dominant";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+
+    }
+
 }

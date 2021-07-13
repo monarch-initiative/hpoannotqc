@@ -86,7 +86,7 @@ public class CleanCommand implements Callable<Integer> {
         omitEntries = getOmitEntries(omitFile);
         smallFilePaths = getListOfV2SmallFiles(hpoAnnotationFileDirectory);
         getProgressDoc();
-        int N_ENTRIES = 100;
+        int N_ENTRIES = 1;
         doNextEntries(N_ENTRIES);
         outputDoneEntries();
         return 0;
@@ -110,10 +110,6 @@ public class CleanCommand implements Callable<Integer> {
             } else {
                 progressDoneAlready.add(file.getAbsolutePath());
             }
-            if (++n > n_entries) {
-                break;
-            }
-            System.out.println("[INFO] " + file.getName());
             SmallFileCleaner cleaner = new SmallFileCleaner(file.getAbsolutePath());
             if (cleaner.wasChanged()) {
                 System.out.println("[INFO] Cleaning " + file.getName());
@@ -125,9 +121,13 @@ public class CleanCommand implements Callable<Integer> {
                 } catch (IOException e) {
                     throw new PhenolRuntimeException(e.getMessage());
                 }
+                if (++n > n_entries) {
+                    break;
+                }
             }
 
         }
+        System.out.printf("Done: n=%d\n", progressDoneAlready.size());
     }
 
 
