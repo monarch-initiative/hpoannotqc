@@ -52,12 +52,23 @@ public class NameDate implements Comparable<NameDate> {
         if (fields.length == 1) {
             return false;
         }
+        // if all words are shouting, return true.
+        // if only some words are shouting, assume that they have acronyms and return false
+        int n_shouting_words = 0;
         for (String word : fields) {
-            if (word.length() > 1 && Character.isUpperCase(word.charAt(1))) {
-                return true;
+            if (isNumeral(word) || (word.length() > 1 && Character.isUpperCase(word.charAt(1)))) {
+                n_shouting_words++;
             }
         }
-        return false;
+        return n_shouting_words == fields.length;
+    }
+
+    /** Check if a word is like 1 or 12 or 34 */
+    private boolean isNumeral(String word) {
+        for (char c : word.toCharArray()) {
+            if (! Character.isDigit(c)) return false;
+        }
+        return true;
     }
 
     private boolean isTypeNumber(String label) {

@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 
 import com.google.common.collect.ImmutableSet;
+import org.monarchinitiative.hpoannotqc.analysis.SmallFileCleaner;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationFileParser;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
 import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModelException;
@@ -12,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,6 +46,9 @@ public class CleanCommand implements Callable<Integer> {
             description = "tolerant mode (update obsolete term ids if possible; default: ${DEFAULT-VALUE})")
     private boolean tolerant = true;
 
+    @CommandLine.Option(names = {"--progress"}, required = true, description = "file with entries that are done")
+    private String progressDoc;
+
     /**
      * List of all of the {@link HpoAnnotationModel} objects, which represent annotated diseases.
      */
@@ -66,6 +67,8 @@ public class CleanCommand implements Callable<Integer> {
     private Set<String> omitEntries;
 
     private  Ontology ontology;
+    /** We keep a set of files we have previously processed. This allows us to go through step by step and check things.*/
+    private Set<String> progressDoneAlready;
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public CleanCommand() {
@@ -82,28 +85,84 @@ public class CleanCommand implements Callable<Integer> {
         String omitFile = hpoAnnotationFileDirectory + File.separator + "omit-list.txt";
         omitEntries = getOmitEntries(omitFile);
         smallFilePaths = getListOfV2SmallFiles(hpoAnnotationFileDirectory);
+        getProgressDoc();
+        int N_ENTRIES = 100;
+        doNextEntries(N_ENTRIES);
+        outputDoneEntries();
         return 0;
     }
 
-
-
-    private void inputHpoAnnotationFiles() {
-        int i = 0;
-        for (File file : smallFilePaths) {
-            HpoAnnotationFileParser parser = new HpoAnnotationFileParser(file.getAbsolutePath(), ontology);
-            try {
-                HpoAnnotationModel smallFile = parser.parse(true);
-                int n_total_annotation_lines = smallFile.getNumberOfAnnotations();
-                smallFileList.add(smallFile);
-            } catch (HpoAnnotationModelException hafe) {
-                System.err.printf("[ERROR] %s: (%s)\n", file.getName(), hafe.getMessage());
-            } catch (PhenolRuntimeException pre) {
-                System.err.printf("[ERROR] PhenolRuntimeException: with file %s: %s", file, pre.getMessage());
-                throw pre;
-
+    private void outputDoneEntries() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(progressDoc))) {
+            for (String s : progressDoneAlready) {
+                writer.write(s + "\n");
             }
+        } catch (IOException e) {
+            throw new PhenolRuntimeException(e.getMessage());
         }
     }
+
+    private void doNextEntries(int n_entries) {
+        int n = 0;
+        for (File file : smallFilePaths) {
+            if (progressDoneAlready.contains(file.getAbsolutePath())) {
+                continue;
+            } else {
+                progressDoneAlready.add(file.getAbsolutePath());
+            }
+            if (++n > n_entries) {
+                break;
+            }
+            System.out.println("[INFO] " + file.getName());
+            SmallFileCleaner cleaner = new SmallFileCleaner(file.getAbsolutePath());
+            if (cleaner.wasChanged()) {
+                System.out.println("[INFO] Cleaning " + file.getName());
+                List<String> cleansedLines = cleaner.getNewLines();
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                    for (String line : cleansedLines) {
+                        writer.write(line + "\n");
+                    }
+                } catch (IOException e) {
+                    throw new PhenolRuntimeException(e.getMessage());
+                }
+            }
+
+        }
+    }
+
+
+    private void getProgressDoc() {
+        progressDoneAlready = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(this.progressDoc))) {
+            String line;
+            while((line = br.readLine()) != null) {
+                progressDoneAlready.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+//    private void inputHpoAnnotationFiles() {
+//        int i = 0;
+//        for (File file : smallFilePaths) {
+//            HpoAnnotationFileParser parser = new HpoAnnotationFileParser(file.getAbsolutePath(), ontology);
+//            try {
+//                HpoAnnotationModel smallFile = parser.parse(true);
+//                int n_total_annotation_lines = smallFile.getNumberOfAnnotations();
+//                smallFileList.add(smallFile);
+//            } catch (HpoAnnotationModelException hafe) {
+//                System.err.printf("[ERROR] %s: (%s)\n", file.getName(), hafe.getMessage());
+//            } catch (PhenolRuntimeException pre) {
+//                System.err.printf("[ERROR] PhenolRuntimeException: with file %s: %s", file, pre.getMessage());
+//                throw pre;
+//
+//            }
+//        }
+//    }
 
     /**
      * This is the format of the omit-list.txt file.

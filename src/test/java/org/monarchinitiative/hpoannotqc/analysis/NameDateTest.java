@@ -65,4 +65,23 @@ public class NameDateTest {
         Assertions.assertEquals(expected, nd.getPrettyVersion());
     }
 
+
+    @Test
+    public void testHELIX() {
+        String original = "HELIX syndrome"; // Should not be changed, HELIX is an acronym
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(original, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    public void testEPIDERMOLYSISBULLOSA () {
+        String original = "EPIDERMOLYSIS BULLOSA SIMPLEX, AUTOSOMAL RECESSIVE 1";
+        String expected = "Epidermolysis bullosa simplex, autosomal recessive 1";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
 }

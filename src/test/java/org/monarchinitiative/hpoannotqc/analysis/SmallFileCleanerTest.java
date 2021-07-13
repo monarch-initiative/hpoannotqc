@@ -20,7 +20,7 @@ public class SmallFileCleanerTest {
     private static final File smallFile = path.toFile();
     private static final SmallFileCleaner cleaner = new SmallFileCleaner(smallFile.getAbsolutePath());
     private static final String label = cleaner.getPreferredLabel();
-    private static final List<String> cleanLines = cleaner.getCleansedLines();
+    private static final List<String> cleanLines = cleaner.getNewLines();
 
 
 
@@ -47,9 +47,9 @@ public class SmallFileCleanerTest {
 
     @Test
     public void testNumberOfLines() {
-        // the OMIM-with-duplicates file has 8 data lines but two duplications, so we expect 6 lines
+        // the OMIM-with-duplicates file has 8 data lines but two duplications, so we expect 6 data lines (7 lines, includes header)
         assertNotNull(cleaner);
-        assertEquals(6, cleanLines.size());
+        assertEquals(7, cleanLines.size());
     }
 
 
@@ -61,8 +61,8 @@ public class SmallFileCleanerTest {
        lines.add(pcsLine);
         // the temp file now has two lines in it -- they are not duplicate because the evidence code is different
         SmallFileCleaner myCleaner = new SmallFileCleaner(lines, "dummyHeader");
-        List<String> cleanLines = myCleaner.getCleansedLines();
-        assertEquals(2, cleanLines.size());
+        List<String> cleanLines = myCleaner.getNewLines(); // includes header, so we expect 3 lines
+        assertEquals(3, cleanLines.size());
     }
 
     @Test
@@ -73,8 +73,8 @@ public class SmallFileCleanerTest {
         lines.add(lineWithDifferentFrequency);
         // the temp file now has two lines in it -- they are not duplicate because the evidence code is different
         SmallFileCleaner myCleaner = new SmallFileCleaner(lines, "dummyHeader");
-        List<String> cleanLines = myCleaner.getCleansedLines();
-        assertEquals(2, cleanLines.size());
+        List<String> cleanLines = myCleaner.getNewLines();// includes header, so we expect 3 lines
+        assertEquals(3, cleanLines.size());
     }
 
     @Test
@@ -85,8 +85,20 @@ public class SmallFileCleanerTest {
         lines.add(lineWithDifferentDescription);
         // the temp file now has two lines in it -- they are  duplicate because we do not count description
         SmallFileCleaner myCleaner = new SmallFileCleaner(lines, "dummyHeader");
-        List<String> cleanLines = myCleaner.getCleansedLines();
-        assertEquals(1, cleanLines.size());
+        List<String> cleanLines = myCleaner.getNewLines();// includes header, so we expect 2 lines
+        assertEquals(2, cleanLines.size());
+    }
+
+
+    @Test
+    public void test209770() {
+        Path path = Paths.get("src", "test", "resources","OMIM-209770.tab");
+        File smallFile = path.toFile();
+        SmallFileCleaner cleaner = new SmallFileCleaner(smallFile.getAbsolutePath());
+        List<String> cleanLines = cleaner.getNewLines();
+        String expected = "Aural atresia, multiple congenital anomalies, and mental retardation";
+        assertEquals(expected, cleaner.getPreferredLabel());
+        assertEquals(7, cleanLines.size()); // no duplicates
     }
 
 
