@@ -86,7 +86,7 @@ public class CleanCommand implements Callable<Integer> {
         omitEntries = getOmitEntries(omitFile);
         smallFilePaths = getListOfV2SmallFiles(hpoAnnotationFileDirectory);
         getProgressDoc();
-        int N_ENTRIES = 1;
+        int N_ENTRIES = 5;
         doNextEntries(N_ENTRIES);
         outputDoneEntries();
         return 0;
@@ -144,26 +144,6 @@ public class CleanCommand implements Callable<Integer> {
     }
 
 
-
-
-//    private void inputHpoAnnotationFiles() {
-//        int i = 0;
-//        for (File file : smallFilePaths) {
-//            HpoAnnotationFileParser parser = new HpoAnnotationFileParser(file.getAbsolutePath(), ontology);
-//            try {
-//                HpoAnnotationModel smallFile = parser.parse(true);
-//                int n_total_annotation_lines = smallFile.getNumberOfAnnotations();
-//                smallFileList.add(smallFile);
-//            } catch (HpoAnnotationModelException hafe) {
-//                System.err.printf("[ERROR] %s: (%s)\n", file.getName(), hafe.getMessage());
-//            } catch (PhenolRuntimeException pre) {
-//                System.err.printf("[ERROR] PhenolRuntimeException: with file %s: %s", file, pre.getMessage());
-//                throw pre;
-//
-//            }
-//        }
-//    }
-
     /**
      * This is the format of the omit-list.txt file.
      * Thus, we need to extract only the first field.
@@ -195,13 +175,6 @@ public class CleanCommand implements Callable<Integer> {
         return entrylist;
     }
 
-    int get_omitted_entry_count() {
-        return this.omitEntries.size();
-    }
-
-    int get_valid_smallfile_count() {
-        return this.smallFilePaths.size();
-    }
 
     /**
      * Get the entry Curie for a certain path

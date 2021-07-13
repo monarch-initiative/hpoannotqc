@@ -19,7 +19,7 @@ public class NameDate implements Comparable<NameDate> {
 
     private final Date date;
     /** either #600123 or 600123 at beginning of string. */
-    private final static Pattern omimPattern = Pattern.compile("^#?\\d{6,6}\\s+");
+    private final static Pattern omimPattern = Pattern.compile("^[#%]?\\d{6,6}\\s+");
 
 
 
@@ -100,6 +100,12 @@ public class NameDate implements Comparable<NameDate> {
             return true;
         } if (w.equals("X-LINKED")) {
             return true;
+        } if (w.equals("X-LINKED,")) {
+            return true;
+        } if (w.equalsIgnoreCase("Robin")) {
+            return true;
+        } if (w.equalsIgnoreCase("Fallot")) {
+            return true;
         } else if (w.length() == 1) {
             // might be from FANCONI ANEMIA, COMPLEMENTATION GROUP E
             return true;
@@ -112,17 +118,25 @@ public class NameDate implements Comparable<NameDate> {
 
     private String unshout(String label) {
         String [] fields = label.split("\\s+");
-        String firstWord = Character.toTitleCase(fields[0].charAt(0)) + fields[0].substring(1).toLowerCase(Locale.ROOT);
+        String firstWord = titleCase(fields[0]);
         List<String> newfields = new ArrayList<>();
         newfields.add(firstWord);
         for (int i = 1; i < fields.length; i++) {
             String word = fields[i];
-            if (isSpecialWord(word)) {
-                if (word.equalsIgnoreCase("X-LINKED")) {
-                    newfields.add("X-linked");
-                } else {
-                    newfields.add(word);
-                }
+            if (word.equalsIgnoreCase("X-LINKED")) {
+                newfields.add("X-linked");
+            } else if (word.equalsIgnoreCase("X-LINKED,")) {
+                newfields.add("X-linked,");
+            } else if (word.equalsIgnoreCase("ROBIN")) {
+                newfields.add("Robin"); // Robin sequence
+            } else if (word.equalsIgnoreCase("Fallot")) {
+                newfields.add("Fallot"); // Tetralogy of Fallot
+            } else if (word.equalsIgnoreCase("Diamond-Blackfan")) {
+                newfields.add("Diamond-Blackfan"); // Diamond-Blackfan anemia
+            } else if (word.equalsIgnoreCase("ACTH-SECRETING")) {
+                newfields.add("ACTH-secreting"); // Tetralogy of Fallot
+            } else if (isSpecialWord(word)) {
+                newfields.add(word);
             } else if (isRomanNumber(word)) {
                 newfields.add(word);
             } else if (isTypeNumber(word) ){
@@ -145,6 +159,7 @@ public class NameDate implements Comparable<NameDate> {
         validRomanNumerals.add('X');
         validRomanNumerals.add('V');
         validRomanNumerals.add('I');
+        validRomanNumerals.add(',');
 
         for (char letter : word.toCharArray()) {
             if (! validRomanNumerals.contains(letter)) {
@@ -157,6 +172,7 @@ public class NameDate implements Comparable<NameDate> {
 
     String titleCase(String word) {
         int dashPos = word.indexOf("-");
+        if (word.equalsIgnoreCase("Diamond-Blackfan")) { return "Diamond-Blackfan";}
         if (dashPos < 0) {
             return Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase(Locale.ROOT);
         } else {
