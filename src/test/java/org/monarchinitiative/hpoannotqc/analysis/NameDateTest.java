@@ -66,13 +66,13 @@ public class NameDateTest {
     }
 
 
-    @Test
-    public void testHELIX() {
-        String original = "HELIX syndrome"; // Should not be changed, HELIX is an acronym
-        String biocuration = "HPO:probinson[2021-06-21]";
-        NameDate nd = new NameDate(original, biocuration);
-        Assertions.assertEquals(original, nd.getPrettyVersion());
-    }
+//    @Test
+//    public void testHELIX() {
+//        String original = "HELIX syndrome"; // Should not be changed, HELIX is an acronym
+//        String biocuration = "HPO:probinson[2021-06-21]";
+//        NameDate nd = new NameDate(original, biocuration);
+//        Assertions.assertEquals(original, nd.getPrettyVersion());
+//    }
 
 
     @Test
@@ -92,7 +92,55 @@ public class NameDateTest {
         String biocuration = "HPO:probinson[2021-06-21]";
         NameDate nd = new NameDate(original, biocuration);
         Assertions.assertEquals(expected, nd.getPrettyVersion());
-
     }
+
+
+//    @Test void xSyndrome() {
+//        // labels such as XYZ syndrome should assume the first worrd is an acronym and not deshout.
+//        String original = "MASA SYNDROME";
+//        String expected = "MASA syndrome";
+//        String biocuration = "HPO:probinson[2021-06-21]";
+//        NameDate nd = new NameDate(original, biocuration);
+//        Assertions.assertEquals(expected, nd.getPrettyVersion());
+//    }
+    @Test void fanconi() {
+        String original = "FANCONI ANEMIA, COMPLEMENTATION GROUP E";
+        String expected = "Fanconi anemia, complementation group E";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void duchenne() {
+        String original = "MUSCULAR DYSTROPHY, DUCHENNE TYPE";
+        String expected = "Muscular dystrophy, Duchenne type";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void MRX101() {
+        String original = "#300928 MENTAL RETARDATION, X-LINKED 101; MRX101";
+        String expected = "Mental retardation, X-linked 101";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void Amelogenesis() {
+        String original = "AMELOGENESIS IMPERFECTA, TYPE IH";
+        String expected = "Amelogenesis imperfecta, type IH";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+
 
 }
