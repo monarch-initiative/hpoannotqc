@@ -78,6 +78,8 @@ public class CleanCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        /*
+        All done, we should never need this again!
         String hpOboPath = String.format("%s%s%s",downloadDirectory, File.separator, "hp.obo" );
         ontology = OntologyLoader.loadOntology(new File(hpOboPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
@@ -88,7 +90,7 @@ public class CleanCommand implements Callable<Integer> {
         getProgressDoc();
         int N_ENTRIES = 20000;
         doNextEntries(N_ENTRIES);
-        outputDoneEntries();
+        outputDoneEntries(); */
         return 0;
     }
 
