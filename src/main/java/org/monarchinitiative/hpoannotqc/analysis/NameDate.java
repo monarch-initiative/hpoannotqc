@@ -130,8 +130,18 @@ public class NameDate implements Comparable<NameDate> {
                 newfields.add("X-linked");
             } else if (word.equalsIgnoreCase("(Zellweger)")) {
                 newfields.add("(Zellweger)");
+            } else if (word.equalsIgnoreCase("nk")) {
+                newfields.add("NK");
+            } else if (word.equalsIgnoreCase("QT")) {
+                newfields.add("QT");
+            } else if (word.equalsIgnoreCase("Charcot-Marie-Tooth")) {
+                newfields.add("Charcot-Marie-Tooth");
             } else if (word.equalsIgnoreCase("lange")) {
                 newfields.add("Lange"); // Cornelia de Lange
+            } else if (word.equalsIgnoreCase("ATP")) {
+                newfields.add("ATP"); // ATP
+            } else if (word.equalsIgnoreCase("cns")) {
+                newfields.add("CNS"); // ATP
             } else if (word.equalsIgnoreCase("X-LINKED,")) {
                 newfields.add("X-linked,");
             }  else if (word.equalsIgnoreCase("ROBIN")) {
@@ -187,6 +197,7 @@ public class NameDate implements Comparable<NameDate> {
             String [] elements = word.split("-");
             List<String> elnew = new ArrayList<>();
             for (String e : elements) {
+                if (e != null && ! e.isEmpty())
                 elnew.add(Character.toUpperCase(e.charAt(0)) + e.substring(1).toLowerCase(Locale.ROOT));
             }
             return String.join("-", elnew);
@@ -194,8 +205,16 @@ public class NameDate implements Comparable<NameDate> {
     }
 
     private String unshoutWord(String word) {
+        if (word.contains("-") && word.length()>1 && Character.isLowerCase(word.charAt(1))) {
+            return word;
+        }
+        if (word.equalsIgnoreCase("X-linked,")) {
+            return "X-linked,";
+        }
         if (isRomanNumber(word) || isSpecialWord(word)) {
             return word;
+        } else if (word.equalsIgnoreCase("Charcot-Marie-Tooth")){
+            return "Charcot-Marie-Tooth";
         } else {
             return word.toLowerCase(Locale.ROOT);
         }
@@ -224,7 +243,7 @@ public class NameDate implements Comparable<NameDate> {
             /// we know if we get here that there are at least 3 fields
             int LEN = fields.length;
             String [] starters = Arrays.copyOfRange(fields, 0,LEN - 2);
-            String firstpart = String.join(" ", starters).toLowerCase(Locale.ROOT);
+            String firstpart = Arrays.stream(starters).map(this::unshoutWord).collect(Collectors.joining(" "));
             firstpart = firstpart.substring(0,1).toUpperCase() + firstpart.substring(1);
             String name = titleCase(fields[LEN-2]);
             return firstpart + " " + name + " type";
