@@ -73,6 +73,9 @@ public class NameDate implements Comparable<NameDate> {
     }
 
     private boolean isTypeNumber(String label) {
+        if (label.endsWith(",")) {
+            label = label.substring(0,label.length()-1);
+        }
         if (label.length() == 1) {
             return true;
         } else {
@@ -125,9 +128,13 @@ public class NameDate implements Comparable<NameDate> {
             String word = fields[i];
             if (word.equalsIgnoreCase("X-LINKED")) {
                 newfields.add("X-linked");
+            } else if (word.equalsIgnoreCase("(Zellweger)")) {
+                newfields.add("(Zellweger)");
+            } else if (word.equalsIgnoreCase("lange")) {
+                newfields.add("Lange"); // Cornelia de Lange
             } else if (word.equalsIgnoreCase("X-LINKED,")) {
                 newfields.add("X-linked,");
-            } else if (word.equalsIgnoreCase("ROBIN")) {
+            }  else if (word.equalsIgnoreCase("ROBIN")) {
                 newfields.add("Robin"); // Robin sequence
             } else if (word.equalsIgnoreCase("Fallot")) {
                 newfields.add("Fallot"); // Tetralogy of Fallot
@@ -151,6 +158,7 @@ public class NameDate implements Comparable<NameDate> {
 
 
     private boolean isRomanNumber(String word) {
+        if (word.equalsIgnoreCase("mild")) return false; // mild is probably not a Roman numeral in OMIM
         final Set<Character> validRomanNumerals = new HashSet<>();
         validRomanNumerals.add('M');
         validRomanNumerals.add('D');

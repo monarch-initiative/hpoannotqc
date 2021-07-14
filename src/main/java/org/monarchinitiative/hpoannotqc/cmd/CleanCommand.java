@@ -86,7 +86,7 @@ public class CleanCommand implements Callable<Integer> {
         omitEntries = getOmitEntries(omitFile);
         smallFilePaths = getListOfV2SmallFiles(hpoAnnotationFileDirectory);
         getProgressDoc();
-        int N_ENTRIES = 5;
+        int N_ENTRIES = 7;
         doNextEntries(N_ENTRIES);
         outputDoneEntries();
         return 0;

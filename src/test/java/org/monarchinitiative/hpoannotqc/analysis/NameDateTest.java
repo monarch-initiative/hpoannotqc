@@ -198,10 +198,6 @@ public class NameDateTest {
     }
 
 
-
-    //
-
-
     @Test
     void testMRXS12() {
         String original = "%309545 MENTAL RETARDATION, X-LINKED, SYNDROMIC 12; MRXS12";
@@ -211,6 +207,35 @@ public class NameDateTest {
         Assertions.assertEquals(expected, nd.getPrettyVersion());
     }
 
+
+    @Test
+    void testSMALED2B() {
+        String original = "SPINAL MUSCULAR ATROPHY, LOWER EXTREMITY-PREDOMINANT, 2B, AUTOSOMAL DOMINANT; SMALED2B";
+        String expected = "Spinal muscular atrophy, lower extremity-predominant, 2B, autosomal dominant";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    //
+    @Test
+    void testPBD7A() {
+        String original = "PEROXISOME BIOGENESIS DISORDER 7A (ZELLWEGER); PBD7A";
+        String expected = "Peroxisome biogenesis disorder 7A (Zellweger)";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    //
+    @Test
+    void testCDL() {
+        String original = "#122470 CORNELIA DE LANGE SYNDROME 1; CDLS1;;CDL;";
+        String expected = "Cornelia de Lange syndrome 1";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
 
 
 
