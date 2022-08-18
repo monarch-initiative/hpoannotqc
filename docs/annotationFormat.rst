@@ -82,8 +82,8 @@ uses three evidence codes.
 
 7. **Onset**: A term-id from the HPO-sub-ontology below the term
 “Age of onset” (HP:0003674). Note that if an HPO onset term is used in this field, it refers to the onset of the
-feature specified in field 5 in the disease being annotated. On the other hand, if an HPO onset term is used
-in field 5, then it refers to the overall onset of the disease. In this case, no additional onset term should be
+feature specified in field 4 in the disease being annotated. On the other hand, if an HPO onset term is used
+in field 4, then it refers to the overall onset of the disease. In this case, no additional onset term should be
 used in field 8.
 
 8. **Frequency**: There are three allowed options for this field.
