@@ -66,13 +66,13 @@ public class NameDateTest {
     }
 
 
-    @Test
-    public void testHELIX() {
-        String original = "HELIX syndrome"; // Should not be changed, HELIX is an acronym
-        String biocuration = "HPO:probinson[2021-06-21]";
-        NameDate nd = new NameDate(original, biocuration);
-        Assertions.assertEquals(original, nd.getPrettyVersion());
-    }
+//    @Test
+//    public void testHELIX() {
+//        String original = "HELIX syndrome"; // Should not be changed, HELIX is an acronym
+//        String biocuration = "HPO:probinson[2021-06-21]";
+//        NameDate nd = new NameDate(original, biocuration);
+//        Assertions.assertEquals(original, nd.getPrettyVersion());
+//    }
 
 
     @Test
@@ -92,7 +92,222 @@ public class NameDateTest {
         String biocuration = "HPO:probinson[2021-06-21]";
         NameDate nd = new NameDate(original, biocuration);
         Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+//    @Test void xSyndrome() {
+//        // labels such as XYZ syndrome should assume the first worrd is an acronym and not deshout.
+//        String original = "MASA SYNDROME";
+//        String expected = "MASA syndrome";
+//        String biocuration = "HPO:probinson[2021-06-21]";
+//        NameDate nd = new NameDate(original, biocuration);
+//        Assertions.assertEquals(expected, nd.getPrettyVersion());
+//    }
+    @Test void fanconi() {
+        String original = "FANCONI ANEMIA, COMPLEMENTATION GROUP E";
+        String expected = "Fanconi anemia, complementation group E";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void duchenne() {
+        String original = "MUSCULAR DYSTROPHY, DUCHENNE TYPE";
+        String expected = "Muscular dystrophy, Duchenne type";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void MRX101() {
+        String original = "#300928 MENTAL RETARDATION, X-LINKED 101; MRX101";
+        String expected = "Mental retardation, X-linked 101";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void Amelogenesis() {
+        String original = "AMELOGENESIS IMPERFECTA, TYPE IH";
+        String expected = "Amelogenesis imperfecta, type IH";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void factor() {
+        String original = "FACTOR XIII, B SUBUNIT, DEFICIENCY OF";
+        String expected = "Factor XIII, B subunit, deficiency of";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void percentage() {
+        String original = "%605735 BLEEDING DISORDER, PLATELET-TYPE, 12; BDPLT12;;PROSTAGLANDIN-ENDOPEROXIDE SYNTHASE 1 DEFICIENCY, PLATELET;;";
+        String expected = "Bleeding disorder, platelet-type, 12";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void Corpuscallosum() {
+        String original = "%217980 CORPUS CALLOSUM, AGENESIS OF, WITH FACIAL ANOMALIES AND ROBIN SEQUENCE;;TORIELLO-CAREY SYNDROME";
+        String expected = "Corpus callosum, agenesis of, with facial anomalies and Robin sequence";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void Fallot() {
+        String original = "HYPERTELORISM AND TETRALOGY OF FALLOT";
+        String expected = "Hypertelorism and tetralogy of Fallot";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void testACTH() {
+        String original = "PITUITARY ADENOMA 4, ACTH-SECRETING";
+        String expected = "Pituitary adenoma 4, ACTH-secreting";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+    @Test
+    void testDBA() {
+        String original = "DIAMOND-BLACKFAN ANEMIA 20; DBA20";
+        String expected = "Diamond-Blackfan anemia 20";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void testMRXS12() {
+        String original = "%309545 MENTAL RETARDATION, X-LINKED, SYNDROMIC 12; MRXS12";
+        String expected = "Mental retardation, X-linked, syndromic 12";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void testSMALED2B() {
+        String original = "SPINAL MUSCULAR ATROPHY, LOWER EXTREMITY-PREDOMINANT, 2B, AUTOSOMAL DOMINANT; SMALED2B";
+        String expected = "Spinal muscular atrophy, lower extremity-predominant, 2B, autosomal dominant";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    //
+    @Test
+    void testPBD7A() {
+        String original = "PEROXISOME BIOGENESIS DISORDER 7A (ZELLWEGER); PBD7A";
+        String expected = "Peroxisome biogenesis disorder 7A (Zellweger)";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    //
+    @Test
+    void testCDL() {
+        String original = "#122470 CORNELIA DE LANGE SYNDROME 1; CDLS1;;CDL;";
+        String expected = "Cornelia de Lange syndrome 1";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void testCMT() {
+        String original = "CHARCOT-MARIE-TOOTH DISEASE, DEMYELINATING, TYPE 1G; CMT1G";
+        String expected = "Charcot-Marie-Tooth disease, demyelinating, type 1G";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    //
+
+    @Test
+    void testLQT() {
+        String original = "#613485 LONG QT SYNDROME 13; LQT13";
+        String expected = "Long QT syndrome 13";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void testRT() {
+        String original = "Rothmund-Thomson syndrome, type 1";
+        String expected = "Rothmund-Thomson syndrome, type 1";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void testCNS() {
+        String original = "165200 OPTIC ATROPHY WITH DEMYELINATING DISEASE OF CNS";
+        String expected = "Optic atrophy with demyelinating disease of CNS";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void chromosome() {
+        String original = "#615668 CHROMOSOME 5q12 DELETION SYNDROME";
+        String expected = "Chromosome 5q12 deletion syndrome";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+    @Test
+    void turner() {
+        String original = "#300706 MENTAL RETARDATION, X-LINKED, SYNDROMIC, TURNER TYPE; MRXST;;";
+        String expected = "Mental retardation, X-linked, syndromic, Turner type";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+    }
+
+
+    @Test
+    void nk() {
+        String original = "SEVERE COMBINED IMMUNODEFICIENCY, AUTOSOMAL RECESSIVE, T CELL-NEGATIVE, B CELL-NEGATIVE, NK CELL-POSITIVE";
+        String expected = "Severe combined immunodeficiency, autosomal recessive, T cell-negative, B cell-negative, NK cell-positive";
+        String biocuration = "HPO:probinson[2021-06-21]";
+        NameDate nd = new NameDate(original, biocuration);
+        Assertions.assertEquals(expected, nd.getPrettyVersion());
+
+
+
 
     }
+
 
 }

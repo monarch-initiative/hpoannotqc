@@ -1,8 +1,5 @@
 package org.monarchinitiative.hpoannotqc;
-import org.monarchinitiative.hpoannotqc.cmd.BigFileCommand;
-import org.monarchinitiative.hpoannotqc.cmd.CleanCommand;
-import org.monarchinitiative.hpoannotqc.cmd.DownloadCommand;
-import org.monarchinitiative.hpoannotqc.cmd.Genes2PhenotypesCommand;
+import org.monarchinitiative.hpoannotqc.cmd.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -29,7 +26,7 @@ public class Main implements Callable<Integer> {
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
-                addSubcommand("clean", new CleanCommand()).
+                addSubcommand("qc", new BigFileQcCommand()).
                 addSubcommand("gene2phen", new Genes2PhenotypesCommand());
         cline.setToggleBooleanFlags(false);
         if (args.length == 0) {

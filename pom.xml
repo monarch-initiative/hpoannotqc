@@ -5,7 +5,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.8.3</version>
+    <version>1.9.9</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <phenol.version>1.6.3</phenol.version>
+        <phenol.version>2.0.0-RC4</phenol.version>
         <guava.version>[30.0-jre,)</guava.version>
         <junit.version>5.1.0</junit.version>
     </properties>
@@ -211,8 +211,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
 

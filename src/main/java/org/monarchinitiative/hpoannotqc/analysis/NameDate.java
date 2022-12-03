@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Pair of OMIM names and biocuration data
@@ -18,7 +19,7 @@ public class NameDate implements Comparable<NameDate> {
 
     private final Date date;
     /** either #600123 or 600123 at beginning of string. */
-    private final static Pattern omimPattern = Pattern.compile("^#?\\d{6,6}\\s+");
+    private final static Pattern omimPattern = Pattern.compile("^[#%]?\\d{6,6}\\s+");
 
 
 
@@ -56,7 +57,7 @@ public class NameDate implements Comparable<NameDate> {
         // if only some words are shouting, assume that they have acronyms and return false
         int n_shouting_words = 0;
         for (String word : fields) {
-            if (isNumeral(word) || (word.length() > 1 && Character.isUpperCase(word.charAt(1)))) {
+            if (isNumeral(word) || (word.length() > 1 && Character.isUpperCase(word.charAt(1)) || isSpecialWord(word))) {
                 n_shouting_words++;
             }
         }
@@ -72,6 +73,9 @@ public class NameDate implements Comparable<NameDate> {
     }
 
     private boolean isTypeNumber(String label) {
+        if (label.endsWith(",")) {
+            label = label.substring(0,label.length()-1);
+        }
         if (label.length() == 1) {
             return true;
         } else {
@@ -97,19 +101,58 @@ public class NameDate implements Comparable<NameDate> {
     private boolean isSpecialWord(String w) {
         if (w.equals("DNA")) {
             return true;
-        } else {
+        } if (w.equals("X-LINKED")) {
+            return true;
+        } if (w.equals("X-LINKED,")) {
+            return true;
+        } if (w.equalsIgnoreCase("Robin")) {
+            return true;
+        } if (w.equalsIgnoreCase("Fallot")) {
+            return true;
+        } else if (w.length() == 1) {
+            // might be from FANCONI ANEMIA, COMPLEMENTATION GROUP E
+            return true;
+        } else if (isRomanNumber(w)) {
+            return true;
+        } else{
             return false;
         }
     }
 
     private String unshout(String label) {
         String [] fields = label.split("\\s+");
-        String firstWord = Character.toTitleCase(fields[0].charAt(0)) + fields[0].substring(1).toLowerCase(Locale.ROOT);
+        String firstWord = titleCase(fields[0]);
         List<String> newfields = new ArrayList<>();
         newfields.add(firstWord);
         for (int i = 1; i < fields.length; i++) {
             String word = fields[i];
-            if (isSpecialWord(word)) {
+            if (word.equalsIgnoreCase("X-LINKED")) {
+                newfields.add("X-linked");
+            } else if (word.equalsIgnoreCase("(Zellweger)")) {
+                newfields.add("(Zellweger)");
+            } else if (word.equalsIgnoreCase("nk")) {
+                newfields.add("NK");
+            } else if (word.equalsIgnoreCase("QT")) {
+                newfields.add("QT");
+            } else if (word.equalsIgnoreCase("Charcot-Marie-Tooth")) {
+                newfields.add("Charcot-Marie-Tooth");
+            } else if (word.equalsIgnoreCase("lange")) {
+                newfields.add("Lange"); // Cornelia de Lange
+            } else if (word.equalsIgnoreCase("ATP")) {
+                newfields.add("ATP"); // ATP
+            } else if (word.equalsIgnoreCase("cns")) {
+                newfields.add("CNS"); // ATP
+            } else if (word.equalsIgnoreCase("X-LINKED,")) {
+                newfields.add("X-linked,");
+            }  else if (word.equalsIgnoreCase("ROBIN")) {
+                newfields.add("Robin"); // Robin sequence
+            } else if (word.equalsIgnoreCase("Fallot")) {
+                newfields.add("Fallot"); // Tetralogy of Fallot
+            } else if (word.equalsIgnoreCase("Diamond-Blackfan")) {
+                newfields.add("Diamond-Blackfan"); // Diamond-Blackfan anemia
+            } else if (word.equalsIgnoreCase("ACTH-SECRETING")) {
+                newfields.add("ACTH-secreting"); // Tetralogy of Fallot
+            } else if (isSpecialWord(word)) {
                 newfields.add(word);
             } else if (isRomanNumber(word)) {
                 newfields.add(word);
@@ -125,6 +168,7 @@ public class NameDate implements Comparable<NameDate> {
 
 
     private boolean isRomanNumber(String word) {
+        if (word.equalsIgnoreCase("mild")) return false; // mild is probably not a Roman numeral in OMIM
         final Set<Character> validRomanNumerals = new HashSet<>();
         validRomanNumerals.add('M');
         validRomanNumerals.add('D');
@@ -133,6 +177,7 @@ public class NameDate implements Comparable<NameDate> {
         validRomanNumerals.add('X');
         validRomanNumerals.add('V');
         validRomanNumerals.add('I');
+        validRomanNumerals.add(',');
 
         for (char letter : word.toCharArray()) {
             if (! validRomanNumerals.contains(letter)) {
@@ -143,8 +188,42 @@ public class NameDate implements Comparable<NameDate> {
     }
 
 
+    String titleCase(String word) {
+        int dashPos = word.indexOf("-");
+        if (word.equalsIgnoreCase("Diamond-Blackfan")) { return "Diamond-Blackfan";}
+        if (dashPos < 0) {
+            return Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase(Locale.ROOT);
+        } else {
+            String [] elements = word.split("-");
+            List<String> elnew = new ArrayList<>();
+            for (String e : elements) {
+                if (e != null && ! e.isEmpty())
+                elnew.add(Character.toUpperCase(e.charAt(0)) + e.substring(1).toLowerCase(Locale.ROOT));
+            }
+            return String.join("-", elnew);
+        }
+    }
+
+    private String unshoutWord(String word) {
+        if (word.contains("-") && word.length()>1 && Character.isLowerCase(word.charAt(1))) {
+            return word;
+        }
+        if (word.equalsIgnoreCase("X-linked,")) {
+            return "X-linked,";
+        }
+        if (isRomanNumber(word) || isSpecialWord(word)) {
+            return word;
+        } else if (word.equalsIgnoreCase("Charcot-Marie-Tooth")){
+            return "Charcot-Marie-Tooth";
+        } else {
+            return word.toLowerCase(Locale.ROOT);
+        }
+    }
+
+
     public String getPrettyVersion() {
         String [] fields = this.label.split(";");
+
         String firstLabel = fields[0];
         final Matcher matcher = omimPattern.matcher(firstLabel);
         if (matcher.find()) {
@@ -152,13 +231,65 @@ public class NameDate implements Comparable<NameDate> {
             firstLabel = firstLabel.substring(matcher.end()).trim();
         }
         fields = firstLabel.split("\\s+");
+        if (isXsyndrome(fields)) {
+            return titleCase(fields[0]) + " " + fields[1].toLowerCase(Locale.ROOT);
+        } else if (isXsyndromeN(fields)) {
+            return titleCase(fields[0]) + " " + fields[1].toLowerCase(Locale.ROOT) + " " + fields[2];
+        }
         if (fields.length == 1) {
             return firstLabel;
+        }
+        if (isXtype(fields)) {
+            /// we know if we get here that there are at least 3 fields
+            int LEN = fields.length;
+            String [] starters = Arrays.copyOfRange(fields, 0,LEN - 2);
+            String firstpart = Arrays.stream(starters).map(this::unshoutWord).collect(Collectors.joining(" "));
+            firstpart = firstpart.substring(0,1).toUpperCase() + firstpart.substring(1);
+            String name = titleCase(fields[LEN-2]);
+            return firstpart + " " + name + " type";
+        }
+        if (isReversedXtype(fields)) {
+            // disease ends with TYPE IH etc
+            int LEN = fields.length;
+            String [] starters = Arrays.copyOfRange(fields, 0,LEN - 2);
+            String firstpart = Arrays.stream(starters).map(this::unshoutWord).collect(Collectors.joining(" "));
+            firstpart = firstpart.substring(0,1).toUpperCase() + firstpart.substring(1);
+            return firstpart + " type " + fields[LEN-1] ;
         }
         if (isShouting(firstLabel)) {
             firstLabel = unshout(firstLabel);
         }
+
         return firstLabel;
+    }
+
+    private boolean isReversedXtype(String[] fields) {
+        if (fields.length < 3) return false;
+        int LEN = fields.length;
+        if (fields[LEN-2].equalsIgnoreCase("type")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    private boolean isXtype(String[] fields) {
+        if (fields.length < 3) return false;
+        int LEN = fields.length;
+        if (fields[LEN-1].equalsIgnoreCase("type")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isXsyndrome(String[] fields) {
+        return  fields.length == 2 && fields[1].equalsIgnoreCase("SYNDROME");
+    }
+
+    private boolean isXsyndromeN(String[] fields) {
+        return   fields.length == 3 && fields[1].equalsIgnoreCase("SYNDROME") && isNumeral(fields[2]);
     }
 
     @Override
