@@ -1,6 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.phenol.annotations.hpo.*;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;

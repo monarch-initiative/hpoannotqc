@@ -1,23 +1,14 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcRuntimeException;
-
-import org.monarchinitiative.phenol.annotations.assoc.HpoAssociationLoader;
-import org.monarchinitiative.phenol.annotations.formats.hpo.HpoAssociationData;
-import org.monarchinitiative.phenol.annotations.formats.hpo.HpoGeneAnnotation;
 import org.monarchinitiative.phenol.annotations.io.hpo.DiseaseDatabase;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoDiseaseLoaderOptions;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import picocli.CommandLine;
 
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 

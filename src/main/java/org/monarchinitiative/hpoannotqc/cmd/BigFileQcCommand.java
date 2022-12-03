@@ -1,6 +1,10 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 
+import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
+import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationModelException;
+import org.monarchinitiative.hpoannotqc.annotations.ObsoleteTermIdException;
+import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -10,6 +14,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -18,7 +28,10 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "big-file-qc", aliases = {"Q"}, mixinStandardHelpOptions = true, description = "Q/C phenotype.hpoa file")
 public class BigFileQcCommand implements Callable<Integer> {
-
+    @CommandLine.Option(names={"-a","--annot"},
+            description = "Path to directory with the ca. 7900 HPO Annotation files",
+            required = true)
+    private String hpoAnnotationFileDirectory;
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory to download data (default: ${DEFAULT-VALUE})")
     private String downloadDirectory = "data";
@@ -30,6 +43,9 @@ public class BigFileQcCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"--hpo"},
             description = "Path to hpo.json file", required = true)
     private String hpoJson;
+
+    private int validLine = 0;
+    private int invalidLine = 0;
 
 
     @Override
@@ -43,17 +59,65 @@ public class BigFileQcCommand implements Callable<Integer> {
             throw new PhenolRuntimeException("Could not find hpo.json -- run download command");
         }
         Ontology hpo = OntologyLoader.loadOntology(hpoJsonFile);
-
-        try (BufferedReader br = new BufferedReader(new FileReader(phenotypeHpoaFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
+        File smallFileDirectory = new File(hpoAnnotationFileDirectory);
+        if (!smallFileDirectory.exists()) {
+            throw new PhenolRuntimeException("Could not find " + smallFileDirectory + " (We were expecting the directory with the HPO disease annotation files");
+        } else if (!smallFileDirectory.isDirectory()) {
+            throw new PhenolRuntimeException(smallFileDirectory.getAbsolutePath() + " is not a directory (We were expecting the directory with the HPO disease annotation files");
+        } else {
+            for (File f: getListOfV2SmallFiles(String.valueOf(smallFileDirectory))) {
+                try {
+                    qcOneSmallFile(f, hpo);
+                } catch (PhenolRuntimeException e) {
+                    e.printStackTrace();
+                }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
+        System.out.printf("Valid lines: %d; invalid lines: %d\n", validLine, invalidLine);
 
         return null;
     }
+
+    private void  qcOneSmallFile(File smallFile, Ontology hpo) throws PhenolRuntimeException{
+        try (BufferedReader br = new BufferedReader(new FileReader(smallFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("#")) continue; // header
+                try {
+                    HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, hpo);
+                    validLine++;
+                } catch (HpoAnnotationModelException | ObsoleteTermIdException ham) {
+                    System.err.printf("%s: %s\n", smallFile.getName(), ham.getMessage());
+                    invalidLine++;
+                }
+            }
+
+        } catch (IOException | PhenolException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private String baseName(Path path) {
+        String bname = path.getFileName().toString();
+        bname = bname.replace('-', ':').replace(".tab", "");
+        return bname;
+    }
+
+    private List<File> getListOfV2SmallFiles(String smallFileDirectory) {
+        List<File> fileNames = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(smallFileDirectory))) {
+            for (Path path : directoryStream) {
+                if (path.toString().endsWith(".tab")) {
+                    String basename = baseName(path);
+                    fileNames.add(new File(path.toString()));
+                }
+            }
+        } catch (IOException ex) {
+           ex.printStackTrace();
+        }
+        return fileNames;
+    }
+
 }

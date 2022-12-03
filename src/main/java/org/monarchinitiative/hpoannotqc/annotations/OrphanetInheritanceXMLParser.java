@@ -166,18 +166,25 @@ public class OrphanetInheritanceXMLParser {
         } else if (event.isEndElement()) {
           EndElement endElement = event.asEndElement();
           String localPart = endElement.getName().getLocalPart();
-          if (localPart.equals(DISORDER)) {
-            inDisorder = false;
-          } else if (localPart.equals(TYPE_OF_INHERITANCE_LIST)) {
-            inTypeOfInheritanceList = false;
-          } else if (localPart.equals(TYPE_OF_INHERITANCE)) {
-            inTypeOfInheritance = false;
-          } else if (localPart.equals(AVERAGE_AGE_OF_ONSET_LIST)) {
-            inAverageAgeOfOnsetList = false;
-          } else if (localPart.equals(AVERAGE_AGE_OF_DEATH_LIST)) {
-            isInAverageAgeOfDeathList = false;
-          } else if (localPart.equals(DISORDER_TYPE)) {
-            inDisorderType = false;
+          switch (localPart) {
+            case DISORDER:
+              inDisorder = false;
+              break;
+            case TYPE_OF_INHERITANCE_LIST:
+              inTypeOfInheritanceList = false;
+              break;
+            case TYPE_OF_INHERITANCE:
+              inTypeOfInheritance = false;
+              break;
+            case AVERAGE_AGE_OF_ONSET_LIST:
+              inAverageAgeOfOnsetList = false;
+              break;
+            case AVERAGE_AGE_OF_DEATH_LIST:
+              isInAverageAgeOfDeathList = false;
+              break;
+            case DISORDER_TYPE:
+              inDisorderType = false;
+              break;
           }
         }
       }

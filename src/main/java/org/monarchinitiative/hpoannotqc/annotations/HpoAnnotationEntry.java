@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
+import org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -16,12 +17,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoClinicalModifierTermIds.CLINICAL_COURSE;
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoFrequencyTermIds.*;
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoFrequencyTermIds.FREQUENCY;
+
 import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoModeOfInheritanceTermIds.INHERITANCE_ROOT;
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoOnsetTermIds.*;
 import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoSubOntologyRootTermIds.*;
+import static org.monarchinitiative.phenol.annotations.constants.hpo.HpoClinicalModifierTermIds.CLINICAL_COURSE;
+import static org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.EXCLUDED;
 import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
 
@@ -121,15 +121,6 @@ public class HpoAnnotationEntry {
   /**
    * A set with all of the TermIds for frequency.
    */
-  private final static Set<TermId> frequencySubhierarchyTermIds = Set.of(FREQUENCY, OBLIGATE, VERY_FREQUENT, FREQUENT, OCCASIONAL, VERY_RARE, EXCLUDED);
-  /**
-   * A set with all of the TermIds for age of onset.
-   */
-  private final static Set<TermId> onsetSubhierarchyTermIds = Set.of(ONSET, EMBRYONAL_ONSET,
-    ADULT_ONSET, MIDDLE_AGE_ONSET, LATE_ONSET, YOUNG_ADULT_ONSET,
-    CONGENITAL_ONSET, NEONATAL_ONSET, PEDIATRIC_ONSET, CHILDHOOD_ONSET,
-    INFANTILE_ONSET, JUVENILE_ONSET, ANTENATAL_ONSET, FETAL_ONSET);
-
   /**
    * Set of allowable evidence codes.
    */
@@ -469,7 +460,7 @@ public class HpoAnnotationEntry {
                                                  boolean replaceObsoleteTermId) throws HpoAnnotationModelException, ObsoleteTermIdException {
 
     if (hpoId == null) {
-      throw new HpoAnnotationModelException("Null String passed as hpoId for disease " + (diseaseID != null ? diseaseID : "n/a"));
+      throw new PhenolRuntimeException("Null String passed as hpoId for disease " + (diseaseID != null ? diseaseID : "n/a"));
     }
     TermId phenotypeId = TermId.of(hpoId);
     // replace the frequency termid with its string equivalent
@@ -625,7 +616,7 @@ public class HpoAnnotationEntry {
     } else if (!ontology.getTermMap().containsKey(id)) {
       throw new HpoAnnotationModelException(String.format("Could not find HPO term id (\"%s\") for \"%s\"", id, termLabel));
     } else {
-      TermId current = ontology.getTermMap().get(id).getId();
+      TermId current = ontology.getTermMap().get(id).id();
       if (!current.equals(id)) {
         throw new ObsoleteTermIdException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
           id.getValue(),
@@ -663,14 +654,14 @@ public class HpoAnnotationEntry {
     if (!ontology.getTermMap().containsKey(tid)) {
       throw new HpoAnnotationModelException(String.format("Onset ID not found: \"%s\"", id));
     }
-    TermId current = ontology.getTermMap().get(tid).getId();
+    TermId current = ontology.getTermMap().get(tid).id();
     if (!current.equals(tid)) {
       throw new ObsoleteTermIdException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
         tid.getValue(),
         current.getValue(),
         ontology.getTermMap().get(tid).getName()));
     }
-    if (!onsetSubhierarchyTermIds.contains(tid)) {
+    if (! isValidInheritanceTerm(tid, ontology)) {
       throw new HpoAnnotationModelException("Invalid ID in onset ID field: \"" + tid + "\"");
     }
     // if we get here, the Age of onset id was OK
@@ -736,10 +727,10 @@ public class HpoAnnotationEntry {
     } catch (PhenolRuntimeException pre) {
       throw new HpoAnnotationModelException(String.format("Could not parse frequency term id: \"%s\"", freq));
     }
-    if (!frequencySubhierarchyTermIds.contains(id)) {
+    if (!isValidFrequencyTerm(id, ontology)) {
       throw new HpoAnnotationModelException(String.format("Usage of incorrect term for frequency: %s [%s]",
         ontology.getTermMap().get(id).getName(),
-        ontology.getTermMap().get(id).getId().getValue()));
+        ontology.getTermMap().get(id).id().getValue()));
     }
   }
 
@@ -771,16 +762,14 @@ public class HpoAnnotationEntry {
     if (modifierString == null || modifierString.isEmpty()) return; // OK,  not required
     // If something is present in this field, it must be in the form of
     // HP:0000001;HP:0000002;...
-    TermId clinicalModifier = TermId.of("HP:0012823");
-    TermId temporalPattern = TermId.of("HP:0011008");
-    TermId paceOfProgression = TermId.of("HP:0003679");
+
+
     String[] A = modifierString.split(";");
     for (String a : A) {
       try {
         TermId tid = TermId.of(a);
-        Set<TermId> ancs = ontology.getAncestorTermIds(tid);
-        if (!ancs.contains(clinicalModifier) && !ancs.contains(temporalPattern) &&
-          !ancs.contains(paceOfProgression)) {
+        if (!isValidModifier(tid, ontology) && !isValidPaceOfProgressionTerm(tid, ontology) &&
+          !isValidTemporalPatternTerm(tid, ontology) && isValidInheritanceModifierTerm(tid, ontology)) {
           throw new HpoAnnotationModelException(String.format("Use of wrong HPO term in modifier field: %s [%s]",
             ontology.getTermMap().get(tid).getName(),
             tid.getValue()));
@@ -836,7 +825,7 @@ public class HpoAnnotationEntry {
     if (term == null) {
       throw new HpoAnnotationModelException("Cannot compute Aspect of NULL term");
     }
-    TermId primaryTid = term.getId(); // update in case term is an alt_id
+    TermId primaryTid = term.id(); // update in case term is an alt_id
     if (existsPath(ontology, primaryTid, PHENOTYPIC_ABNORMALITY)) {
       return "P"; // organ/phenotype abnormality
     } else if (existsPath(ontology, primaryTid, INHERITANCE_ROOT)) {
@@ -871,6 +860,48 @@ public class HpoAnnotationEntry {
     };
     return String.join("\t", elems);
   }
+
+
+  private static boolean isValidInheritanceTerm(TermId tid, Ontology hpo) {
+    final TermId ONSET_ROOT = TermId.of("HP:0003674");
+    return OntologyAlgorithm.existsPath(hpo, tid, ONSET_ROOT);
+  }
+
+
+  private static boolean isValidClinicalModifierTerm(TermId tid, Ontology hpo) {
+    final TermId CLINICAL_MODIFIER_ROOT = TermId.of("HP:0012823");
+    return OntologyAlgorithm.existsPath(hpo, tid, CLINICAL_MODIFIER_ROOT);
+  }
+
+  private static boolean isValidTemporalPatternTerm(TermId tid, Ontology hpo) {
+    final TermId TEMPORAL_PATTERN_ROOT = TermId.of("HP:0011008");
+    return OntologyAlgorithm.existsPath(hpo, tid, TEMPORAL_PATTERN_ROOT);
+  }
+
+  private static boolean isValidPaceOfProgressionTerm(TermId tid, Ontology hpo) {
+    final TermId PACE_OF_PROGRESSION_ROOT = TermId.of("HP:0003679");
+    return OntologyAlgorithm.existsPath(hpo, tid, PACE_OF_PROGRESSION_ROOT);
+  }
+  private static boolean isValidInheritanceModifierTerm(TermId tid, Ontology hpo) {
+    final TermId INHERITANCE_MODIFIER_ROOT = TermId.of("HP:0034335");
+    return OntologyAlgorithm.existsPath(hpo, tid, INHERITANCE_MODIFIER_ROOT);
+  }
+
+
+  private static boolean isValidModifier(TermId tid, Ontology ontology) {
+    return isValidTemporalPatternTerm(tid, ontology) ||
+            isValidPaceOfProgressionTerm(tid, ontology) ||
+            isValidClinicalModifierTerm(tid, ontology) ||
+            isValidInheritanceModifierTerm(tid, ontology) ||
+            isValidClinicalModifierTerm(tid, ontology);
+  }
+
+  private static boolean isValidFrequencyTerm(TermId tid, Ontology hpo) {
+    final TermId FREQUENCY_ROOT =  TermId.of("HP:0040279");
+    return OntologyAlgorithm.existsPath(hpo, tid, FREQUENCY_ROOT);
+  }
+
+
 
 
 }

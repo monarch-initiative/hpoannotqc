@@ -4,7 +4,7 @@ package org.monarchinitiative.hpoannotqc.io;
 
 /**
  * A simple status bar that only work on terminals where "\r" has an affect.
- *
+ * <p>
  * The progress is done/shown in the closed interval <code>[min, max]</code>.
  *
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>

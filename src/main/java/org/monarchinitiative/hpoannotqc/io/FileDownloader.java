@@ -16,7 +16,7 @@ import java.net.URLConnection;
 
 /**
  * Helper class for downloading files over HTTP and FTP.
- *
+ * <p>
  * The implementation of FTP downloads is more complex since we need passive FTP transfer through firewalls. This is not
  * possible when just opening a stream through an {@link URL} object with Java's builtin features.
  *
@@ -185,7 +185,7 @@ public class FileDownloader {
 
     /**
      * Copy contents of a URL to a file using the {@link URL} class.
-     *
+     * <p>
      * This works for the HTTP and the HTTPS protocol and for FTP through a proxy. For plain FTP, we need to use the
      * passive mode.
      */
