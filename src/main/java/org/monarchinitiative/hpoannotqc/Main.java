@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  */
 @CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
         mixinStandardHelpOptions = true,
-        version = "hpoannotqc 1.8.2",
+        version = "hpoannotqc 1.9.9",
         description = "Variant-motif visualization tool.")
 public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
