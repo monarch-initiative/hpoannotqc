@@ -1,6 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 

@@ -302,7 +302,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
               currentHpoTermLabel = null;
               currentFrequencyTermId = null;// reset
               currentAnnotationEntryList.add(entry);
-            } catch (HpoAnnotationModelException e) {
+            } catch (Exception e) {
               logger.warn(String.format("Parse error for %s [ORPHA:%s] HPOid: %s (%s)",
                 currentDiseaseName != null ? currentDiseaseName : "n/a",
                 currentOrphanumber != null ? currentOrphanumber : "n/a",

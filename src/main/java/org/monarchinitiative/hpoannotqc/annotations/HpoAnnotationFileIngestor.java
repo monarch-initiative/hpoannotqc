@@ -1,9 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-
-import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationFileParser;
-import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModel;
-import org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationModelException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 
