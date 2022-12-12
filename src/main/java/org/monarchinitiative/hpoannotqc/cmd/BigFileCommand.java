@@ -21,13 +21,13 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "big-file", aliases = {"B"}, mixinStandardHelpOptions = true, description = "Create phenotype.hpoa file")
 public class BigFileCommand implements Callable<Integer> {
     private final Logger logger = LoggerFactory.getLogger(BigFileCommand.class);
-    /** Path to the {@code hp.obo} file. */
-    private final String hpOboPath;
+    /** Path to the {@code hp.json} file. */
+    private final String hpJsonPath;
     /** Path to the downloaded Orphanet XML file */
     private final String orphanetXMLpath;
     /** Path to the dowloaded Orphanet inheritance file, {@code en_product9_ages.xml}.*/
     private final String orphanetInheritanceXmlPath;
-    /** Directory with hp.obo and en_product>HPO.xml files. */
+    /** Directory with hp.json and en_product>HPO.xml files. */
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory to download data (default: ${DEFAULT-VALUE})")
     private String downloadDirectory = "data";
@@ -48,14 +48,19 @@ public class BigFileCommand implements Callable<Integer> {
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
-        hpOboPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.obo" );
+        hpJsonPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.json" );
         orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4.xml" );
         orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
     }
 
     @Override
     public Integer call()  {
-        Ontology ontology = OntologyLoader.loadOntology(new File(hpOboPath));
+        File hpJsonFile = new File(hpJsonPath);
+        if (! hpJsonFile.isFile()) {
+            System.err.printf("[ERROR] Could not find hp.json file at \"%s\"", hpJsonPath);
+            return 1;
+        }
+        Ontology ontology = OntologyLoader.loadOntology(new File(hpJsonPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
         logger.info("annotation directory = "+hpoAnnotationFileDirectory);
         try {

@@ -15,8 +15,8 @@ import picocli.CommandLine;
 
 /**
  * Implementation of download in HpoWorkbench. The command is intended to download
- * both the OBO file and the association file. For HPO, this is {@code hp.obo} and
- * {@code phenotype_annotation.tab}.
+ * both the OBO file and the association file. For HPO, this is {@code hp.json} and
+ * {@code phenotype.hpoa}.
  * Code modified from Download command in Jannovar.
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
@@ -41,9 +41,9 @@ public final class DownloadCommand implements Callable<Integer> {
 
     private final static String GENE_INFO_URL = "ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz";
 
-    private final static String HP_OBO = "hp.obo";
-    /** URL of the hp.obo file. */
-    private final static String HP_OBO_URL ="https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.obo";
+    private final static String HP_JSON = "hp.json";
+    /** URL of the hp.json file. */
+    private final static String HP_JSON_URL ="https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.json";
 
     private final static String ORPHANET_XML = "en_product4.xml";
 
@@ -67,7 +67,7 @@ public final class DownloadCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         createDownloadDir(downloadDirectory);
-        downloadFile(HP_OBO,HP_OBO_URL,overwrite);
+        downloadFile(HP_JSON, HP_JSON_URL,overwrite);
         downloadFile(ORPHANET_XML,ORPHANET_XML_URL,overwrite);
         downloadFile(ORPHANET_INHERITANCE_XML,ORPHANET_INHERITANCE_XML_URL,overwrite);
         downloadFile(GENE_INFO,GENE_INFO_URL,overwrite);

@@ -49,7 +49,7 @@ public class BigFileQcCommand implements Callable<Integer> {
 
 
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         File phenotypeHpoaFile = new File(phenotypeHpoa);
         File hpoJsonFile = new File(hpoJson);
         if (! phenotypeHpoaFile.isFile()) {

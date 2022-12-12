@@ -5,7 +5,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.9.9</version>
+    <version>1.9.10</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.6</version>
+            <version>3.9.0</version>
         </dependency>
 
         <dependency>

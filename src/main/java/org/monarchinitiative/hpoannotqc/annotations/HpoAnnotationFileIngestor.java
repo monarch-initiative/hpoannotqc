@@ -128,7 +128,7 @@ public class HpoAnnotationFileIngestor {
    * If this file is not passed (is null or empty), then we return the empty set.
    *
    * @param path the path to {@code omit-list.txt}
-   * @return List of entries (encoded as strings like "OMIM:600123") that should be omitted
+   * @return Set of entries (encoded as strings like "OMIM:600123") that should be omitted
    */
   private Set<String> getOmitEntries(String path) {
     if (path == null || path.isEmpty())
