@@ -26,7 +26,7 @@ import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoFrequencyTermI
 
 /**
  * This class is an XML parser for the Orphanet file with HPO-based disease annotations
- * ({@code en_product4_HPO.xml} (see http://www.orphadata.org/). Note that the section of the
+ * ({@code en_product4_HPO.xml} (see <a href="http://www.orphadata.org/">...</a>). Note that the section of the
  * XML that denotes an individual HPO annotation with frequency is like this
  * <pre>
  *     <HPODisorderAssociation id="2603">

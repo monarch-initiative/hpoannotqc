@@ -119,9 +119,6 @@ public class HpoAnnotationEntry {
     .map(DiseaseDatabase::prefix)
     .collect(Collectors.toUnmodifiableSet());
   /**
-   * A set with all of the TermIds for frequency.
-   */
-  /**
    * Set of allowable evidence codes.
    */
   private static final Set<String> EVIDENCE_CODES = Set.of("IEA", "TAS", "PCS");

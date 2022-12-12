@@ -34,7 +34,6 @@ public class SmallFileCleaner {
 
     /**
      * Just for testing
-     * @return
      */
     public SmallFileCleaner(List<String> mylines, String header) {
         this.lines = mylines;
@@ -119,8 +118,7 @@ public class SmallFileCleaner {
 
     public boolean wasChanged() {
         if  (lines.size() != cleansed.size()) return true;
-        if (labelWasChanged) return true;
-        return false;
+        return labelWasChanged;
     }
 
 

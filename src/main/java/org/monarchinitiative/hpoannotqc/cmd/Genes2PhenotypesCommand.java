@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "g2p", mixinStandardHelpOptions = true, description = "Create genes to phenotypes file")
 public class Genes2PhenotypesCommand implements Callable<Integer> {
     /**
-     * Directory with hp.obo and en_product4.xml files.
+     * Directory with hp.json and en_product4.xml files.
      */
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory to download data (default: ${DEFAULT-VALUE})")
@@ -32,18 +32,18 @@ public class Genes2PhenotypesCommand implements Callable<Integer> {
 
 
     @Override
-    public Integer call() throws IOException {
-        String hpOboPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.obo");
+    public Integer call() {
+        String hpJsonPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.json");
         String orphanetGenesXMLpath = String.format("%s%s%s", downloadDirectory, File.separator, "en_product6.xml");
         String mimgenepath = String.format("%s%s%s", downloadDirectory, File.separator, "mim2gene_medgen");
         String geneinfopath = String.format("%s%s%s", downloadDirectory, File.separator, "Homo_sapiens_gene_info.gz");
 
-        File hpoFile = new File(hpOboPath);
+        File hpoFile = new File(hpJsonPath);
         if (!hpoFile.exists()) {
-            throw new RuntimeException("Could not find hp.obo at " + hpOboPath);
+            throw new RuntimeException("Could not find hp.json at " + hpJsonPath);
         }
         Ontology ontology = OntologyLoader.loadOntology(hpoFile);
-        File hpoJson = new File(hpOboPath);
+        File hpoJson = new File(hpJsonPath);
         Ontology hpo = OntologyLoader.loadOntology(hpoJson);
 
         Path homoSapiensGeneInfo = Path.of(geneinfopath);
