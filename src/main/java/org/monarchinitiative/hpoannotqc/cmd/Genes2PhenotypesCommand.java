@@ -7,7 +7,6 @@ import picocli.CommandLine;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
