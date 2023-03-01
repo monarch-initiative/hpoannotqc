@@ -70,7 +70,10 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
             writer.newLine();
             phenotypeToGene.keySet().forEach(phenotype -> {
                         Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
-                        final String phenotypeLabel = phenotypeToGene.get(phenotype).get(0).getTermName();
+                        final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
+                        if(phenotypeLabel.isEmpty()) {
+                            throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
+                        }
                         // Get all the children genes and unique them
                         // Filter out genes with no symbol
                         List<HpoGeneAnnotation> annotations = children.stream()
@@ -82,7 +85,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
                             try {
                                 writer.write(String.join("\t",
                                         phenotype.toString(),
-                                        phenotypeLabel,
+                                        phenotypeLabel.get(),
                                         String.valueOf(annotation.getEntrezGeneId()),
                                         annotation.getEntrezGeneSymbol()));
                                 writer.newLine();
