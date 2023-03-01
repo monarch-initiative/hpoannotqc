@@ -25,19 +25,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@CommandLine.Command(name = "mappings", mixinStandardHelpOptions = true, description = "Create genes to phenotypes file")
-public class HpoMappingsCommand implements Callable<Integer> {
+@CommandLine.Command(name = "phenotype-files", mixinStandardHelpOptions = true, description = "Create genes to phenotypes file and phenotype to genes")
+public class HpoPhenotypeFiles implements Callable<Integer> {
     /**
-     * Directory with hp.json and en_product4.xml files.
+     * Directory with hp.json and en_product6.xml files.
      */
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory of hpo data (default: ${DEFAULT-VALUE})")
-    private String dataDirectory = "data";
+    private String dataDirectory = ".";
     @CommandLine.Option(names = {"-o, --output"},
             description = "path to output dir (default: ${DEFAULT-VALUE})")
     private String outputDirectory = ".";
 
-    public HpoMappingsCommand() {
+    public HpoPhenotypeFiles() {
     }
 
 
@@ -48,9 +48,9 @@ public class HpoMappingsCommand implements Callable<Integer> {
         final Path omimToGene = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "mim2gene_medgen"));
         final Path hgncPath = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "hgnc_complete_set.txt"));
         final Path hpoAssociations = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "phenotype.hpoa"));
-        final String geneToPhenotypeFileName = "gene_to_phenotype.tsv";
+        final String geneToPhenotypeFileName = "gene_to_phenotype.txt";
         final String outputFileGeneToPhenotype = String.format("%s%s%s", outputDirectory, File.separator, geneToPhenotypeFileName);
-        final String phenotypeToGeneFileName = "phenotype_to_gene.tsv";
+        final String phenotypeToGeneFileName = "phenotype_to_gene.txt";
         final String outputFilePhenotypeToGene = String.format("%s%s%s", outputDirectory, File.separator, phenotypeToGeneFileName);
 
         if (!hpJson.exists()) {

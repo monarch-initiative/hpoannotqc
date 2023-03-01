@@ -22,12 +22,12 @@ public class Main implements Callable<Integer> {
 
 
     public static void main(String[] args) {
-        logger.trace("Starting HPO AnnotQC");
+        logger.trace("Starting HPO Annotation Quality Control");
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
                 addSubcommand("qc", new BigFileQcCommand()).
-                addSubcommand("mappings", new HpoMappingsCommand());
+                addSubcommand("phenotype-files", new HpoPhenotypeFiles());
         cline.setToggleBooleanFlags(false);
         if (args.length == 0) {
             // this will cause a help message to be shown if the user calls the
