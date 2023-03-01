@@ -67,6 +67,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         // phenotype -> gene, inherits down al the childrens genes
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFilePhenotypeToGene), StandardOpenOption.CREATE)){
             writer.write(String.join("\t", "HpoId", "HpoName", "NCBIGeneId", "GeneSymbol"));
+            writer.newLine();
             phenotypeToGene.keySet().forEach(phenotype -> {
                         Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
                         final String phenotypeLabel = phenotypeToGene.get(phenotype).get(0).getTermName();
@@ -95,6 +96,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         // Gene -> Phenotype no inheritance
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToPhenotype), StandardOpenOption.CREATE)){
             writer.write(String.join("\t",  "NCBIGeneId", "GeneSymbol", "HpoId", "HpoName"));
+            writer.newLine();
             hpoAssocationData.hpoToGeneAnnotations().stream().sorted(Comparator.comparing(HpoGeneAnnotation::getEntrezGeneId))
                     .forEach(annotation -> {
                         try {
