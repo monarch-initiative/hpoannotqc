@@ -8,26 +8,26 @@ import java.util.concurrent.Callable;
 
 
 /**
- * This application will perform Q/C on the HPO rare disease "small file" annotation files, will transform the
+ * This application will perform quality control on the HPO rare disease "small file" annotation files, will transform the
  * small files into an integrate "large" file (phenotype_annotation.tab), and print a report to file.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * @version 0.1.16 (2018-01-02)
  */
 @CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
         mixinStandardHelpOptions = true,
-        version = "hpoannotqc 1.9.9",
-        description = "Variant-motif visualization tool.")
+        version = "1.9.12",
+        description = "Hpo Annotation Quality Control.")
 public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 
     public static void main(String[] args) {
-        logger.trace("Starting HPO AnnotQC");
+        logger.trace("Starting HPO Annotation Quality Control");
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
                 addSubcommand("qc", new BigFileQcCommand()).
-                addSubcommand("gene2phen", new Genes2PhenotypesCommand());
+                addSubcommand("phenotype-files", new HpoPhenotypeFiles());
         cline.setToggleBooleanFlags(false);
         if (args.length == 0) {
             // this will cause a help message to be shown if the user calls the
