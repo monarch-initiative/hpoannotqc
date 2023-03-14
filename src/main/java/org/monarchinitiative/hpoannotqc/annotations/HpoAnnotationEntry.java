@@ -462,8 +462,8 @@ public class HpoAnnotationEntry {
     TermId phenotypeId = TermId.of(hpoId);
     // replace the frequency termid with its string equivalent
     // except if it is Excluded, which we treat as a negative annotation
-    String frequencyString = frequency.equals(EXCLUDED) ? EMPTY_STRING : frequency.getValue();
-    String negationString = frequency.equals(EXCLUDED) ? "NOT" : EMPTY_STRING;
+    String frequencyString = frequency.equals(EXCLUDED.id().getValue()) ? EMPTY_STRING : frequency.getValue();
+    String negationString = frequency.equals(EXCLUDED.id().getValue()) ? "NOT" : EMPTY_STRING;
 
     if (replaceObsoleteTermId) {
       TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
