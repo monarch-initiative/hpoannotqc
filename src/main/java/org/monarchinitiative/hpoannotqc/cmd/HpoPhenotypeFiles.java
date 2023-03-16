@@ -48,9 +48,9 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         final Path omimToGene = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "mim2gene_medgen"));
         final Path hgncPath = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "hgnc_complete_set.txt"));
         final Path hpoAssociations = Path.of(String.format("%s%s%s", dataDirectory, File.separator, "phenotype.hpoa"));
-        final String geneToPhenotypeFileName = "gene_to_phenotype.txt";
+        final String geneToPhenotypeFileName = "genes_to_phenotype.txt";
         final String outputFileGeneToPhenotype = String.format("%s%s%s", outputDirectory, File.separator, geneToPhenotypeFileName);
-        final String phenotypeToGeneFileName = "phenotype_to_gene.txt";
+        final String phenotypeToGeneFileName = "phenotype_to_genes.txt";
         final String outputFilePhenotypeToGene = String.format("%s%s%s", outputDirectory, File.separator, phenotypeToGeneFileName);
 
         if (!hpJson.exists()) {
