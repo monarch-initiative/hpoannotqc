@@ -226,6 +226,9 @@ public class PhenotypeDotHpoaFileWriter {
     writer.write("#tracker: https://github.com/obophenotype/human-phenotype-ontology/issues\n");
 
     if (ontologyMetaInfo.containsKey("data-version")) {
+      if(!ontologyMetaInfo.get("data-version").equals(getDate())){
+        throw new IOException("Trying to release an hpoa file that does not match ontology release.");
+      }
       writer.write(String.format("#hpo-version: %s\n", ontologyMetaInfo.get("data-version")));
     }
 
@@ -245,7 +248,6 @@ public class PhenotypeDotHpoaFileWriter {
     }
     logger.info("[INFO] We output a total of " + n + " big file lines from internal HPO Annotation files");
     int m = 0;
-    Set<TermId> seenInheritance = new HashSet<>();
     for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
       List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
       for (HpoAnnotationEntry entry : entryList) {
