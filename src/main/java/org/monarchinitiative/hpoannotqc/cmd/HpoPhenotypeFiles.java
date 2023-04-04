@@ -57,7 +57,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
             throw new RuntimeException("Could not find hp.json at " + hpJson);
         }
         Ontology hpoOntology = OntologyLoader.loadOntology(hpJson);
-        Set<String> diseaseDatabases = Set.of(DiseaseDatabase.OMIM.prefix(), DiseaseDatabase.ORPHANET.prefix());
+        Set<DiseaseDatabase> diseaseDatabases = Set.of(DiseaseDatabase.OMIM, DiseaseDatabase.ORPHANET);
         HpoaDiseaseDataContainer diseases = HpoaDiseaseDataLoader.of(diseaseDatabases).loadDiseaseData(hpoAssociations);
         HpoAssociationData hpoAssocationData = HpoAssociationData.builder(hpoOntology).orphaToGenePath(orphaToGenePath)
         .hpoDiseases(diseases).mim2GeneMedgen(omimToGene).hgncCompleteSetArchive(hgncPath).build();
@@ -66,7 +66,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         Map<TermId, List<HpoGeneAnnotation>> phenotypeToGene = hpoAssocationData.hpoToGeneAnnotations().stream().collect(Collectors.groupingBy(HpoGeneAnnotation::id));
         // phenotype -> gene, inherits down al the childrens genes
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFilePhenotypeToGene), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t", "HpoId", "HpoName", "NCBIGeneId", "GeneSymbol"));
+            writer.write(String.join("\t", "hpo_id", "hpo_name", "ncbi_gene_id", "gene_symbol"));
             writer.newLine();
             phenotypeToGene.keySet().forEach(phenotype -> {
                         Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
@@ -98,7 +98,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         }
         // Gene -> Phenotype no inheritance
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToPhenotype), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t",  "NCBIGeneId", "GeneSymbol", "HpoId", "HpoName"));
+            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "hpo_id", "hpo_name"));
             writer.newLine();
             hpoAssocationData.hpoToGeneAnnotations().stream().sorted(Comparator.comparing(HpoGeneAnnotation::getEntrezGeneId))
                     .forEach(annotation -> {
