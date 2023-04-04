@@ -225,8 +225,8 @@ public class PhenotypeDotHpoaFileWriter {
     writer.write(String.format("#version: %s\n", getDate()));
     writer.write("#tracker: https://github.com/obophenotype/human-phenotype-ontology/issues\n");
 
-    if (ontologyMetaInfo.containsKey("data-version")) {
-      if(!ontologyMetaInfo.get("data-version").equals(getDate())){
+    if (ontologyMetaInfo.containsKey("release")) {
+      if(!ontologyMetaInfo.get("release").equals(getDate())){
         throw new IOException("Trying to release an hpoa file that does not match ontology release.");
       }
       writer.write(String.format("#hpo-version: %s\n", ontologyMetaInfo.get("data-version")));
