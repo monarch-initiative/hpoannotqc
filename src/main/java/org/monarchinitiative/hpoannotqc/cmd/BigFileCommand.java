@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.phenol.annotations.hpo.PhenotypeDotHpoaFileWriter;
+import org.monarchinitiative.hpoannotqc.annotations.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
