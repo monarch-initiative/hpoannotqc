@@ -119,17 +119,26 @@ public class SupplementalFiles implements Callable<Integer> {
             writer.flush();
         }
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToDisease), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "association_type", "disease_id"));
+            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "association_type", "disease_id", "source"));
             writer.newLine();
             Map<TermId, String> diseaseNames = diseases.diseaseData().stream().collect(Collectors.toUnmodifiableMap(HpoaDiseaseData::id, HpoaDiseaseData::name));
             hpoAssocationData.associations().diseaseToGeneAssociations().forEach(diseaseAssocation -> {
-                    diseaseAssocation.associations().forEach(diseaseGene -> {
+                    String source;
+                    if(diseaseAssocation.diseaseId().getPrefix().contains("OMIM")){
+                        source = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen";
+                    } else if(diseaseAssocation.diseaseId().getPrefix().contains("ORPHA")){
+                        source = "http://www.orphadata.org/data/xml/en_product6.xml";
+                    } else {
+                        source = "";
+                    }
+                diseaseAssocation.associations().forEach(diseaseGene -> {
                         try {
                             writer.write(String.join("\t",
                                     diseaseGene.geneIdentifier().id().toString(),
                                     diseaseGene.geneIdentifier().symbol(),
                                     diseaseGene.associationType().toString(),
-                                    diseaseAssocation.diseaseId().getValue()
+                                    diseaseAssocation.diseaseId().getValue(),
+                                    source
                             ));
                             writer.newLine();
                         } catch (IOException e) {
