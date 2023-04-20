@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoAssociationData;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoGeneAnnotation;
 import org.monarchinitiative.phenol.annotations.io.hpo.DiseaseDatabase;
+import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseData;
 import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataContainer;
 import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataLoader;
 import org.monarchinitiative.phenol.io.OntologyLoader;
@@ -25,8 +26,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@CommandLine.Command(name = "phenotype-files", mixinStandardHelpOptions = true, description = "Create genes to phenotypes file and phenotype to genes")
-public class HpoPhenotypeFiles implements Callable<Integer> {
+@CommandLine.Command(name = "supplemental-files", mixinStandardHelpOptions = true, description = "Create g2p, p2g, g2d files")
+public class SupplementalFiles implements Callable<Integer> {
     /**
      * Directory with hp.json and en_product6.xml files.
      */
@@ -37,7 +38,7 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
             description = "path to output dir (default: ${DEFAULT-VALUE})")
     private String outputDirectory = ".";
 
-    public HpoPhenotypeFiles() {
+    public SupplementalFiles() {
     }
 
 
@@ -52,7 +53,8 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
         final String outputFileGeneToPhenotype = String.format("%s%s%s", outputDirectory, File.separator, geneToPhenotypeFileName);
         final String phenotypeToGeneFileName = "phenotype_to_genes.txt";
         final String outputFilePhenotypeToGene = String.format("%s%s%s", outputDirectory, File.separator, phenotypeToGeneFileName);
-
+        final String geneToDiseaseFileName = "genes_to_disease.txt";
+        final String outputFileGeneToDisease = String.format("%s%s%s", outputDirectory, File.separator, geneToDiseaseFileName);
         if (!hpJson.exists()) {
             throw new RuntimeException("Could not find hp.json at " + hpJson);
         }
@@ -116,8 +118,30 @@ public class HpoPhenotypeFiles implements Callable<Integer> {
                     });
             writer.flush();
         }
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToDisease), StandardOpenOption.CREATE)){
+            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "association_type", "disease_id"));
+            writer.newLine();
+            Map<TermId, String> diseaseNames = diseases.diseaseData().stream().collect(Collectors.toUnmodifiableMap(HpoaDiseaseData::id, HpoaDiseaseData::name));
+            hpoAssocationData.associations().diseaseToGeneAssociations().forEach(diseaseAssocation -> {
+                    diseaseAssocation.associations().forEach(diseaseGene -> {
+                        try {
+                            writer.write(String.join("\t",
+                                    diseaseGene.geneIdentifier().id().toString(),
+                                    diseaseGene.geneIdentifier().symbol(),
+                                    diseaseGene.associationType().toString(),
+                                    diseaseAssocation.diseaseId().getValue()
+                            ));
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            });
+            writer.flush();
+        }
         return 0;
     }
+
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
 
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
