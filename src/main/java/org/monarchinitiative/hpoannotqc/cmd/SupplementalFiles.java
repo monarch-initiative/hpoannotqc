@@ -70,32 +70,33 @@ public class SupplementalFiles implements Callable<Integer> {
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFilePhenotypeToGene), StandardOpenOption.CREATE)){
             writer.write(String.join("\t", "hpo_id", "hpo_name", "ncbi_gene_id", "gene_symbol"));
             writer.newLine();
-            phenotypeToGene.keySet().forEach(phenotype -> {
-                        Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
-                        final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
-                        if(phenotypeLabel.isEmpty()) {
-                            throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
-                        }
-                        // Get all the children genes and unique them
-                        // Filter out genes with no symbol
-                        List<HpoGeneAnnotation> annotations = children.stream()
-                                .flatMap(termId -> phenotypeToGene.getOrDefault(termId, Collections.emptyList()).stream())
-                                .filter(distinctByKey(HpoGeneAnnotation::getEntrezGeneId))
-                                .filter(g -> !g.getEntrezGeneSymbol().equals("-"))
-                                .sorted(Comparator.comparing(HpoGeneAnnotation::id)).collect(Collectors.toList());
-                        for (HpoGeneAnnotation annotation: annotations) {
-                            try {
-                                writer.write(String.join("\t",
-                                        phenotype.toString(),
-                                        phenotypeLabel.get(),
-                                        String.valueOf(annotation.getEntrezGeneId()),
-                                        annotation.getEntrezGeneSymbol()));
-                                writer.newLine();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    });
+            hpoOntology.getTerms().stream().distinct().forEach(term -> {
+                final TermId phenotype = term.id();
+                Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
+                final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
+                if(phenotypeLabel.isEmpty()) {
+                    throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
+                }
+                // Get all the children genes and unique them
+                // Filter out genes with no symbol
+                List<HpoGeneAnnotation> annotations = children.stream()
+                        .flatMap(termId -> phenotypeToGene.getOrDefault(termId, Collections.emptyList()).stream())
+                        .filter(distinctByKey(HpoGeneAnnotation::getEntrezGeneId))
+                        .filter(g -> !g.getEntrezGeneSymbol().equals("-"))
+                        .sorted(Comparator.comparing(HpoGeneAnnotation::id)).collect(Collectors.toList());
+                for (HpoGeneAnnotation annotation: annotations) {
+                    try {
+                        writer.write(String.join("\t",
+                                phenotype.toString(),
+                                phenotypeLabel.get(),
+                                String.valueOf(annotation.getEntrezGeneId()),
+                                annotation.getEntrezGeneSymbol()));
+                        writer.newLine();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
             writer.flush();
         }
         // Gene -> Phenotype no inheritance
