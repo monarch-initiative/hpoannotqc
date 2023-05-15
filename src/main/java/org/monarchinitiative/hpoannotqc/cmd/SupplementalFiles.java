@@ -75,7 +75,6 @@ public class SupplementalFiles implements Callable<Integer> {
         HpoaDiseaseDataContainer diseases = HpoaDiseaseDataLoader.of(diseaseDatabases).loadDiseaseData(hpoAssociations);
         HpoAssociationData hpoAssocationData = HpoAssociationData.builder(hpoOntology).orphaToGenePath(orphaToGenePath)
         .hpoDiseases(diseases).mim2GeneMedgen(omimToGene).hgncCompleteSetArchive(hgncPath).build();
-        hpoAssocationData.associations();
 
         this.phenotypeToGene = hpoAssocationData.hpoToGeneAnnotations().stream().collect(Collectors.groupingBy(HpoGeneAnnotation::id));
         this.phenotypeToDisease = generatePhenotypeToDisease(diseases);
