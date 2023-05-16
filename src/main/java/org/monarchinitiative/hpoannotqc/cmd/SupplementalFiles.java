@@ -4,16 +4,11 @@ import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItem;
 import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItemContainer;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoAssociationData;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoGeneAnnotation;
-import org.monarchinitiative.phenol.annotations.io.hpo.DiseaseDatabase;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseData;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataContainer;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataLoader;
+import org.monarchinitiative.phenol.annotations.io.hpo.*;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.algo.OntologyTerms;
-import org.monarchinitiative.phenol.ontology.data.Identified;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
-import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import picocli.CommandLine;
 
@@ -43,7 +38,7 @@ public class SupplementalFiles implements Callable<Integer> {
             description = "path to output dir (default: ${DEFAULT-VALUE})")
     private String outputDirectory = ".";
 
-    Map<TermId, Collection<TermId>> phenotypeToDisease;
+    Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease;
     Map<TermId, List<HpoGeneAnnotation>> phenotypeToGene;
 
     Map<TermId, Collection<TermId>> geneIdsToDisease;
@@ -101,14 +96,16 @@ public class SupplementalFiles implements Callable<Integer> {
                 for (HpoGeneAnnotation annotation: annotations) {
 
                     try {
-                        writer.write(String.join("\t",
-                                phenotype.toString(),
-                                phenotypeLabel.get(),
-                                String.valueOf(annotation.getEntrezGeneId()),
-                                annotation.getEntrezGeneSymbol(),
-                                intersecting_annotations(annotation.id(), annotation.getItemId()).stream().map(TermId::toString).collect(Collectors.joining(";"))
-                        ));
-                        writer.newLine();
+                        for (TermId diseaseId: intersecting_annotations(annotation.id(), annotation.getItemId())) {
+                            writer.write(String.join("\t",
+                                    phenotype.toString(),
+                                    phenotypeLabel.get(),
+                                    String.valueOf(annotation.getEntrezGeneId()),
+                                    annotation.getEntrezGeneSymbol(),
+                                    diseaseId.toString()
+                            ));
+                            writer.newLine();
+                        }
                     } catch (IOException e) {
                         throw new PhenolRuntimeException(e);
                     }
@@ -118,21 +115,32 @@ public class SupplementalFiles implements Callable<Integer> {
         }
         // Gene -> Phenotype no inheritance
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToPhenotype), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "hpo_id", "hpo_name", "disease_id"));
+            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "hpo_id", "hpo_name", "frequency", "disease_id"));
             writer.newLine();
             hpoAssocationData.hpoToGeneAnnotations().stream().sorted(Comparator.comparing(HpoGeneAnnotation::getEntrezGeneId))
                     .forEach(annotation -> {
-                        try {
-                            writer.write(String.join("\t",
-                                    String.valueOf(annotation.getEntrezGeneId()),
-                                    annotation.getEntrezGeneSymbol(),
-                                    annotation.id().toString(),
-                                    annotation.getTermName(),
-                                    intersecting_annotations(annotation.id(), annotation.getItemId()).stream().map(TermId::toString).collect(Collectors.joining(";"))
-                            ));
-                            writer.newLine();
-                        } catch (IOException e) {
-                            throw new PhenolRuntimeException(e);
+                        Collection<TermId> intersecting_diseases = intersecting_annotations(annotation.id(), annotation.getItemId());
+                        for (TermId disease: intersecting_diseases
+                             ) {
+                            String frequency = "-";
+                            HpoAnnotationLine line = this.phenotypeToDisease.getOrDefault(annotation.id(), Collections.emptyMap()).get(disease);
+                            if(line != null){
+                                frequency = line.frequency();
+                            }
+                            try {
+                                writer.write(String.join("\t",
+                                        String.valueOf(annotation.getEntrezGeneId()),
+                                        annotation.getEntrezGeneSymbol(),
+                                        annotation.id().toString(),
+                                        annotation.getTermName(),
+                                        frequency,
+                                        disease.toString()
+
+                                ));
+                                writer.newLine();
+                            } catch (IOException e) {
+                                throw new PhenolRuntimeException(e);
+                            }
                         }
                     });
             writer.flush();
@@ -178,7 +186,7 @@ public class SupplementalFiles implements Callable<Integer> {
 
     Collection<TermId> intersecting_annotations(TermId phenotype_id, TermId gene_id) {
         // Diseases with this phenotype
-        final Collection<TermId> diseasePhenotypeAnnotations = this.phenotypeToDisease.getOrDefault(phenotype_id, Collections.emptyList());
+        final Collection<TermId> diseasePhenotypeAnnotations = this.phenotypeToDisease.getOrDefault(phenotype_id, Collections.emptyMap()).keySet();
         // Diseases with this gene
         final Collection<TermId> diseaseGeneAnnotations = this.geneIdsToDisease.getOrDefault(gene_id, Collections.emptyList());
         Map<TermId, Collection<TermId>> phenotypeToAnnotation = annotationCache.get(phenotype_id);
@@ -193,14 +201,14 @@ public class SupplementalFiles implements Callable<Integer> {
         }
     }
 
-     Map<TermId, Collection<TermId>> generatePhenotypeToDisease(AnnotatedItemContainer<? extends AnnotatedItem> diseaseData) {
-        Map<TermId, Collection<TermId>> phenotypeToDisease = new HashMap<>();
+     Map<TermId, Map<TermId, HpoAnnotationLine>> generatePhenotypeToDisease(HpoaDiseaseDataContainer diseaseData) {
+        Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease = new HashMap<>();
         diseaseData.stream().forEach(disease -> {
-            disease.annotations().forEach(phenotype -> {
+            disease.annotationLines().forEach(phenotype -> {
                 TermId hpoId = phenotype.id();
                 phenotypeToDisease.computeIfAbsent(hpoId, (k) -> {
-                    return new HashSet<>();
-                }).add(disease.id());
+                    return new HashMap<>();
+                }).put(disease.id(), phenotype);
             });
         });
         return phenotypeToDisease;
