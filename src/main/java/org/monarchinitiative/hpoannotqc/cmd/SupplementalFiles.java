@@ -185,12 +185,15 @@ public class SupplementalFiles implements Callable<Integer> {
     }
 
     Collection<TermId> intersecting_annotations(TermId phenotype_id, TermId gene_id) {
+        if(phenotype_id == null || gene_id == null){
+            return Collections.emptyList();
+        }
         // Diseases with this phenotype
         final Collection<TermId> diseasePhenotypeAnnotations = this.phenotypeToDisease.getOrDefault(phenotype_id, Collections.emptyMap()).keySet();
         // Diseases with this gene
         final Collection<TermId> diseaseGeneAnnotations = this.geneIdsToDisease.getOrDefault(gene_id, Collections.emptyList());
         Map<TermId, Collection<TermId>> phenotypeToAnnotation = annotationCache.get(phenotype_id);
-        if(phenotypeToAnnotation != null && phenotypeToAnnotation.get(gene_id) != null){
+        if(phenotypeToAnnotation != null && phenotypeToAnnotation.containsKey(gene_id)){
             return annotationCache.get(phenotype_id).get(gene_id);
         } else {
             Collection<TermId> intersecting = diseasePhenotypeAnnotations.stream().filter(diseaseGeneAnnotations::contains).collect(Collectors.toList());
