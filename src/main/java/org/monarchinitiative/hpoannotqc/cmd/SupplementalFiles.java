@@ -1,11 +1,11 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
+import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItem;
+import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItemContainer;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoAssociationData;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoGeneAnnotation;
-import org.monarchinitiative.phenol.annotations.io.hpo.DiseaseDatabase;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseData;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataContainer;
-import org.monarchinitiative.phenol.annotations.io.hpo.HpoaDiseaseDataLoader;
+import org.monarchinitiative.phenol.annotations.io.hpo.*;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.algo.OntologyTerms;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -38,6 +38,13 @@ public class SupplementalFiles implements Callable<Integer> {
             description = "path to output dir (default: ${DEFAULT-VALUE})")
     private String outputDirectory = ".";
 
+    Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease;
+    Map<TermId, List<HpoGeneAnnotation>> phenotypeToGene;
+
+    Map<TermId, Collection<TermId>> geneIdsToDisease;
+
+    Map<TermId, Map<TermId, Collection<TermId>>> annotationCache = new HashMap<>();
+
     public SupplementalFiles() {
     }
 
@@ -63,57 +70,77 @@ public class SupplementalFiles implements Callable<Integer> {
         HpoaDiseaseDataContainer diseases = HpoaDiseaseDataLoader.of(diseaseDatabases).loadDiseaseData(hpoAssociations);
         HpoAssociationData hpoAssocationData = HpoAssociationData.builder(hpoOntology).orphaToGenePath(orphaToGenePath)
         .hpoDiseases(diseases).mim2GeneMedgen(omimToGene).hgncCompleteSetArchive(hgncPath).build();
-        hpoAssocationData.associations();
 
-        Map<TermId, List<HpoGeneAnnotation>> phenotypeToGene = hpoAssocationData.hpoToGeneAnnotations().stream().collect(Collectors.groupingBy(HpoGeneAnnotation::id));
+        this.phenotypeToGene = hpoAssocationData.hpoToGeneAnnotations().stream().collect(Collectors.groupingBy(HpoGeneAnnotation::id));
+        this.phenotypeToDisease = generatePhenotypeToDisease(diseases);
+        this.geneIdsToDisease = hpoAssocationData.associations().geneIdToDiseaseIds();
+
         // phenotype -> gene, inherits down al the childrens genes
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFilePhenotypeToGene), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t", "hpo_id", "hpo_name", "ncbi_gene_id", "gene_symbol"));
+            writer.write(String.join("\t", "hpo_id", "hpo_name", "ncbi_gene_id", "gene_symbol", "disease_id"));
             writer.newLine();
-            phenotypeToGene.keySet().forEach(phenotype -> {
-                        Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
-                        final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
-                        if(phenotypeLabel.isEmpty()) {
-                            throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
+            hpoOntology.getTerms().stream().distinct().forEach(term -> {
+                final TermId phenotype = term.id();
+                Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
+                final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
+                if(phenotypeLabel.isEmpty()) {
+                    throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
+                }
+                // Get all the children genes and unique them
+                // Filter out genes with no symbol
+                List<HpoGeneAnnotation> annotations = children.stream()
+                        .flatMap(termId -> phenotypeToGene.getOrDefault(termId, Collections.emptyList()).stream())
+                        .filter(distinctByKey(HpoGeneAnnotation::getEntrezGeneId))
+                        .filter(g -> !g.getEntrezGeneSymbol().equals("-"))
+                        .sorted(Comparator.comparing(HpoGeneAnnotation::id)).collect(Collectors.toList());
+                for (HpoGeneAnnotation annotation: annotations) {
+
+                    try {
+                        for (TermId diseaseId: intersecting_annotations(annotation.id(), annotation.getItemId())) {
+                            writer.write(String.join("\t",
+                                    phenotype.toString(),
+                                    phenotypeLabel.get(),
+                                    String.valueOf(annotation.getEntrezGeneId()),
+                                    annotation.getEntrezGeneSymbol(),
+                                    diseaseId.toString()
+                            ));
+                            writer.newLine();
                         }
-                        // Get all the children genes and unique them
-                        // Filter out genes with no symbol
-                        List<HpoGeneAnnotation> annotations = children.stream()
-                                .flatMap(termId -> phenotypeToGene.getOrDefault(termId, Collections.emptyList()).stream())
-                                .filter(distinctByKey(HpoGeneAnnotation::getEntrezGeneId))
-                                .filter(g -> !g.getEntrezGeneSymbol().equals("-"))
-                                .sorted(Comparator.comparing(HpoGeneAnnotation::id)).collect(Collectors.toList());
-                        for (HpoGeneAnnotation annotation: annotations) {
-                            try {
-                                writer.write(String.join("\t",
-                                        phenotype.toString(),
-                                        phenotypeLabel.get(),
-                                        String.valueOf(annotation.getEntrezGeneId()),
-                                        annotation.getEntrezGeneSymbol()));
-                                writer.newLine();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    });
+                    } catch (IOException e) {
+                        throw new PhenolRuntimeException(e);
+                    }
+                }
+            });
             writer.flush();
         }
         // Gene -> Phenotype no inheritance
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToPhenotype), StandardOpenOption.CREATE)){
-            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "hpo_id", "hpo_name"));
+            writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "hpo_id", "hpo_name", "frequency", "disease_id"));
             writer.newLine();
             hpoAssocationData.hpoToGeneAnnotations().stream().sorted(Comparator.comparing(HpoGeneAnnotation::getEntrezGeneId))
                     .forEach(annotation -> {
-                        try {
-                            writer.write(String.join("\t",
-                                    String.valueOf(annotation.getEntrezGeneId()),
-                                    annotation.getEntrezGeneSymbol(),
-                                    annotation.id().toString(),
-                                    annotation.getTermName()
-                                    ));
-                            writer.newLine();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        Collection<TermId> intersecting_diseases = intersecting_annotations(annotation.id(), annotation.getItemId());
+                        for (TermId disease: intersecting_diseases
+                             ) {
+                            String frequency = "-";
+                            HpoAnnotationLine line = this.phenotypeToDisease.getOrDefault(annotation.id(), Collections.emptyMap()).get(disease);
+                            if(line != null){
+                                frequency = line.frequency();
+                            }
+                            try {
+                                writer.write(String.join("\t",
+                                        String.valueOf(annotation.getEntrezGeneId()),
+                                        annotation.getEntrezGeneSymbol(),
+                                        annotation.id().toString(),
+                                        annotation.getTermName(),
+                                        frequency,
+                                        disease.toString()
+
+                                ));
+                                writer.newLine();
+                            } catch (IOException e) {
+                                throw new PhenolRuntimeException(e);
+                            }
                         }
                     });
             writer.flush();
@@ -142,7 +169,7 @@ public class SupplementalFiles implements Callable<Integer> {
                             ));
                             writer.newLine();
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            throw new PhenolRuntimeException(e);
                         }
                     });
             });
@@ -155,6 +182,39 @@ public class SupplementalFiles implements Callable<Integer> {
 
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    Collection<TermId> intersecting_annotations(TermId phenotype_id, TermId gene_id) {
+        if(phenotype_id == null || gene_id == null){
+            return Collections.emptyList();
+        }
+        // Diseases with this phenotype
+        final Collection<TermId> diseasePhenotypeAnnotations = this.phenotypeToDisease.getOrDefault(phenotype_id, Collections.emptyMap()).keySet();
+        // Diseases with this gene
+        final Collection<TermId> diseaseGeneAnnotations = this.geneIdsToDisease.getOrDefault(gene_id, Collections.emptyList());
+        Map<TermId, Collection<TermId>> phenotypeToAnnotation = annotationCache.get(phenotype_id);
+        if(phenotypeToAnnotation != null && phenotypeToAnnotation.containsKey(gene_id)){
+            return annotationCache.get(phenotype_id).get(gene_id);
+        } else {
+            Collection<TermId> intersecting = diseasePhenotypeAnnotations.stream().filter(diseaseGeneAnnotations::contains).collect(Collectors.toList());
+            Map<TermId, Collection<TermId>> map = new HashMap<>();
+            map.putIfAbsent(gene_id, intersecting);
+            this.annotationCache.putIfAbsent(phenotype_id, map);
+            return intersecting;
+        }
+    }
+
+     Map<TermId, Map<TermId, HpoAnnotationLine>> generatePhenotypeToDisease(HpoaDiseaseDataContainer diseaseData) {
+        Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease = new HashMap<>();
+        diseaseData.stream().forEach(disease -> {
+            disease.annotationLines().forEach(phenotype -> {
+                TermId hpoId = phenotype.id();
+                phenotypeToDisease.computeIfAbsent(hpoId, (k) -> {
+                    return new HashMap<>();
+                }).put(disease.id(), phenotype);
+            });
+        });
+        return phenotypeToDisease;
     }
 
 }
