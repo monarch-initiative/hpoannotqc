@@ -124,7 +124,7 @@ public class SupplementalFiles implements Callable<Integer> {
                              ) {
                             String frequency = "-";
                             HpoAnnotationLine line = this.phenotypeToDisease.getOrDefault(annotation.id(), Collections.emptyMap()).get(disease);
-                            if(line != null){
+                            if(line != null && !line.frequency().isBlank()){
                                 frequency = line.frequency();
                             }
                             try {
@@ -148,7 +148,6 @@ public class SupplementalFiles implements Callable<Integer> {
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputFileGeneToDisease), StandardOpenOption.CREATE)){
             writer.write(String.join("\t",  "ncbi_gene_id", "gene_symbol", "association_type", "disease_id", "source"));
             writer.newLine();
-            Map<TermId, String> diseaseNames = diseases.diseaseData().stream().collect(Collectors.toUnmodifiableMap(HpoaDiseaseData::id, HpoaDiseaseData::name));
             hpoAssocationData.associations().diseaseToGeneAssociations().forEach(diseaseAssocation -> {
                     String source;
                     if(diseaseAssocation.diseaseId().getPrefix().contains("OMIM")){
@@ -209,9 +208,7 @@ public class SupplementalFiles implements Callable<Integer> {
         diseaseData.stream().forEach(disease -> {
             disease.annotationLines().forEach(phenotype -> {
                 TermId hpoId = phenotype.id();
-                phenotypeToDisease.computeIfAbsent(hpoId, (k) -> {
-                    return new HashMap<>();
-                }).put(disease.id(), phenotype);
+                phenotypeToDisease.computeIfAbsent(hpoId, (k) -> new HashMap<>()).put(disease.id(), phenotype);
             });
         });
         return phenotypeToDisease;
