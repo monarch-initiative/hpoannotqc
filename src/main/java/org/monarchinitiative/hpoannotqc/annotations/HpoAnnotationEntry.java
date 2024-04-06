@@ -128,7 +128,7 @@ public class HpoAnnotationEntry {
   /**
    * regex for patterns such as HPO:skoehler[2018-09-22]
    */
-  private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})]";
+  private static final String biocurationRegex = "\\w+:\\w+\\[\\d{4}-\\d{2}-\\d{2}]|ORCID:\\d{4}-\\d{4}-\\d{4}-\\d{4}";
   /**
    * The pattern that corresponds to {@link #biocurationRegex}.
    */
