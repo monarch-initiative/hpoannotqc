@@ -1,12 +1,15 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.hpoannotqc.exception.FileDownloadException;
-import org.monarchinitiative.hpoannotqc.io.FileDownloader;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Callable;
+
+import org.monarchinitiative.biodownload.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,18 +36,6 @@ public final class DownloadCommand implements Callable<Integer> {
             description = "overwrite previously downloaded files, if any (default: ${DEFAULT-VALUE})")
     private boolean overwrite = false;
 
-    private final static String MIM2GENE_MEDGEN = "mim2gene_medgen";
-
-    private final static String MIM2GENE_MEDGEN_URL = "ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen";
-
-    private final static String GENE_INFO = "Homo_sapiens_gene_info.gz";
-
-    private final static String GENE_INFO_URL = "ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz";
-
-    private final static String HP_JSON = "hp.json";
-    /** URL of the hp.json file. */
-    private final static String HP_JSON_URL ="https://raw.githubusercontent.com/obophenotype/human-phenotype-ontology/master/hp.json";
-
     private final static String ORPHANET_XML = "en_product4.xml";
 
     private final static String ORPHANET_XML_URL = "http://www.orphadata.org/data/xml/en_product4.xml";
@@ -65,41 +56,29 @@ public final class DownloadCommand implements Callable<Integer> {
      * Perform the downloading.
      */
     @Override
-    public Integer call() {
-        createDownloadDir(downloadDirectory);
-        downloadFile(HP_JSON, HP_JSON_URL,overwrite);
-        downloadFile(ORPHANET_XML,ORPHANET_XML_URL,overwrite);
-        downloadFile(ORPHANET_INHERITANCE_XML,ORPHANET_INHERITANCE_XML_URL,overwrite);
-        downloadFile(GENE_INFO,GENE_INFO_URL,overwrite);
-        downloadFile(ORPHANET_GENES_XML,ORPHANET_GENES_XML_URL,overwrite);
-        downloadFile(MIM2GENE_MEDGEN,MIM2GENE_MEDGEN_URL,overwrite);
+    public Integer call() throws MalformedURLException, org.monarchinitiative.biodownload.FileDownloadException {
+        biodownload();
         return 0;
     }
 
 
-
-    private void downloadFile(String filename, String webAddress, boolean overwrite) {
-        File f = new File(String.format("%s%s%s",downloadDirectory,File.separator,filename));
-        if (f.exists() && (! overwrite)) {
-            LOGGER.trace(String.format("Cowardly refusing to download %s since we found it at %s",
-                    filename,
-                    f.getAbsolutePath()));
-            return;
-        }
-        FileDownloader downloader=new FileDownloader();
-        try {
-            URL url = new URL(webAddress);
-            LOGGER.debug("Created url from "+webAddress+": "+ url);
-            downloader.copyURLToFile(url, new File(f.getAbsolutePath()));
-        } catch (MalformedURLException e) {
-            LOGGER.error(String.format("Malformed URL for %s [%s]",filename, webAddress));
-            LOGGER.error(e.getMessage());
-        } catch (FileDownloadException e) {
-            LOGGER.error(String.format("Error downloading %s from %s" ,filename, webAddress));
-            LOGGER.error(e.getMessage());
+    private void biodownload() throws MalformedURLException, org.monarchinitiative.biodownload.FileDownloadException {
+        createDownloadDir(downloadDirectory);
+        Path destination = Paths.get(downloadDirectory);
+        BioDownloaderBuilder builder = BioDownloader.builder(destination);
+        builder.hpoJson().geneInfoHuman().medgene2MIM().custom(ORPHANET_XML,new URL(ORPHANET_XML_URL))
+                .custom(ORPHANET_INHERITANCE_XML,new URL(ORPHANET_INHERITANCE_XML_URL))
+                .custom(ORPHANET_GENES_XML,new URL(ORPHANET_GENES_XML_URL))
+                .overwrite(overwrite);
+        BioDownloader downloader = builder.build();
+        List<File> files = downloader.download();
+        if (files.size()>0) {
+            System.out.println("[INFO] Downloaded:");
+            for (var f: files) {
+                System.out.printf("[INFO]    %s", f.getAbsolutePath());
+            }
         }
     }
-
 
     /**
      * @param dir Directory to which to download files.
@@ -112,5 +91,4 @@ public final class DownloadCommand implements Callable<Integer> {
         }
         d.mkdir();
     }
-
 }

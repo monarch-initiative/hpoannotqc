@@ -108,6 +108,7 @@ public class HpoAnnotationFileIngestor {
         smallFileList.add(smallFile);
       } catch (HpoAnnotationModelException hafe) {
         System.err.printf("[ERROR] %s: (%s)\n", file.getName(), hafe.getMessage());
+        throw new RuntimeException(hafe);
       } catch (PhenolRuntimeException pre) {
         System.err.printf("[ERROR] PhenolRuntimeException: with file %s: %s", file, pre.getMessage());
         throw pre;
