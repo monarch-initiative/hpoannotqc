@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.phenol.base.PhenolException;
+import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Parse of a single HPO Annotation File into a {@link HpoAnnotationModel} object. The HPO project uses a single
@@ -24,7 +22,7 @@ import java.util.Optional;
  * Created by peter on 2/05/2018.
  */
 public class HpoAnnotationFileParser {
-  private final static Logger logger = LoggerFactory.getLogger(OrphanetXML2HpoDiseaseModelParser.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(OrphanetXML2HpoDiseaseModelParser.class);
   /**
    * A reference to the HPO Ontology object.
    */
@@ -60,12 +58,28 @@ public class HpoAnnotationFileParser {
    */
   private List<String> parseErrors;
 
+  private Map<String, Integer> malformedBiocurationIdMap;
+
+  private Set<String> obsoleteTermIdSet;
+
+  private Map<String, Integer> malformedCitationSet;
+
+  private boolean hasError;
+
   public HpoAnnotationFileParser(File file, Ontology ontology) {
     this.hpoAnnotationFile = file;
     this.ontology = ontology;
+    this.hasError = false;
+    this.malformedBiocurationIdMap = new HashMap<>();
+    this.obsoleteTermIdSet = new HashSet<>();
+    this.malformedCitationSet = new HashMap<>();
   }
   /**
-   * Set up parser for an individual HPO Annotation file ("small file") with verbosity false
+   * Set up parser for an individual HPO Annotation file ("small file") with verbosity false.
+   * We demand that the entire file parses without error, otherwise, an exception will be thrown with
+   * a summary of all the problems of the file. We set a variable called hasErrors to false in the constructor,
+   * and set this to true upon the first such error, but continue to parse to the end of the file, accumulating
+   * all the errors.
    *
    * @param path     Path to the HPO annotation file
    * @param ontology reference to HPO Ontology object
@@ -84,7 +98,7 @@ public class HpoAnnotationFileParser {
    * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
    * @throws HpoAnnotationModelException if faultTolerant is false, parse errors are not thrown, rather only IO exceptions are thrown
    */
-  public HpoAnnotationModel parse(boolean faultTolerant) throws HpoAnnotationModelException {
+  public HpoAnnotationModel parse(boolean faultTolerant) {
     String basename = hpoAnnotationFile.getName();
     List<HpoAnnotationEntry> entryList = new ArrayList<>();
     this.parseErrors = new ArrayList<>();
@@ -97,23 +111,24 @@ public class HpoAnnotationFileParser {
           HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, ontology);
           entryList.add(entry);
         } catch (ObsoleteTermIdException obsE) {
-          // try to rescue obsolete termid!
-          Optional<HpoAnnotationEntry> entryOpt = HpoAnnotationEntry.fromLineReplaceObsoletePhenotypeData(line, ontology);
-          entryOpt.ifPresent(entryList::add);
-        } catch (PhenolException e) {
-          parseErrors.add(String.format("%s:%s", hpoAnnotationFile, e.getMessage()));
+          obsoleteTermIdSet.add(obsE.getMessage());
+        } catch (MalformedCitationException obsE) {
+          malformedCitationSet.putIfAbsent(obsE.getMessage(), 0);
+          malformedCitationSet.merge(obsE.getMessage(), 1, Integer::sum);
+        } catch (MalformedBiocurationEntryException biocE) {
+          malformedBiocurationIdMap.putIfAbsent(biocE.getBiocurationId(), 0);
+          malformedBiocurationIdMap.merge(biocE.getBiocurationId(), 1, Integer::sum);
+        } catch (HpoAnnotQcException e) {
+          parseErrors.add(String.format(e.getMessage()));
         }
       }
       br.close();
       if (parseErrors.size() > 0) {
         String errstr = String.join("\n", parseErrors);
-        if (faultTolerant) {
-          logger.warn(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
+        LOGGER.error(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
             hpoAnnotationFile, errstr));
-        } else {
           throw new HpoAnnotationModelException(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
             hpoAnnotationFile, errstr));
-        }
       }
       return new HpoAnnotationModel(basename, entryList);
     } catch (IOException e) {
@@ -137,7 +152,7 @@ public class HpoAnnotationFileParser {
    * @return true if one or more parse errors occured
    */
   public boolean hasErrors() {
-    return parseErrors.size() > 0;
+    return !parseErrors.isEmpty();
   }
 
   /**
@@ -150,7 +165,7 @@ public class HpoAnnotationFileParser {
 
   /**
    * This method checks that the nead has the expected number and order of lines.
-   * If it doesn't, then a serious error has occured somewhere and it is better to
+   * If it doesn't, then a serious error has occured somewhere, and it is better to
    * die and figure out what is wrong than to attempt error correction
    *
    * @param line a header line of a V2 small file
@@ -170,6 +185,38 @@ public class HpoAnnotationFileParser {
       }
     }
     // if we get here, all is good
+  }
+
+
+  public boolean hasError() {
+    return ! (parseErrors.isEmpty()
+            && malformedBiocurationIdMap.isEmpty()
+            && malformedCitationSet.isEmpty()
+            && obsoleteTermIdSet.isEmpty());
+  }
+
+  public List<String> errorList() {
+    final String INDENTATION = "\t";
+    if (! hasError()) {
+      return List.of();
+    }
+    List<String> errors = new ArrayList<>();
+    errors.add(this.hpoAnnotationFile.getName());
+    for (var e: malformedBiocurationIdMap.entrySet()) {
+      errors.add(String.format("%sMalformed biocuration id: \"%s\": n=%d.",
+              INDENTATION, e.getKey(), e.getValue()));
+    }
+    for (var s: obsoleteTermIdSet) {
+      errors.add(INDENTATION + s);
+    }
+    for (var e: malformedCitationSet.entrySet()) {
+      errors.add(String.format("%s\"%s\": n=%d.",
+              INDENTATION, e.getKey(), e.getValue()));
+    }
+    for (var s: parseErrors) {
+      errors.add(INDENTATION + s);
+    }
+    return errors;
   }
 
 

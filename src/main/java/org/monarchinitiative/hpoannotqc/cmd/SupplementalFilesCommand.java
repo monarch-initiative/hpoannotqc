@@ -1,13 +1,10 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItem;
-import org.monarchinitiative.phenol.annotations.formats.hpo.AnnotatedItemContainer;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoAssociationData;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoGeneAnnotation;
 import org.monarchinitiative.phenol.annotations.io.hpo.*;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
-import org.monarchinitiative.phenol.ontology.algo.OntologyTerms;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import picocli.CommandLine;
@@ -27,7 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(name = "supplemental-files", mixinStandardHelpOptions = true, description = "Create g2p, p2g, g2d files")
-public class SupplementalFiles implements Callable<Integer> {
+public class SupplementalFilesCommand implements Callable<Integer> {
     /**
      * Directory with hp.json and en_product6.xml files.
      */
@@ -45,7 +42,7 @@ public class SupplementalFiles implements Callable<Integer> {
 
     Map<TermId, Map<TermId, Collection<TermId>>> annotationCache = new HashMap<>();
 
-    public SupplementalFiles() {
+    public SupplementalFilesCommand() {
     }
 
 
@@ -81,8 +78,8 @@ public class SupplementalFiles implements Callable<Integer> {
             writer.newLine();
             hpoOntology.getTerms().stream().distinct().forEach(term -> {
                 final TermId phenotype = term.id();
-                Set<TermId> children = OntologyTerms.childrenOf(phenotype, hpoOntology);
-                final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);;
+                Set<TermId> children = hpoOntology.graph().getChildren(phenotype);
+                final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);
                 if(phenotypeLabel.isEmpty()) {
                     throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
                 }
@@ -205,12 +202,10 @@ public class SupplementalFiles implements Callable<Integer> {
 
      Map<TermId, Map<TermId, HpoAnnotationLine>> generatePhenotypeToDisease(HpoaDiseaseDataContainer diseaseData) {
         Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease = new HashMap<>();
-        diseaseData.stream().forEach(disease -> {
-            disease.annotationLines().forEach(phenotype -> {
-                TermId hpoId = phenotype.id();
-                phenotypeToDisease.computeIfAbsent(hpoId, (k) -> new HashMap<>()).put(disease.id(), phenotype);
-            });
-        });
+        diseaseData.stream().forEach(disease -> disease.annotationLines().forEach(phenotype -> {
+            TermId hpoId = phenotype.id();
+            phenotypeToDisease.computeIfAbsent(hpoId, (k) -> new HashMap<>()).put(disease.id(), phenotype);
+        }));
         return phenotypeToDisease;
     }
 

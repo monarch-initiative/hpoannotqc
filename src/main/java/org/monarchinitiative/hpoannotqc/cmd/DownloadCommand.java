@@ -3,6 +3,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,15 +39,15 @@ public final class DownloadCommand implements Callable<Integer> {
 
     private final static String ORPHANET_XML = "en_product4.xml";
 
-    private final static String ORPHANET_XML_URL = "http://www.orphadata.org/data/xml/en_product4.xml";
+    private final static String ORPHANET_XML_URL_PATH = "http://www.orphadata.org/data/xml/en_product4.xml";
 
     private final static String ORPHANET_INHERITANCE_XML = "en_product9_ages.xml";
 
-    private final static String ORPHANET_INHERITANCE_XML_URL = "http://www.orphadata.org/data/xml/en_product9_ages.xml";
+    private final static String ORPHANET_INHERITANCE_XML_URL_PATH = "http://www.orphadata.org/data/xml/en_product9_ages.xml";
 
     private final static String ORPHANET_GENES_XML = "en_product6.xml";
 
-    private final static String ORPHANET_GENES_XML_URL = "http://www.orphadata.org/data/xml/en_product6.xml";
+    private final static String ORPHANET_GENES_XML_URL_PATH = "http://www.orphadata.org/data/xml/en_product6.xml";
 
 
     public DownloadCommand() {
@@ -66,13 +67,19 @@ public final class DownloadCommand implements Callable<Integer> {
         createDownloadDir(downloadDirectory);
         Path destination = Paths.get(downloadDirectory);
         BioDownloaderBuilder builder = BioDownloader.builder(destination);
-        builder.hpoJson().geneInfoHuman().medgene2MIM().custom(ORPHANET_XML,new URL(ORPHANET_XML_URL))
-                .custom(ORPHANET_INHERITANCE_XML,new URL(ORPHANET_INHERITANCE_XML_URL))
-                .custom(ORPHANET_GENES_XML,new URL(ORPHANET_GENES_XML_URL))
+        URL ORPHANET_XML_URL = URI.create(ORPHANET_XML_URL_PATH).toURL();
+        URL ORPHANET_INHERITANCE_XML_URL = URI.create(ORPHANET_INHERITANCE_XML_URL_PATH).toURL();
+        URL ORPHANET_GENES_XML_URL = URI.create(ORPHANET_GENES_XML_URL_PATH).toURL();
+        builder.hpoJson()
+                .geneInfoHuman()
+                .medgene2MIM()
+                .custom(ORPHANET_XML, ORPHANET_XML_URL)
+                .custom(ORPHANET_INHERITANCE_XML, ORPHANET_INHERITANCE_XML_URL)
+                .custom(ORPHANET_GENES_XML, ORPHANET_GENES_XML_URL)
                 .overwrite(overwrite);
         BioDownloader downloader = builder.build();
         List<File> files = downloader.download();
-        if (files.size()>0) {
+        if (!files.isEmpty()) {
             System.out.println("[INFO] Downloaded:");
             for (var f: files) {
                 System.out.printf("[INFO]    %s", f.getAbsolutePath());

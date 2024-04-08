@@ -1,11 +1,10 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 
+import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
-import org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
-import org.monarchinitiative.phenol.ontology.data.Term;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,6 @@ import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoModeOfInherita
 import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoSubOntologyRootTermIds.*;
 import static org.monarchinitiative.phenol.annotations.constants.hpo.HpoClinicalModifierTermIds.CLINICAL_COURSE;
 import static org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.EXCLUDED;
-import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.existsPath;
 
 
 /**
@@ -32,7 +30,7 @@ import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.exist
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class HpoAnnotationEntry {
-  private final static Logger logger = LoggerFactory.getLogger(HpoAnnotationEntry.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationEntry.class);
   // To match e.g. 10/20
   private static final Pattern RATIO_PATTERN = Pattern.compile("(?<numerator>\\d+)/(?<denominator>\\d+)");
   // To match an int of optionally a float percentage (e.g. 1% or 1.23456789%).
@@ -67,7 +65,7 @@ public class HpoAnnotationEntry {
    */
   private final String evidenceCode;
   /**
-   * Field #8 can be one of N/M, X% or a valid frequency term Id
+   * Field #8 can be one of N/M, X% or a valid frequency term identifier.
    */
   private final String frequencyModifier;
   /**
@@ -139,20 +137,20 @@ public class HpoAnnotationEntry {
   }
 
   /**
-   * The disease ID has two parts, the database (before the :) and the id (after the :).
+   * The disease ID is a CURIE - DATABASE:identifier.
    *
-   * @return the database part of the diseaseID.
+   * @return the prefix part of the diseaseID.
    */
-  public String getDB() {
+  public String getDatabasePrefix() {
     return TermId.of(diseaseID).getPrefix();
   }
 
   /**
-   * The disease ID has two parts, the database (before the :) and the id (after the :).
+   * The disease ID is a CURIE - DATABASE:identifier.
    *
-   * @return the object_ID part of the diseaseID.
+   * @return the identifier part of the diseaseID.
    */
-  public String getDB_Object_ID() {
+  public String getDatabaseIdentifier() {
     return TermId.of(diseaseID).getId();
   }
 
@@ -328,9 +326,9 @@ public class HpoAnnotationEntry {
    * @param line     A line from an HPO Annotation file (small file)
    * @param ontology reference to HPO ontology
    * @return corresponding {@link HpoAnnotationEntry} object
-   * @throws PhenolException if there were Q/C problems with the line.
+   * @throws HpoAnnotQcException if there were Q/C problems with the line.
    */
-  public static HpoAnnotationEntry fromLine(String line, Ontology ontology) throws PhenolException {
+  public static HpoAnnotationEntry fromLine(String line, Ontology ontology) throws HpoAnnotQcException {
     String[] A = line.split("\t");
     if (A.length != NUMBER_OF_FIELDS) {
       throw new HpoAnnotationModelException(String.format("We were expecting %d expectedFields but got %d for line %s", NUMBER_OF_FIELDS, A.length, line));
@@ -373,11 +371,15 @@ public class HpoAnnotationEntry {
   /**
    * Create an {@link HpoAnnotationEntry} object for a line in an HPO Annotation file. By default, we do not
    * replace obsolete term ids here, this should be done with PhenoteFX in the original files.
+   * <p>
+   * We no longer want to allow obsolete TermIds from the small file.
+   * PhenoteFX is able to update these ids for all files and this should be done before each release.
    *
    * @param line     A line from an HPO Annotation file (small file)
    * @param ontology reference to HPO ontology
    * @return corresponding {@link HpoAnnotationEntry} object
    */
+  @Deprecated(forRemoval = true)
   public static Optional<HpoAnnotationEntry> fromLineReplaceObsoletePhenotypeData(String line, Ontology ontology) {
     String[] A = line.split("\t");
     if (A.length != NUMBER_OF_FIELDS) {
@@ -390,7 +392,7 @@ public class HpoAnnotationEntry {
     // replace if out of data
     TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
     if (currentPhenotypeId != null) {
-      String currentLabel = ontology.getTermMap().get(currentPhenotypeId).getName();
+      String currentLabel = ontology.getTermLabel(currentPhenotypeId).orElseThrow();
       phenotypeId = currentPhenotypeId;
       phenotypeName = currentLabel;
     }
@@ -423,7 +425,7 @@ public class HpoAnnotationEntry {
     try {
       performQualityControl(entry, ontology);
     } catch (HpoAnnotationModelException e) {
-      logger.warn(e.getMessage());
+      LOGGER.warn(e.getMessage());
       return Optional.empty();
     } catch (ObsoleteTermIdException e) {
       return Optional.of(entry);
@@ -460,30 +462,32 @@ public class HpoAnnotationEntry {
       throw new PhenolRuntimeException("Null String passed as hpoId for disease " + (diseaseID != null ? diseaseID : "n/a"));
     }
     TermId phenotypeId = TermId.of(hpoId);
-    // replace the frequency termid with its string equivalent
+    // replace the frequency TermId with its string equivalent
     // except if it is Excluded, which we treat as a negative annotation
-    String frequencyString = frequency.equals(EXCLUDED.id().getValue()) ? EMPTY_STRING : frequency.getValue();
-    String negationString = frequency.equals(EXCLUDED.id().getValue()) ? "NOT" : EMPTY_STRING;
+    String frequencyString = frequency.equals(EXCLUDED.id()) ? EMPTY_STRING : frequency.getValue();
+    String negationString = frequency.equals(EXCLUDED.id()) ? "NOT" : EMPTY_STRING;
 
     if (replaceObsoleteTermId) {
       TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
       if (currentPhenotypeId != null && !currentPhenotypeId.equals(phenotypeId)) {
-        String newLabel = ontology.getTermMap().get(phenotypeId).getName();
-        logger.warn("{}: Replacing obsolete TermId \"{}\" with current ID \"{}\" (and obsolete label {} with current label {})",
+        String newLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
+        LOGGER.warn("{}: Replacing obsolete TermId \"{}\" with current ID \"{}\" (and obsolete label {} with current label {})",
           diseaseID, hpoId, currentPhenotypeId.getValue(), hpoLabel, newLabel);
         phenotypeId = currentPhenotypeId;
         hpoLabel = newLabel;
       }
       // replace label if needed
       if (currentPhenotypeId != null) { // we can only get new name if we got the new id!
-        String currentPhenotypeLabel = ontology.getTermMap().get(phenotypeId).getName();
-        if (currentPhenotypeLabel != null && !hpoLabel.equals(currentPhenotypeLabel)) {
-          logger.warn("{}: Replacing obsolete Term label \"{}\" with current label \"{}\"",
+        String currentPhenotypeLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
+        if (!hpoLabel.equals(currentPhenotypeLabel)) {
+          LOGGER.warn("{}: Replacing obsolete Term label \"{}\" with current label \"{}\"",
             diseaseID, hpoLabel, currentPhenotypeLabel);
           hpoLabel = currentPhenotypeLabel;
         }
       }
     }
+
+    String DEFAULT_ORPHA_EVIDENCE = "TAS";
 
     HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseID,
       diseaseName,
@@ -497,7 +501,7 @@ public class HpoAnnotationEntry {
       EMPTY_STRING,
       EMPTY_STRING,
       diseaseID,
-      "TAS",
+      DEFAULT_ORPHA_EVIDENCE,
       biocuration);
     // if the following method does not throw an Exception, we are good to go!
     performQualityControl(entry, ontology);
@@ -549,7 +553,7 @@ public class HpoAnnotationEntry {
   // Q/C methods
 
   /**
-   * This method checks all of the fields of the HpoAnnotationEntry. If there is an error, then
+   * This method checks all the fields of the HpoAnnotationEntry. If there is an error, then
    * it throws an Exception (upon the first error). If no exception is thrown, then the
    * no errors were found.
    *
@@ -580,7 +584,7 @@ public class HpoAnnotationEntry {
    */
   private static void checkDB(HpoAnnotationEntry entry) throws HpoAnnotationModelException {
     try {
-      String db = entry.getDB();
+      String db = entry.getDatabasePrefix();
       if (!validDatabases.contains(db)) {
         throw new HpoAnnotationModelException(String.format("Invalid database symbol: \"%s\"", db));
       }
@@ -610,28 +614,24 @@ public class HpoAnnotationEntry {
     String termLabel = entry.getPhenotypeLabel();
     if (id == null) {
       throw new HpoAnnotationModelException("Phenotype id was for \"" + termLabel + "\"");
-    } else if (!ontology.getTermMap().containsKey(id)) {
+    } else if (!ontology.containsTerm(id)) {
       throw new HpoAnnotationModelException(String.format("Could not find HPO term id (\"%s\") for \"%s\"", id, termLabel));
-    } else {
-      TermId current = ontology.getTermMap().get(id).id();
-      if (!current.equals(id)) {
-        throw new ObsoleteTermIdException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
-          id.getValue(),
-          current.getValue(),
-          ontology.getTermMap().get(id).getName()));
-      }
+    }
+    TermId primaryId = ontology.getPrimaryTermId(id);
+    Optional<String> opt = ontology.getTermLabel(primaryId);
+    String primaryLabel = opt.orElseThrow();
+    if (!primaryId.equals(id)) {
+      throw new ObsoleteTermIdException(id, primaryId, primaryLabel);
     }
     // if we get here, the TermId of the HPO Term was OK
     // now check that the label corresponds to the TermId
     if (termLabel == null || termLabel.isEmpty()) {
       throw new HpoAnnotationModelException("Missing HPO term label for id=" + id.getValue());
     }
-    String currentLabel = ontology.getTermMap().get(id).getName();
-    if (!currentLabel.equals(termLabel)) {
+    if (!primaryLabel.equals(termLabel)) {
       String errmsg = String.format("Wrong term label %s instead of %s for %s",
-        termLabel,
-        currentLabel,
-        ontology.getTermMap().get(id).getName());
+        termLabel, primaryLabel, primaryId.getValue());
+      LOGGER.error(errmsg);
       throw new HpoAnnotationModelException(errmsg);
     }
   }
@@ -648,15 +648,16 @@ public class HpoAnnotationEntry {
       }
     }
     TermId tid = TermId.of(id);
-    if (!ontology.getTermMap().containsKey(tid)) {
+    if (!ontology.containsTerm(tid)) {
       throw new HpoAnnotationModelException(String.format("Onset ID not found: \"%s\"", id));
     }
-    TermId current = ontology.getTermMap().get(tid).id();
-    if (!current.equals(tid)) {
-      throw new ObsoleteTermIdException(String.format("Usage of (obsolete) alt_id %s for %s (%s)",
-        tid.getValue(),
-        current.getValue(),
-        ontology.getTermMap().get(tid).getName()));
+    TermId primaryId = ontology.getPrimaryTermId(tid);
+    // note we do not expect an error getting the label here, and we use orElse to simplify
+    // if there is an error we will see if and need to figure out
+    // we also check the label further below
+    String hpoLabel = ontology.getTermLabel(primaryId).orElseThrow();
+    if (!primaryId.equals(tid)) {
+      throw new ObsoleteTermIdException(tid, primaryId, hpoLabel);
     }
     if (! isValidInheritanceTerm(tid, ontology)) {
       throw new HpoAnnotationModelException("Invalid ID in onset ID field: \"" + tid + "\"");
@@ -666,12 +667,12 @@ public class HpoAnnotationEntry {
     if (termLabel == null || termLabel.isEmpty()) {
       throw new HpoAnnotationModelException("Missing HPO term label for onset id=" + id);
     }
-    String currentLabel = ontology.getTermMap().get(tid).getName();
-    if (!currentLabel.equals(termLabel)) {
+    if (!hpoLabel.equals(termLabel)) {
       String errmsg = String.format("Wrong onset term label %s instead of %s for %s",
         termLabel,
-        currentLabel,
-        ontology.getTermMap().get(tid).getName());
+        hpoLabel,
+        primaryId.getValue());
+      LOGGER.error(errmsg);
       throw new HpoAnnotationModelException(errmsg);
     }
   }
@@ -711,7 +712,6 @@ public class HpoAnnotationEntry {
         return;
       }
     }
-
     if(!freq.matches("HP:\\d{7}")) {
       // cannot be a valid frequency term
       throw new HpoAnnotationModelException(String.format("Malformed frequency term: \"%s\"", freq));
@@ -725,9 +725,10 @@ public class HpoAnnotationEntry {
       throw new HpoAnnotationModelException(String.format("Could not parse frequency term id: \"%s\"", freq));
     }
     if (!isValidFrequencyTerm(id, ontology)) {
+      LOGGER.error(String.format("Could not get label for %s", id.getValue()));
       throw new HpoAnnotationModelException(String.format("Usage of incorrect term for frequency: %s [%s]",
-        ontology.getTermMap().get(id).getName(),
-        ontology.getTermMap().get(id).id().getValue()));
+        ontology.getTermLabel(id).orElseThrow(),
+        id.getValue()));
     }
   }
 
@@ -759,17 +760,17 @@ public class HpoAnnotationEntry {
     if (modifierString == null || modifierString.isEmpty()) return; // OK,  not required
     // If something is present in this field, it must be in the form of
     // HP:0000001;HP:0000002;...
-
-
     String[] A = modifierString.split(";");
     for (String a : A) {
       try {
         TermId tid = TermId.of(a);
         if (!isValidModifier(tid, ontology) && !isValidPaceOfProgressionTerm(tid, ontology) &&
           !isValidTemporalPatternTerm(tid, ontology) && isValidInheritanceModifierTerm(tid, ontology)) {
-          throw new HpoAnnotationModelException(String.format("Use of wrong HPO term in modifier field: %s [%s]",
-            ontology.getTermMap().get(tid).getName(),
-            tid.getValue()));
+          String errmsg = String.format("Use of wrong HPO term in modifier field: %s [%s]",
+                  ontology.getTermLabel(tid).orElse("n/a"),
+                  tid.getValue());
+          LOGGER.error(errmsg);
+          throw new HpoAnnotationModelException(errmsg);
         }
       } catch (PhenolRuntimeException e) {
         throw new HpoAnnotationModelException(String.format("Malformed modifier term id: \"%s\"", a));
@@ -780,61 +781,60 @@ public class HpoAnnotationEntry {
 
   private static void checkPublication(String pub) throws HpoAnnotationModelException {
     if (pub == null || pub.isEmpty()) {
-      throw new HpoAnnotationModelException("Empty citation string");
+      throw new MalformedCitationException("Empty citation string");
     }
     int index = pub.indexOf(":");
     if (index <= 0) { // there needs to be a colon in the middle of the string
-      throw new HpoAnnotationModelException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
+      throw new MalformedCitationException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
     }
     if (pub.contains("::")) { // should only be one colon separating prefix and id
-      throw new HpoAnnotationModelException(String.format("Malformed citation id (double colon): \"%s\"", pub));
+      throw new MalformedCitationException(String.format("Malformed citation id (double colon): \"%s\"", pub));
     }
     if (pub.contains(" ")) {
-      throw new HpoAnnotationModelException(String.format("Malformed citation id (contains space): \"%s\"", pub));
+      throw new MalformedCitationException(String.format("Malformed citation id (contains space): \"%s\"", pub));
     }
     String prefix = pub.substring(0, index);
     if (!VALID_CITATION_PREFIXES.contains(prefix)) {
-      throw new HpoAnnotationModelException(String.format("Did not recognize publication prefix: \"%s\" ", pub));
+      throw new MalformedCitationException(String.format("Did not recognize publication prefix: \"%s\" ", pub));
     }
     int len = pub.length();
     if (len - index < 2) {
-      throw new HpoAnnotationModelException(String.format("Malformed publication string: \"%s\" ", pub));
+      throw new MalformedCitationException(String.format("Malformed publication string: \"%s\" ", pub));
     }
   }
 
   private static void checkBiocuration(String entrylist) throws HpoAnnotationModelException {
     if (entrylist == null || entrylist.isEmpty()) {
-      throw new HpoAnnotationModelException("empty biocuration entry");
+      throw new MalformedCitationException("empty biocuration entry");
     }
     String[] fields = entrylist.split(";");
     for (String f : fields) {
       Matcher matcher = biocurationPattern.matcher(f);
       if (!matcher.find()) {
-        throw new HpoAnnotationModelException(String.format("Malformed biocuration entry: \"%s\"", f));
+        throw new MalformedBiocurationEntryException(f);
       }
-
     }
   }
 
 
   private String getAspect(TermId tid, Ontology ontology) throws HpoAnnotationModelException {
-    Term term = ontology.getTermMap().get(tid);
-    if (term == null) {
+    TermId primaryHpoId = ontology.getPrimaryTermId(tid);
+    if (primaryHpoId == null) {
       throw new HpoAnnotationModelException("Cannot compute Aspect of NULL term");
     }
-    TermId primaryTid = term.id(); // update in case term is an alt_id
-    if (existsPath(ontology, primaryTid, PHENOTYPIC_ABNORMALITY)) {
+    //TermId primaryTid = term.id(); // update in case term is an alt_id
+    if (ontology.graph().existsPath(primaryHpoId, PHENOTYPIC_ABNORMALITY)) {
       return "P"; // organ/phenotype abnormality
-    } else if (existsPath(ontology, primaryTid, INHERITANCE_ROOT)) {
+    } else if (ontology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
       return "I";
-    } else if (existsPath(ontology, primaryTid, CLINICAL_COURSE)) {
+    } else if (ontology.graph().existsPath(primaryHpoId,  CLINICAL_COURSE)) {
       return "C";
-    } else if (existsPath(ontology, primaryTid, CLINICAL_MODIFIER)) {
+    } else if (ontology.graph().existsPath(primaryHpoId,  CLINICAL_MODIFIER)) {
       return "M";
-    } else if (primaryTid.equals(PHENOTYPIC_ABNORMALITY)) {
+    } else if (ontology.graph().existsPath(primaryHpoId, PHENOTYPIC_ABNORMALITY)) {
       return "P"; // the Orphanet annotations include some entries to the phenotype root
-    } else if (primaryTid.equals(INHERITANCE_ROOT)) {
-      return "I"; // the Orphanet annotations include some entries to the rrot
+    } else if (ontology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
+      return "I"; // the Orphanet annotations include some entries to the root
     } else {
       throw new HpoAnnotationModelException("Could not determine aspect of TermId " + tid.getValue());
     }
@@ -861,27 +861,27 @@ public class HpoAnnotationEntry {
 
   private static boolean isValidInheritanceTerm(TermId tid, Ontology hpo) {
     final TermId ONSET_ROOT = TermId.of("HP:0003674");
-    return OntologyAlgorithm.existsPath(hpo, tid, ONSET_ROOT);
+    return hpo.graph().existsPath(tid, ONSET_ROOT);
   }
 
 
   private static boolean isValidClinicalModifierTerm(TermId tid, Ontology hpo) {
     final TermId CLINICAL_MODIFIER_ROOT = TermId.of("HP:0012823");
-    return OntologyAlgorithm.existsPath(hpo, tid, CLINICAL_MODIFIER_ROOT);
+    return hpo.graph().existsPath(tid, CLINICAL_MODIFIER_ROOT);
   }
 
   private static boolean isValidTemporalPatternTerm(TermId tid, Ontology hpo) {
     final TermId TEMPORAL_PATTERN_ROOT = TermId.of("HP:0011008");
-    return OntologyAlgorithm.existsPath(hpo, tid, TEMPORAL_PATTERN_ROOT);
+    return hpo.graph().existsPath(tid, TEMPORAL_PATTERN_ROOT);
   }
 
   private static boolean isValidPaceOfProgressionTerm(TermId tid, Ontology hpo) {
     final TermId PACE_OF_PROGRESSION_ROOT = TermId.of("HP:0003679");
-    return OntologyAlgorithm.existsPath(hpo, tid, PACE_OF_PROGRESSION_ROOT);
+    return hpo.graph().existsPath(tid, PACE_OF_PROGRESSION_ROOT);
   }
   private static boolean isValidInheritanceModifierTerm(TermId tid, Ontology hpo) {
     final TermId INHERITANCE_MODIFIER_ROOT = TermId.of("HP:0034335");
-    return OntologyAlgorithm.existsPath(hpo, tid, INHERITANCE_MODIFIER_ROOT);
+    return hpo.graph().existsPath(tid, INHERITANCE_MODIFIER_ROOT);
   }
 
 
@@ -893,12 +893,16 @@ public class HpoAnnotationEntry {
             isValidClinicalModifierTerm(tid, ontology);
   }
 
+  /**
+   *
+   * @param tid TermId of a candidate Frequency term
+   * @param hpo Ontology object
+   * @return true iif tid is a valid HPO frequency term
+   */
   private static boolean isValidFrequencyTerm(TermId tid, Ontology hpo) {
     final TermId FREQUENCY_ROOT =  TermId.of("HP:0040279");
-    return OntologyAlgorithm.existsPath(hpo, tid, FREQUENCY_ROOT);
+    return hpo.graph().existsPath(tid, FREQUENCY_ROOT);
   }
-
-
 
 
 }

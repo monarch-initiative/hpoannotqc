@@ -2,6 +2,8 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -19,10 +21,7 @@ import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoModeOfInherita
 
 
 public class OrphanetInheritanceXMLParser {
-  /**
-   * Path to {@code en_product9_age.xml} file.
-   */
-  private final String orphanetXmlPath;
+  private static final Logger LOGGER = LoggerFactory.getLogger(OrphanetInheritanceXMLParser.class);
   /**
    * Reference to the HPO Ontology.
    */
@@ -70,13 +69,12 @@ public class OrphanetInheritanceXMLParser {
   private final List<String> errorlist;
 
   public OrphanetInheritanceXMLParser(String xmlpath, Ontology onto) {
-    orphanetXmlPath = xmlpath;
     this.ontology = onto;
     String todaysDate = getTodaysDate();
     errorlist = new ArrayList<>();
     orphanetBiocurationString = String.format("ORPHA:orphadata[%s]", todaysDate);
     disease2inheritanceMultimap = new HashMap<>();
-    parse(new File(orphanetXmlPath));
+    parse(new File(xmlpath));
   }
 
 
@@ -138,11 +136,11 @@ public class OrphanetInheritanceXMLParser {
             if (hpoInheritanceId == null) {
               continue;
             }
-            if (!ontology.getTermMap().containsKey(hpoInheritanceId)) {
+            if (!ontology.containsTerm(hpoInheritanceId)) {
               this.errorlist.add("[WARNING] Could not find HPO label for Orphanet inheritance term" + hpoInheritanceId.getValue());
               continue;
             }
-            String hpoLabel = ontology.getTermMap().get(hpoInheritanceId).getName();
+            String hpoLabel = ontology.getTermLabel(hpoInheritanceId).orElseThrow();
             HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaInheritanceData(disId.getValue(),
               currentDiseaseName,
               hpoInheritanceId,
@@ -189,7 +187,7 @@ public class OrphanetInheritanceXMLParser {
         }
       }
     } catch (IOException | XMLStreamException e) {
-      e.printStackTrace();
+      LOGGER.error(e.toString());
     }
   }
 

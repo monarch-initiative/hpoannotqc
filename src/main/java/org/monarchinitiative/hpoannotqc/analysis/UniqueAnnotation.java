@@ -40,7 +40,7 @@ public class UniqueAnnotation {
     public boolean isDuplicateRemovalCandidate() {
         return (biocuration.contains("iea") || biocuration.contains("koehler") )
                 && evidence.equals("IEA")
-                && frequency.equals("")
+                && frequency.isEmpty()
                 && reference.contains("OMIM");
     }
 

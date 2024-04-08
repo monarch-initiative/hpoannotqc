@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -20,7 +21,7 @@ import java.util.*;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class PhenotypeDotHpoaFileWriter {
-  private final static Logger logger = LoggerFactory.getLogger(PhenotypeDotHpoaFileWriter.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(PhenotypeDotHpoaFileWriter.class);
   /**
    * List of all of the {@link HpoAnnotationModel} objects from our annotations (OMIM and DECIPHER).
    */
@@ -140,15 +141,22 @@ public class PhenotypeDotHpoaFileWriter {
     this.internalAnnotationModelList = annotationFileIngestor.getSmallFileEntries();
     int n_omitted = annotationFileIngestor.get_omitted_entry_count();
     int n_valid_smallfile = annotationFileIngestor.get_valid_smallfile_count();
-    this.parseResultAndErrorSummaryLines.add(String.format("[INFO] ommitted small files: %d, valid small files: %d, total: %d",
-            n_omitted,n_valid_smallfile,(n_omitted+n_valid_smallfile)));
-    this.parseResultAndErrorSummaryLines.add(String.format("[INFO] We parsed %d small files/annotation models", this.internalAnnotationModelList.size()));
+    String info = String.format("[INFO] ommitted small files: %d, valid small files: %d, total: %d",
+            n_omitted,n_valid_smallfile,(n_omitted+n_valid_smallfile));
+    System.out.println(info);
+    LOGGER.info(info);
+    info = String.format("[INFO] We parsed %d small files/annotation models", this.internalAnnotationModelList.size());
+    System.out.println(info);
+    LOGGER.info(info);
     if (n_valid_smallfile > this.internalAnnotationModelList.size()) {
       int missing = n_valid_smallfile - this.internalAnnotationModelList.size();
-      this.parseResultAndErrorSummaryLines.add(String.format("\n\n[WARNING] Not all valid small files successfully parsed (%d entries missing).\n\n",missing));
+      String err = String.format("[ERROR] Not all valid small files successfully parsed (%d entries missing).\n\n",missing);
+      System.err.println(err);
+      LOGGER.error(err);
+      throw new PhenolRuntimeException(err);
     }
     if (n_omitted>0) {
-      logger.trace("{} small files were omitted.", n_omitted);
+      LOGGER.trace("{} small files were omitted.", n_omitted);
     }
 
     // 2. Get the Orphanet Inheritance Annotations
@@ -164,7 +172,9 @@ public class PhenotypeDotHpoaFileWriter {
     OrphanetXML2HpoDiseaseModelParser orphaParser =
             new OrphanetXML2HpoDiseaseModelParser(this.orphaPhenotypeXMLfile.getAbsolutePath(), ontology, tolerant);
     Map<TermId,HpoAnnotationModel> prelimOrphaDiseaseMap = orphaParser.getOrphanetDiseaseMap();
-    this.parseResultAndErrorSummaryLines.add(String.format("[INFO] We parsed %d Orphanet disease entries", prelimOrphaDiseaseMap.size()));
+    info = String.format("[INFO] We parsed %d Orphanet disease entries", prelimOrphaDiseaseMap.size());
+    System.out.println(info);
+    LOGGER.info(info);
     int c = 0;
     for (TermId diseaseId : prelimOrphaDiseaseMap.keySet()) {
       HpoAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
@@ -175,8 +185,9 @@ public class PhenotypeDotHpoaFileWriter {
         c++;
       }
     }
-    this.parseResultAndErrorSummaryLines.add(String.format("[INFO] We were able to add inheritance information to %d Orphanet disease entries", c));
-
+    info = String.format("[INFO] We added inheritance information to %d Orphanet disease entries", c);
+    System.out.println(info);
+    LOGGER.info(info);
     this.orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
     setOntologyMetadata(ont.getMetaInfo());
     setNumberOfDiseasesForHeader();
@@ -188,7 +199,6 @@ public class PhenotypeDotHpoaFileWriter {
    * here (except for Orphanet).
    */
   private void setNumberOfDiseasesForHeader() {
-
     this.n_decipher = 0;
     this.n_omim = 0;
     this.n_unknown = 0;
@@ -227,7 +237,10 @@ public class PhenotypeDotHpoaFileWriter {
 
     if (ontologyMetaInfo.containsKey("release")) {
       if(!ontologyMetaInfo.get("release").equals(getDate())){
-        throw new IOException("Trying to release an hpoa file that does not match ontology release.");
+        String err = String.format("Mismatching release dates-now %s, ontology-release: %s.",
+                getDate(), ontologyMetaInfo.get("release"));
+        System.err.println(err);
+        LOGGER.warn(err);
       }
       writer.write(String.format("#hpo-version: %s\n", ontologyMetaInfo.get("data-version")));
     }
@@ -241,12 +254,14 @@ public class PhenotypeDotHpoaFileWriter {
           String bigfileLine = entry.toBigFileLine(ontology);
           writer.write(bigfileLine + "\n");
         } catch (HpoAnnotationModelException e) {
-          logger.warn(String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs()));
+          String err = String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs());
+          System.err.println(err);
+          LOGGER.error(err);
         }
         n++;
       }
     }
-    logger.info("[INFO] We output a total of " + n + " big file lines from internal HPO Annotation files");
+    LOGGER.info("[INFO] We output a total of " + n + " big file lines from internal HPO Annotation files");
     int m = 0;
     for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
       List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
@@ -255,15 +270,15 @@ public class PhenotypeDotHpoaFileWriter {
           String bigfileLine = entry.toBigFileLine(ontology);
           writer.write(bigfileLine + "\n");
         } catch (HpoAnnotationModelException e) {
-          logger.warn(String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs()));
+          LOGGER.warn(String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs()));
         }
         m++;
       }
     }
-    logger.info("We output a total of " + m + " big file lines from the Orphanet Annotation files");
-    logger.info("Total output lines was " + (n + m));
+    LOGGER.info("We output a total of " + m + " big file lines from the Orphanet Annotation files");
+    LOGGER.info("Total output lines was " + (n + m));
     for (String line : this.parseResultAndErrorSummaryLines) {
-      logger.warn(line);
+      LOGGER.warn(line);
     }
     writer.close();
   }

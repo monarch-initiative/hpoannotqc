@@ -2,12 +2,13 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 
 import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
-import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationModelException;
-import org.monarchinitiative.hpoannotqc.annotations.ObsoleteTermIdException;
-import org.monarchinitiative.phenol.base.PhenolException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermIdException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -28,6 +29,9 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "big-file-qc", aliases = {"Q"}, mixinStandardHelpOptions = true, description = "Q/C phenotype.hpoa file")
 public class BigFileQcCommand implements Callable<Integer> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BigFileQcCommand.class);
+
     @CommandLine.Option(names={"-a","--annot"},
             description = "Path to directory with the ca. 7900 HPO Annotation files",
             required = true)
@@ -69,7 +73,7 @@ public class BigFileQcCommand implements Callable<Integer> {
                 try {
                     qcOneSmallFile(f, hpo);
                 } catch (PhenolRuntimeException e) {
-                    e.printStackTrace();
+                    LOGGER.error(e.getMessage());
                 }
             }
         }
@@ -79,7 +83,7 @@ public class BigFileQcCommand implements Callable<Integer> {
         return null;
     }
 
-    private void  qcOneSmallFile(File smallFile, Ontology hpo) throws PhenolRuntimeException{
+    private void qcOneSmallFile(File smallFile, Ontology hpo) throws PhenolRuntimeException{
         try (BufferedReader br = new BufferedReader(new FileReader(smallFile))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -93,8 +97,8 @@ public class BigFileQcCommand implements Callable<Integer> {
                 }
             }
 
-        } catch (IOException | PhenolException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -115,7 +119,7 @@ public class BigFileQcCommand implements Callable<Integer> {
                 }
             }
         } catch (IOException ex) {
-           ex.printStackTrace();
+            LOGGER.error(ex.getMessage());
         }
         return fileNames;
     }

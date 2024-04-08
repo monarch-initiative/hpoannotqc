@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.monarchinitiative.phenol.ontology.algo.OntologyAlgorithm.getAncestorTerms;
-
 /**
  * A set of "low-level" algorithms designed to perform some useful functions on collections
  * of HPO annotations (generally, following parsing of the HPO annotation file {@code phenotype.hpoa}
@@ -35,7 +33,7 @@ public class HpoAnnotationAlgorithms {
       Set<TermId> termset = disease.annotationTermIds()
         .collect(Collectors.toSet());
       if (propagate) {
-        termset.addAll(getAncestorTerms(ontology,termset,false));
+        termset.addAll(ontology.getAllAncestorTermIds(termset,false));
       }
       for (TermId tid : termset) {
         annotationCounts.putIfAbsent(tid,0);

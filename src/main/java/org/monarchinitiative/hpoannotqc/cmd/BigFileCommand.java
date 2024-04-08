@@ -20,13 +20,11 @@ import java.util.concurrent.Callable;
  */
 @CommandLine.Command(name = "big-file", aliases = {"B"}, mixinStandardHelpOptions = true, description = "Create phenotype.hpoa file")
 public class BigFileCommand implements Callable<Integer> {
-    private final Logger logger = LoggerFactory.getLogger(BigFileCommand.class);
-    /** Path to the {@code hp.json} file. */
-    private final String hpJsonPath;
-    /** Path to the downloaded Orphanet XML file */
-    private final String orphanetXMLpath;
-    /** Path to the dowloaded Orphanet inheritance file, {@code en_product9_ages.xml}.*/
-    private final String orphanetInheritanceXmlPath;
+    private final static Logger LOGGER = LoggerFactory.getLogger(BigFileCommand.class);
+    /** Path to the {@code hp.json} file (optional; will be derived from the data download by default). */
+    @CommandLine.Option(names = {"-j", "--hpo"},
+            description = "custom path to hp.json (default: get it from data directory)")
+    private String hpJsonPath = null;
     /** Directory with hp.json and en_product>HPO.xml files. */
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory to download data (default: ${DEFAULT-VALUE})")
@@ -48,21 +46,26 @@ public class BigFileCommand implements Callable<Integer> {
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
-        hpJsonPath = String.format("%s%s%s",downloadDirectory,File.separator, "hp.json" );
-        orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4.xml" );
-        orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
+        if (hpJsonPath == null) {
+            hpJsonPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.json");
+        }
+        File f = new File(hpJsonPath);
+        if (! f.isFile()) {
+            String err = String.format("Could not find hp.jon file at \"%s\".", hpJsonPath);
+            System.err.println(err);
+            throw new PhenolRuntimeException(err);
+        }
     }
 
     @Override
     public Integer call()  {
-        File hpJsonFile = new File(hpJsonPath);
-        if (! hpJsonFile.isFile()) {
-            System.err.printf("[ERROR] Could not find hp.json file at \"%s\"", hpJsonPath);
-            return 1;
-        }
+        // Path to the downloaded Orphanet XML file
+        String orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4.xml" );
+        //  Path to the dowloaded Orphanet inheritance file, en_product9_ages.xml.
+        String orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
         Ontology ontology = OntologyLoader.loadOntology(new File(hpJsonPath));
         // path to the omit-list.txt file, which is located with the small files in the same directory
-        logger.info("annotation directory = "+hpoAnnotationFileDirectory);
+        LOGGER.info("annotation directory = "+hpoAnnotationFileDirectory);
         try {
             PhenotypeDotHpoaFileWriter pwriter = PhenotypeDotHpoaFileWriter.factory(ontology,
                     hpoAnnotationFileDirectory,
@@ -73,9 +76,9 @@ public class BigFileCommand implements Callable<Integer> {
                     merge_frequency);
             pwriter.outputBigFile();
         } catch (IOException e) {
-            logger.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
+            LOGGER.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
         } catch (PhenolRuntimeException pre) {
-            logger.error("Caught phenol runtime exception: "+ pre.getMessage());
+            LOGGER.error("Caught phenol runtime exception: "+ pre.getMessage());
         }
         return 0;
     }

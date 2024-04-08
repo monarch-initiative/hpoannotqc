@@ -2,11 +2,10 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,12 +23,13 @@ import java.util.Set;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
 public class HpoAnnotationFileIngestor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationFileIngestor.class);
   /**
    * Reference to the HPO object.
    */
   private final Ontology ontology;
   /**
-   * The paths to all of the small files, e.g., OMIM-600301.tab.
+   * The paths to all the small files, e.g., OMIM-600301.tab.
    */
   private final List<File> smallFilePaths;
   /**
@@ -41,7 +41,7 @@ public class HpoAnnotationFileIngestor {
    */
   private final Set<String> omitEntries;
   /**
-   * Total number of annotations of all of the annotation files.
+   * Total number of annotations of all the annotation files.
    */
   private int n_total_annotation_lines = 0;
 
@@ -99,21 +99,31 @@ public class HpoAnnotationFileIngestor {
     int i = 0;
     for (File file : smallFilePaths) {
       HpoAnnotationFileParser parser = new HpoAnnotationFileParser(file.getAbsolutePath(), ontology);
-      try {
-        HpoAnnotationModel smallFile = parser.parse(true);
-        if (mergeEntries) {
-          smallFile = smallFile.getMergedModel();
-        }
-        n_total_annotation_lines += smallFile.getNumberOfAnnotations();
-        smallFileList.add(smallFile);
-      } catch (HpoAnnotationModelException hafe) {
-        System.err.printf("[ERROR] %s: (%s)\n", file.getName(), hafe.getMessage());
-        throw new RuntimeException(hafe);
-      } catch (PhenolRuntimeException pre) {
-        System.err.printf("[ERROR] PhenolRuntimeException: with file %s: %s", file, pre.getMessage());
-        throw pre;
 
+      HpoAnnotationModel smallFile = parser.parse(true);
+      if (mergeEntries) {
+        smallFile = smallFile.getMergedModel();
       }
+      if (parser.hasError()) {
+        this.errors.addAll(parser.errorList());
+      }
+      n_total_annotation_lines += smallFile.getNumberOfAnnotations();
+      smallFileList.add(smallFile);
+    }
+    if (! this.errors.isEmpty()) {
+      for (var e:errors){
+        System.err.println(e);
+      }
+      String ERROR_FILE = "HPOA-errors.txt";
+      try (BufferedWriter bw = new BufferedWriter(new FileWriter(ERROR_FILE))) {
+        for (var line: errors) {
+          bw.write(line + "\n");
+          LOGGER.error(line);
+        }
+      } catch (IOException e){
+        LOGGER.error(e.getMessage());
+      }
+      throw new PhenolRuntimeException("Parse errors encountered with HPOA file generation!");
     }
   }
 
@@ -145,7 +155,7 @@ public class HpoAnnotationFileIngestor {
         entrylist.add(id);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e.getMessage());
       errors.add(e.getMessage());
     }
     return entrylist;

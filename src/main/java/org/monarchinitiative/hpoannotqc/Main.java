@@ -27,7 +27,7 @@ public class Main implements Callable<Integer> {
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
                 addSubcommand("qc", new BigFileQcCommand()).
-                addSubcommand("supplemental-files", new SupplementalFiles());
+                addSubcommand("supplemental-files", new SupplementalFilesCommand());
         cline.setToggleBooleanFlags(false);
         if (args.length == 0) {
             // this will cause a help message to be shown if the user calls the

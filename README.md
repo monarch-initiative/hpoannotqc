@@ -1,21 +1,19 @@
 # hpoannotqc
 HPO Annotation QC
 
-
-
-## Building the application
-hpoannotqc depends on phenol; currently, the latest version of phenol needs to be installed locally, but soon this will all be in maven central.
+This application was developed to do Q/C of the HPO annotation (HPOA) files, the so-called
+small files. It converts the small files to the "big file" (phenotype.hpoa).
 
 ## Running the application
 We need to pass the application the location of the hp.obo file as well
 as the location of the directory with the HPO annotation small files. This repository
-is currently private available here: https://github.com/monarch-initiative/hpo-annotation-data.
+is currently available here in a private repository: https://github.com/monarch-initiative/hpo-annotation-data.
 
 
 ### Download
 The application will download several required files to a (new) subdirectory called ``data``.
 ```
-$ java -jar target/HpoAnnotQc.jar download
+$ java -jar target/HpoAnnotQc.jar download [--overwrite]
 ```
 
 ### Creation of phenotype.hpoa

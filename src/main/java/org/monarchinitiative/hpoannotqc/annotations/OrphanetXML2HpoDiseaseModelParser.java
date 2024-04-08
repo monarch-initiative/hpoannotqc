@@ -56,7 +56,7 @@ import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoFrequencyTermI
  * @author Peter Robinson
  */
 public class OrphanetXML2HpoDiseaseModelParser {
-  private final static Logger logger = LoggerFactory.getLogger(OrphanetXML2HpoDiseaseModelParser.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(OrphanetXML2HpoDiseaseModelParser.class);
   /**
    * Path to {@code en_product4_HPO.xml} file.
    */
@@ -149,7 +149,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     try {
       parse();
     } catch (XMLStreamException | IOException e) {
-      e.printStackTrace();
+      LOGGER.error(e.toString());
     }
   }
 
@@ -303,7 +303,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
               currentFrequencyTermId = null;// reset
               currentAnnotationEntryList.add(entry);
             } catch (Exception e) {
-              logger.warn(String.format("Parse error for %s [ORPHA:%s] HPOid: %s (%s)",
+              LOGGER.warn(String.format("Parse error for %s [ORPHA:%s] HPOid: %s (%s)",
                 currentDiseaseName != null ? currentDiseaseName : "n/a",
                 currentOrphanumber != null ? currentOrphanumber : "n/a",
                 currentHpoId != null ? currentHpoId : "n/a",

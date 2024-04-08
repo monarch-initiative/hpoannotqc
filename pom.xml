@@ -5,7 +5,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.9.19</version>
+    <version>1.9.20</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
@@ -14,9 +14,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.11</java.version>
+        <java.version>11</java.version>
         <phenol.version>2.1.0</phenol.version>
-        <guava.version>[30.0-jre,)</guava.version>
         <junit.version>5.10.2</junit.version>
     </properties>
 
@@ -36,11 +35,6 @@
                 <groupId>org.monarchinitiative.biodownload</groupId>
                 <artifactId>biodownload</artifactId>
                 <version>1.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>33.1.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.monarchinitiative.phenol</groupId>
@@ -148,14 +142,9 @@
             <groupId>org.monarchinitiative.phenol</groupId>
             <artifactId>phenol-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.monarchinitiative.phenol</groupId>
             <artifactId>phenol-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
