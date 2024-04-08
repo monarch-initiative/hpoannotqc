@@ -58,21 +58,24 @@ public class HpoAnnotationFileParser {
    */
   private List<String> parseErrors;
 
-  private Map<String, Integer> malformedBiocurationIdMap;
+  private final Map<String, Integer> malformedBiocurationIdMap;
 
-  private Set<String> obsoleteTermIdSet;
+  private final Set<String> obsoleteTermIdSet;
 
-  private Map<String, Integer> malformedCitationSet;
+  /** Key - some malformed citation; vlaue-number of times this citation was encountered */
+  private final Map<String, Integer> malformedCitationMap;
 
-  private boolean hasError;
+  private final Set<String> problematicHpoTerms;
+
+
 
   public HpoAnnotationFileParser(File file, Ontology ontology) {
     this.hpoAnnotationFile = file;
     this.ontology = ontology;
-    this.hasError = false;
     this.malformedBiocurationIdMap = new HashMap<>();
     this.obsoleteTermIdSet = new HashSet<>();
-    this.malformedCitationSet = new HashMap<>();
+    this.malformedCitationMap = new HashMap<>();
+    this.problematicHpoTerms = new HashSet<>();
   }
   /**
    * Set up parser for an individual HPO Annotation file ("small file") with verbosity false.
@@ -112,9 +115,11 @@ public class HpoAnnotationFileParser {
           entryList.add(entry);
         } catch (ObsoleteTermIdException obsE) {
           obsoleteTermIdSet.add(obsE.getMessage());
+        } catch (HpoTermException htE) {
+          problematicHpoTerms.add(htE.getMessage());
         } catch (MalformedCitationException obsE) {
-          malformedCitationSet.putIfAbsent(obsE.getMessage(), 0);
-          malformedCitationSet.merge(obsE.getMessage(), 1, Integer::sum);
+          malformedCitationMap.putIfAbsent(obsE.getMessage(), 0);
+          malformedCitationMap.merge(obsE.getMessage(), 1, Integer::sum);
         } catch (MalformedBiocurationEntryException biocE) {
           malformedBiocurationIdMap.putIfAbsent(biocE.getBiocurationId(), 0);
           malformedBiocurationIdMap.merge(biocE.getBiocurationId(), 1, Integer::sum);
@@ -187,11 +192,10 @@ public class HpoAnnotationFileParser {
     // if we get here, all is good
   }
 
-
   public boolean hasError() {
     return ! (parseErrors.isEmpty()
             && malformedBiocurationIdMap.isEmpty()
-            && malformedCitationSet.isEmpty()
+            && malformedCitationMap.isEmpty()
             && obsoleteTermIdSet.isEmpty());
   }
 
@@ -209,9 +213,12 @@ public class HpoAnnotationFileParser {
     for (var s: obsoleteTermIdSet) {
       errors.add(INDENTATION + s);
     }
-    for (var e: malformedCitationSet.entrySet()) {
+    for (var e: malformedCitationMap.entrySet()) {
       errors.add(String.format("%s\"%s\": n=%d.",
               INDENTATION, e.getKey(), e.getValue()));
+    }
+    for (var s: problematicHpoTerms) {
+      errors.add(INDENTATION + s);
     }
     for (var s: parseErrors) {
       errors.add(INDENTATION + s);

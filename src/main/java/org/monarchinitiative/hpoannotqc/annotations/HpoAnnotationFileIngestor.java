@@ -35,7 +35,7 @@ public class HpoAnnotationFileIngestor {
   /**
    * List of all of the {@link HpoAnnotationModel} objects, which represent annotated diseases.
    */
-  private final List<HpoAnnotationModel> smallFileList = new ArrayList<>();
+  private final List<HpoAnnotationModel> hpoaFileList = new ArrayList<>();
   /**
    * Names of entries (small files) that we will omit because they do not represent diseases.
    */
@@ -53,27 +53,12 @@ public class HpoAnnotationFileIngestor {
 
   private final List<String> errors = new ArrayList<>();
 
-  List<HpoAnnotationModel> getSmallFileEntries() {
-    return smallFileList;
+  List<HpoAnnotationModel> getHpoaFileEntries() {
+    return hpoaFileList;
   }
 
-  /**
-   * Default constructor. Will NOT merge annotation lines to same HPO term.
-   *
-   * @param directoryPath path to the directory with HPO annotation "small files"
-   * @param omitFile      path to the {@code omit-list.txt} file with non-disease entries to be omitted
-   * @param ontology      reference to HPO ontology object
-   */
-  public HpoAnnotationFileIngestor(String directoryPath, String omitFile, Ontology ontology) {
-    this(directoryPath, omitFile, ontology, false);
-  }
 
-  HpoAnnotationFileIngestor(String directoryPath, Ontology ontology) {
-    this(directoryPath,
-      String.format("%s%s%s", directoryPath, File.separator, "omit-list.txt"),
-      ontology,
-      false);
-  }
+
   public HpoAnnotationFileIngestor(String directoryPath, Ontology ontology, boolean merge_fr) {
     this(directoryPath,
       String.format("%s%s%s", directoryPath, File.separator, "omit-list.txt"),
@@ -90,7 +75,7 @@ public class HpoAnnotationFileIngestor {
   public HpoAnnotationFileIngestor(String directoryPath, String omitFile, Ontology ontology, boolean merge) {
     omitEntries = getOmitEntries(omitFile);
     this.mergeEntries = merge;
-    smallFilePaths = getListOfV2SmallFiles(directoryPath);
+    smallFilePaths = getListOfSmallFiles(directoryPath);
     this.ontology = ontology;
     inputHpoAnnotationFiles();
   }
@@ -108,7 +93,7 @@ public class HpoAnnotationFileIngestor {
         this.errors.addAll(parser.errorList());
       }
       n_total_annotation_lines += smallFile.getNumberOfAnnotations();
-      smallFileList.add(smallFile);
+      hpoaFileList.add(smallFile);
     }
     if (! this.errors.isEmpty()) {
       for (var e:errors){
@@ -181,8 +166,12 @@ public class HpoAnnotationFileIngestor {
     return bname;
   }
 
-
-  private List<File> getListOfV2SmallFiles(String smallFileDirectory) {
+  /**
+   *
+   * @param smallFileDirectory location of our curation files
+   * @return list of small files (such as OMIM-600123.tab)
+   */
+  private List<File> getListOfSmallFiles(String smallFileDirectory) {
     List<File> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(smallFileDirectory))) {
       for (Path path : directoryStream) {
@@ -190,7 +179,7 @@ public class HpoAnnotationFileIngestor {
           String basename = baseName(path);
           if (omitEntries.contains(basename)) {
             n_total_omitted_entries++;
-            continue; // skip this one!
+            continue; // skip omit entries!
           }
           fileNames.add(new File(path.toString()));
         }

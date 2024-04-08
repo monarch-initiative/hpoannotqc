@@ -2,7 +2,6 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 
 import org.monarchinitiative.hpoannotqc.exception.*;
-import org.monarchinitiative.phenol.base.PhenolException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -123,14 +122,9 @@ public class HpoAnnotationEntry {
 
   private static final Set<String> VALID_CITATION_PREFIXES = Set.of("PMID", "OMIM", "http", "https", "DECIPHER",
     "ORPHA", "ISBN", "ISBN-10", "ISBN-13");
-  /**
-   * regex for patterns such as HPO:skoehler[2018-09-22]
-   */
-  private static final String biocurationRegex = "(\\w+:\\w+)\\[(\\d{4}-\\d{2}-\\d{2})]";
-  /**
-   * The pattern that corresponds to {@link #biocurationRegex}.
-   */
-  private static final Pattern biocurationPattern = Pattern.compile(biocurationRegex);
+
+
+
 
   public String getDiseaseID() {
     return diseaseID;
@@ -378,7 +372,7 @@ public class HpoAnnotationEntry {
    * @param line     A line from an HPO Annotation file (small file)
    * @param ontology reference to HPO ontology
    * @return corresponding {@link HpoAnnotationEntry} object
-   */
+
   @Deprecated(forRemoval = true)
   public static Optional<HpoAnnotationEntry> fromLineReplaceObsoletePhenotypeData(String line, Ontology ontology) {
     String[] A = line.split("\t");
@@ -432,7 +426,7 @@ public class HpoAnnotationEntry {
     }
     return Optional.of(entry);
   }
-
+   */
 
   /**
    * If the frequency of an HPO term is listed in Orphanet as Excluded (0%), then we encode it as
@@ -804,40 +798,19 @@ public class HpoAnnotationEntry {
   }
 
   private static void checkBiocuration(String entrylist) throws HpoAnnotationModelException {
-    if (entrylist == null || entrylist.isEmpty()) {
-      throw new MalformedCitationException("empty biocuration entry");
-    }
-    String[] fields = entrylist.split(";");
-    for (String f : fields) {
-      Matcher matcher = biocurationPattern.matcher(f);
-      if (!matcher.find()) {
-        throw new MalformedBiocurationEntryException(f);
-      }
-    }
+    BiocurationChecker.check(entrylist);
   }
 
-
+  /**
+   * Todo -- consider refactor to not create new instance for each entry
+   * @param tid
+   * @param ontology
+   * @return
+   * @throws HpoAnnotationModelException
+   */
   private String getAspect(TermId tid, Ontology ontology) throws HpoAnnotationModelException {
-    TermId primaryHpoId = ontology.getPrimaryTermId(tid);
-    if (primaryHpoId == null) {
-      throw new HpoAnnotationModelException("Cannot compute Aspect of NULL term");
-    }
-    //TermId primaryTid = term.id(); // update in case term is an alt_id
-    if (ontology.graph().existsPath(primaryHpoId, PHENOTYPIC_ABNORMALITY)) {
-      return "P"; // organ/phenotype abnormality
-    } else if (ontology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
-      return "I";
-    } else if (ontology.graph().existsPath(primaryHpoId,  CLINICAL_COURSE)) {
-      return "C";
-    } else if (ontology.graph().existsPath(primaryHpoId,  CLINICAL_MODIFIER)) {
-      return "M";
-    } else if (ontology.graph().existsPath(primaryHpoId, PHENOTYPIC_ABNORMALITY)) {
-      return "P"; // the Orphanet annotations include some entries to the phenotype root
-    } else if (ontology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
-      return "I"; // the Orphanet annotations include some entries to the root
-    } else {
-      throw new HpoAnnotationModelException("Could not determine aspect of TermId " + tid.getValue());
-    }
+    final AspectIdentifier aspectIdentifier = new AspectIdentifier(ontology);
+    return aspectIdentifier.getAspect(tid);
   }
 
   public String toBigFileLine(Ontology ontology) throws HpoAnnotationModelException {

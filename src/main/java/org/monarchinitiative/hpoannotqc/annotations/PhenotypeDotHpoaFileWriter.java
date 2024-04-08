@@ -138,7 +138,7 @@ public class PhenotypeDotHpoaFileWriter {
     // 1. Get list of small files
     HpoAnnotationFileIngestor annotationFileIngestor =
             new HpoAnnotationFileIngestor(smallFileDirectory.getAbsolutePath(), ont, this.merge_frequency);
-    this.internalAnnotationModelList = annotationFileIngestor.getSmallFileEntries();
+    this.internalAnnotationModelList = annotationFileIngestor.getHpoaFileEntries();
     int n_omitted = annotationFileIngestor.get_omitted_entry_count();
     int n_valid_smallfile = annotationFileIngestor.get_valid_smallfile_count();
     String info = String.format("[INFO] ommitted small files: %d, valid small files: %d, total: %d",
@@ -186,7 +186,6 @@ public class PhenotypeDotHpoaFileWriter {
       }
     }
     info = String.format("[INFO] We added inheritance information to %d Orphanet disease entries", c);
-    System.out.println(info);
     LOGGER.info(info);
     this.orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
     setOntologyMetadata(ont.getMetaInfo());
