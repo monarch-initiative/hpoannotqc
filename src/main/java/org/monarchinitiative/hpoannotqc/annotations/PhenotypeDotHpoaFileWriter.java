@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -249,11 +249,13 @@ public class PhenotypeDotHpoaFileWriter {
     for (HpoAnnotationModel smallFile : this.internalAnnotationModelList) {
       List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
       for (HpoAnnotationEntry entry : entryList) {
-        try {
+        if (! entry.hasError()) {
           String bigfileLine = entry.toBigFileLine(ontology);
           writer.write(bigfileLine + "\n");
-        } catch (HpoAnnotationModelException e) {
-          String err = String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs());
+        } else {
+          String err = String.format("[ERROR] with entry (%s) skipping line: %s",
+                  entry.getErrorList().get(0).getMessageWithDisease(),
+                  entry.getLineNoTabs());
           System.err.println(err);
           LOGGER.error(err);
         }
@@ -265,11 +267,24 @@ public class PhenotypeDotHpoaFileWriter {
     for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
       List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
       for (HpoAnnotationEntry entry : entryList) {
+        if (entry.hasError()) {
+          String err = String.format("[ERROR] with entry (%s): %s",
+                  entry.getErrorList().get(0).getMessageWithDisease(),
+                  entry.getLineNoTabs());
+
+          if (entry.hasSkipabbleError()){
+            LOGGER.error(err);
+            continue;
+          } else {
+            LOGGER.warn(err);
+          }
+        }
         try {
           String bigfileLine = entry.toBigFileLine(ontology);
           writer.write(bigfileLine + "\n");
-        } catch (HpoAnnotationModelException e) {
-          LOGGER.warn(String.format("[ERROR] with entry (%s) skipping line: %s",e.getMessage(),entry.getLineNoTabs()));
+        } catch (HpoAnnotQcException e) {
+          LOGGER.error(e.getMessage());
+          System.err.println(e.getMessage());
         }
         m++;
       }

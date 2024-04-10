@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAnnotationModelError;
 import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -95,11 +96,10 @@ public class HpoAnnotationFileParser {
   /**
    * Parse a single HPO Annotation file. If {@code faultTolerant} is set to true, then we will parse as
    * much as we can of an annotation file and return the {@link HpoAnnotationModel} object, even if one or more
-   * parse errors occured. Otherwise, an {@link HpoAnnotationModelException} will be thrown
+   * parse errors occured. Otherwise, an {@link HpoAnnotationModelError} will be thrown
    *
    * @param faultTolerant If true, report errors to STDERR but do not throw an exception
    * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
-   * @throws HpoAnnotationModelException if faultTolerant is false, parse errors are not thrown, rather only IO exceptions are thrown
    */
   public HpoAnnotationModel parse(boolean faultTolerant) {
     String basename = hpoAnnotationFile.getName();
@@ -113,41 +113,30 @@ public class HpoAnnotationFileParser {
         try {
           HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, ontology);
           entryList.add(entry);
-        } catch (ObsoleteTermIdException obsE) {
-          obsoleteTermIdSet.add(obsE.getMessage());
-        } catch (HpoTermException htE) {
-          problematicHpoTerms.add(htE.getMessage());
-        } catch (MalformedCitationException obsE) {
-          malformedCitationMap.putIfAbsent(obsE.getMessage(), 0);
-          malformedCitationMap.merge(obsE.getMessage(), 1, Integer::sum);
-        } catch (MalformedBiocurationEntryException biocE) {
-          malformedBiocurationIdMap.putIfAbsent(biocE.getBiocurationId(), 0);
-          malformedBiocurationIdMap.merge(biocE.getBiocurationId(), 1, Integer::sum);
         } catch (HpoAnnotQcException e) {
           parseErrors.add(String.format(e.getMessage()));
         }
       }
       br.close();
-      if (parseErrors.size() > 0) {
+      if (!parseErrors.isEmpty()) {
         String errstr = String.join("\n", parseErrors);
         LOGGER.error(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
             hpoAnnotationFile, errstr));
-          throw new HpoAnnotationModelException(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
+          throw new HpoAnnotQcException(String.format("Errors encountered while parsing HPO Annotation file at %s.\n%s",
             hpoAnnotationFile, errstr));
       }
       return new HpoAnnotationModel(basename, entryList);
     } catch (IOException e) {
-      throw new HpoAnnotationModelException(String.format("Error parsing %s: %s", hpoAnnotationFile, e.getMessage()));
+      throw new HpoAnnotQcException(String.format("Error parsing %s: %s", hpoAnnotationFile, e.getMessage()));
     }
   }
 
   /**
    * Parse a single HPO Annotation file with the default setting of no fault-tolerance, i.e. if even a single parse
-   * error is encountered, throw an {@link HpoAnnotationModelException}.
+   * error is encountered, throw an {@link HpoAnnotationModelError}.
    *
-   * @throws HpoAnnotationModelException if any parse error of IO problem is encountered.
    */
-  public HpoAnnotationModel parse() throws HpoAnnotationModelException {
+  public HpoAnnotationModel parse()  {
     return parse(false);
   }
 
@@ -174,18 +163,17 @@ public class HpoAnnotationFileParser {
    * die and figure out what is wrong than to attempt error correction
    *
    * @param line a header line of a V2 small file
-   * @throws HpoAnnotationModelException if the number of fields in the head is not equal to {@link #NUMBER_OF_FIELDS} or if a column header is incorrect
    */
-  private void qcHeaderLine(String line) throws HpoAnnotationModelException {
+  private void qcHeaderLine(String line)  {
     String[] fields = line.split("\t");
     if (fields.length != NUMBER_OF_FIELDS) {
       String msg = String.format("Malformed header line\n" + line +
         "\nExpecting %d fields but got %d", NUMBER_OF_FIELDS, fields.length);
-      throw new HpoAnnotationModelException(msg);
+      throw new HpoAnnotQcException(msg);
     }
     for (int i = 0; i < fields.length; i++) {
       if (!fields[i].equals(expectedFields[i])) {
-        throw new HpoAnnotationModelException(String.format("Malformed field %d. Expected %s but got %s",
+        throw new HpoAnnotQcException(String.format("Malformed field %d. Expected %s but got %s",
           i, expectedFields[i], fields[i]));
       }
     }

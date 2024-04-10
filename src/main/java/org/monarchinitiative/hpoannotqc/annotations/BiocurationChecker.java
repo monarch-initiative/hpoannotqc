@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.exception.MalformedBiocurationEntryException;
-import org.monarchinitiative.hpoannotqc.exception.MalformedCitationException;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.MalformedBiocurationEntryError;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,17 +14,25 @@ public class BiocurationChecker {
     private static final Pattern biocurationPattern = Pattern.compile(biocurationRegex);
 
 
-    public static void check(String entrylist) {
-        if (entrylist == null || entrylist.isEmpty()) {
-            throw new MalformedCitationException("empty biocuration entry");
+    public static void checkEntry(HpoAnnotationEntry entry, String diseaseName) {
+        String entryList = entry.getBiocuration();
+        if (entryList == null || entryList.isEmpty()) {
+            entry.addError(new MalformedBiocurationEntryError(diseaseName,  "empty biocuration entry"));
         }
-        String[] fields = entrylist.split(";");
+        String[] fields = entryList.split(";");
         for (String f : fields) {
             Matcher matcher = biocurationPattern.matcher(f);
             if (!matcher.find()) {
-                throw new MalformedBiocurationEntryException(f);
+                String msg = String.format("Malformed biocuration entry: \"%s\".", f);
+                entry.addError(new MalformedBiocurationEntryError(diseaseName,  msg));
             }
         }
+    }
+
+
+    public static boolean check(String biocurationString) {
+        Matcher matcher = biocurationPattern.matcher(biocurationString);
+        return matcher.find();
     }
 
 

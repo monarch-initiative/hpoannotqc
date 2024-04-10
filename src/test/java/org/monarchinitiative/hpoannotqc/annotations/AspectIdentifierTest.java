@@ -10,7 +10,6 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoSubOntologyRootTermIds.CLINICAL_MODIFIER;
 
 public class AspectIdentifierTest {
 

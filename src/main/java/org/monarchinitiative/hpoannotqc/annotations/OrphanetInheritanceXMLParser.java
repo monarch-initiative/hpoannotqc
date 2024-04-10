@@ -218,7 +218,7 @@ public class OrphanetInheritanceXMLParser {
   }
 
   public boolean hasError() {
-    return this.errorlist.size() > 0;
+    return !this.errorlist.isEmpty();
   }
 
   public List<String> getErrorlist() {
