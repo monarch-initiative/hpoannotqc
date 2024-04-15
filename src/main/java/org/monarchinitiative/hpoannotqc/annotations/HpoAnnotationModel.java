@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -56,6 +57,14 @@ public class HpoAnnotationModel {
    */
   public String getBasename() {
     return basename;
+  }
+
+  public List<HpoaError> getErrorList() {
+    List<HpoaError> errors = new ArrayList<>();
+    for (var e:entryList){
+      errors.addAll(e.getErrorList());
+    }
+    return errors;
   }
 
   /**

@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.*;
 import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -8,17 +9,12 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoModeOfInheritanceTermIds.INHERITANCE_ROOT;
-import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoSubOntologyRootTermIds.*;
-import static org.monarchinitiative.phenol.annotations.constants.hpo.HpoClinicalModifierTermIds.CLINICAL_COURSE;
 import static org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.EXCLUDED;
 
 
@@ -92,6 +88,9 @@ public class HpoAnnotationEntry {
    */
   private final String biocuration;
 
+  /** List of any errors encountered while parsing this entry. */
+  private final List<HpoaError> errorList;
+
   private final static String[] expectedFields = {"#diseaseID",
     "diseaseName",
     "phenotypeID",
@@ -123,7 +122,8 @@ public class HpoAnnotationEntry {
   private static final Set<String> VALID_CITATION_PREFIXES = Set.of("PMID", "OMIM", "http", "https", "DECIPHER",
     "ORPHA", "ISBN", "ISBN-10", "ISBN-13");
 
-
+  /** Errors encountered in parsing the ORPHANET data --  this requires different handling than than inhouse annots */
+  //private final Set<String> orphaErrors;
 
 
   public String getDiseaseID() {
@@ -239,7 +239,37 @@ public class HpoAnnotationEntry {
     return biocuration;
   }
 
-
+  HpoAnnotationEntry(String disID,
+                     String diseaseName,
+                     TermId phenotypeId,
+                     String phenotypeName,
+                     String ageOfOnsetId,
+                     String ageOfOnsetName,
+                     String frequencyString,
+                     String sex,
+                     String negation,
+                     String modifier,
+                     String description,
+                     String publication,
+                     String evidenceCode,
+                     String biocuration,
+                     List<HpoaError> errors) {
+    this.diseaseID = disID;
+    this.diseaseName = diseaseName;
+    this.phenotypeId = phenotypeId;
+    this.phenotypeName = phenotypeName;
+    this.ageOfOnsetId = ageOfOnsetId;
+    this.ageOfOnsetName = ageOfOnsetName;
+    this.frequencyModifier = frequencyString;
+    this.sex = sex;
+    this.negation = negation;
+    this.modifier = modifier;
+    this.description = description;
+    this.publication = publication;
+    this.evidenceCode = evidenceCode;
+    this.biocuration = biocuration;
+    this.errorList = errors;
+  }
   /**
    * This constructor is package-private so that we can use it for merging in
    * {@link HpoAnnotationModel}
@@ -258,20 +288,21 @@ public class HpoAnnotationEntry {
                      String publication,
                      String evidenceCode,
                      String biocuration) {
-    this.diseaseID = disID;
-    this.diseaseName = diseaseName;
-    this.phenotypeId = phenotypeId;
-    this.phenotypeName = phenotypeName;
-    this.ageOfOnsetId = ageOfOnsetId;
-    this.ageOfOnsetName = ageOfOnsetName;
-    this.frequencyModifier = frequencyString;
-    this.sex = sex;
-    this.negation = negation;
-    this.modifier = modifier;
-    this.description = description;
-    this.publication = publication;
-    this.evidenceCode = evidenceCode;
-    this.biocuration = biocuration;
+    this(disID,
+            diseaseName,
+            phenotypeId,
+            phenotypeName,
+            ageOfOnsetId,
+            ageOfOnsetName,
+            frequencyString,
+            sex,
+            negation,
+            modifier,
+            description,
+            publication,
+            evidenceCode,
+            biocuration,
+            new ArrayList<>());
   }
 
 
@@ -286,6 +317,20 @@ public class HpoAnnotationEntry {
   public String getLineNoTabs() {
     return getRow().replaceAll("\\s+", " ");
   }
+
+
+  public void addError(HpoaError hpoae) {
+    errorList.add(hpoae);
+  }
+
+  public boolean hasError() {
+    return ! errorList.isEmpty();
+  }
+
+  public List<HpoaError> getErrorList() {
+    return errorList;
+  }
+
 
   /**
    * Return the row that will be used to write the V2 small files entries to a file. Note that
@@ -325,7 +370,7 @@ public class HpoAnnotationEntry {
   public static HpoAnnotationEntry fromLine(String line, Ontology ontology) throws HpoAnnotQcException {
     String[] A = line.split("\t");
     if (A.length != NUMBER_OF_FIELDS) {
-      throw new HpoAnnotationModelException(String.format("We were expecting %d expectedFields but got %d for line %s", NUMBER_OF_FIELDS, A.length, line));
+      throw new HpoAnnotQcException(String.format("We were expecting %d expectedFields but got %d for line %s", NUMBER_OF_FIELDS, A.length, line));
     }
     String diseaseID = A[0];
     String diseaseName = A[1];
@@ -357,76 +402,12 @@ public class HpoAnnotationEntry {
       evidenceCode,
       biocuration);
     // if the following method does not throw an Exception, we are good to go!
-    performQualityControl(entry, ontology);
+    performQualityControl(entry, ontology, diseaseName);
     return entry;
   }
 
 
-  /**
-   * Create an {@link HpoAnnotationEntry} object for a line in an HPO Annotation file. By default, we do not
-   * replace obsolete term ids here, this should be done with PhenoteFX in the original files.
-   * <p>
-   * We no longer want to allow obsolete TermIds from the small file.
-   * PhenoteFX is able to update these ids for all files and this should be done before each release.
-   *
-   * @param line     A line from an HPO Annotation file (small file)
-   * @param ontology reference to HPO ontology
-   * @return corresponding {@link HpoAnnotationEntry} object
 
-  @Deprecated(forRemoval = true)
-  public static Optional<HpoAnnotationEntry> fromLineReplaceObsoletePhenotypeData(String line, Ontology ontology) {
-    String[] A = line.split("\t");
-    if (A.length != NUMBER_OF_FIELDS) {
-      return Optional.empty();
-    }
-    String diseaseID = A[0];
-    String diseaseName = A[1];
-    TermId phenotypeId = TermId.of(A[2]);
-    String phenotypeName = A[3];
-    // replace if out of data
-    TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
-    if (currentPhenotypeId != null) {
-      String currentLabel = ontology.getTermLabel(currentPhenotypeId).orElseThrow();
-      phenotypeId = currentPhenotypeId;
-      phenotypeName = currentLabel;
-    }
-    String ageOfOnsetId = A[4];
-    String ageOfOnsetName = A[5];
-    String frequencyString = A[6];
-    String sex = A[7];
-    String negation = A[8];
-    String modifier = A[9];
-    String description = A[10];
-    String publication = A[11];
-    String evidenceCode = A[12];
-    String biocuration = A[13];
-
-    HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseID,
-      diseaseName,
-      phenotypeId,
-      phenotypeName,
-      ageOfOnsetId,
-      ageOfOnsetName,
-      frequencyString,
-      sex,
-      negation,
-      modifier,
-      description,
-      publication,
-      evidenceCode,
-      biocuration);
-    // if the following method does not throw an Exception, we are good to go!
-    try {
-      performQualityControl(entry, ontology);
-    } catch (HpoAnnotationModelException e) {
-      LOGGER.warn(e.getMessage());
-      return Optional.empty();
-    } catch (ObsoleteTermIdException e) {
-      return Optional.of(entry);
-    }
-    return Optional.of(entry);
-  }
-   */
 
   /**
    * If the frequency of an HPO term is listed in Orphanet as Excluded (0%), then we encode it as
@@ -441,7 +422,6 @@ public class HpoAnnotationEntry {
    * @param biocuration           A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
    * @param replaceObsoleteTermId if true, correct obsolete term ids and do not throw an exception.
    * @return corresponding HpoAnnotationEntry object
-   * @throws HpoAnnotationModelException if there is a Q/C problem with the data
    */
   public static HpoAnnotationEntry fromOrphaData(String diseaseID,
                                                  String diseaseName,
@@ -450,23 +430,27 @@ public class HpoAnnotationEntry {
                                                  TermId frequency,
                                                  Ontology ontology,
                                                  String biocuration,
-                                                 boolean replaceObsoleteTermId) throws HpoAnnotationModelException, ObsoleteTermIdException {
+                                                 boolean replaceObsoleteTermId) {
 
     if (hpoId == null) {
       throw new PhenolRuntimeException("Null String passed as hpoId for disease " + (diseaseID != null ? diseaseID : "n/a"));
     }
+    List<HpoaError> errorList = new ArrayList<>();
     TermId phenotypeId = TermId.of(hpoId);
     // replace the frequency TermId with its string equivalent
     // except if it is Excluded, which we treat as a negative annotation
     String frequencyString = frequency.equals(EXCLUDED.id()) ? EMPTY_STRING : frequency.getValue();
+    // Todo, discuss with Orphanet, probably retire the NOT
     String negationString = frequency.equals(EXCLUDED.id()) ? "NOT" : EMPTY_STRING;
 
     if (replaceObsoleteTermId) {
       TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
       if (currentPhenotypeId != null && !currentPhenotypeId.equals(phenotypeId)) {
         String newLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
-        LOGGER.warn("{}: Replacing obsolete TermId \"{}\" with current ID \"{}\" (and obsolete label {} with current label {})",
-          diseaseID, hpoId, currentPhenotypeId.getValue(), hpoLabel, newLabel);
+        String message = String.format("Replacing obsolete TermId \"%s\" with current ID \"%s\" (and obsolete label %s with current label %s)",
+          hpoId, currentPhenotypeId.getValue(), hpoLabel, newLabel);
+        HpoaError hpoae = new HpoaTermError(diseaseName, currentPhenotypeId, message);
+        errorList.add(hpoae);
         phenotypeId = currentPhenotypeId;
         hpoLabel = newLabel;
       }
@@ -474,8 +458,10 @@ public class HpoAnnotationEntry {
       if (currentPhenotypeId != null) { // we can only get new name if we got the new id!
         String currentPhenotypeLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
         if (!hpoLabel.equals(currentPhenotypeLabel)) {
-          LOGGER.warn("{}: Replacing obsolete Term label \"{}\" with current label \"{}\"",
-            diseaseID, hpoLabel, currentPhenotypeLabel);
+          String message = String.format("Replacing obsolete Term label \"%s\" with current label \"%s\"",
+                  hpoLabel, currentPhenotypeLabel);
+          errorList.add(new HpoaTermError(diseaseName, currentPhenotypeId, message));
+          LOGGER.warn("{}: {}", diseaseID, message);
           hpoLabel = currentPhenotypeLabel;
         }
       }
@@ -496,9 +482,10 @@ public class HpoAnnotationEntry {
       EMPTY_STRING,
       diseaseID,
       DEFAULT_ORPHA_EVIDENCE,
-      biocuration);
+      biocuration,
+      errorList);
     // if the following method does not throw an Exception, we are good to go!
-    performQualityControl(entry, ontology);
+    performQualityControl(entry, ontology, diseaseName);
 
     return entry;
   }
@@ -544,6 +531,8 @@ public class HpoAnnotationEntry {
   }
 
 
+
+
   // Q/C methods
 
   /**
@@ -553,48 +542,43 @@ public class HpoAnnotationEntry {
    *
    * @param entry    The {@link HpoAnnotationEntry} to be tested.
    * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
-   * @throws HpoAnnotationModelException if any parse error is encountered
    */
-  private static void performQualityControl(HpoAnnotationEntry entry, Ontology ontology) throws HpoAnnotationModelException, ObsoleteTermIdException {
-    checkDB(entry);
-    checkDiseaseName(entry.getDiseaseName());
-    checkPhenotypeFields(entry, ontology);
-    checkAgeOfOnsetFields(entry.getAgeOfOnsetId(), entry.getAgeOfOnsetLabel(), ontology);
-    checkFrequency(entry.getFrequencyModifier(), ontology);
-    checkSexEntry(entry.getSex());
-    checkNegation(entry.getNegation());
-    checkModifier(entry.getModifier(), ontology);
+  private static void performQualityControl(HpoAnnotationEntry entry, Ontology ontology, String diseaseName)  {
+    checkDB(entry, diseaseName);
+    checkPhenotypeFields(entry, ontology, diseaseName);
+    checkAgeOfOnsetFields(entry, ontology, diseaseName);
+    checkFrequency(entry, ontology, diseaseName);
+    checkSexEntry(entry, diseaseName);
+    checkNegation(entry, diseaseName);
+    checkModifier(entry, ontology, diseaseName);
     // description is free text, nothing to check
-    checkPublication(entry.getPublication());
-    checkEvidence(entry.getEvidenceCode());
-    checkBiocuration(entry.getBiocuration());
+    checkPublication(entry, diseaseName);
+    checkEvidence(entry, diseaseName);
+    BiocurationChecker.checkEntry(entry, diseaseName);
   }
 
   /**
    * Checks if the database string is in the set of valid strings ({@link #validDatabases})
    *
    * @param entry SMallFileEntry to be checked for a database String such as OMIM or ORPHA
-   * @throws HpoAnnotationModelException if an invalid database code is used
    */
-  private static void checkDB(HpoAnnotationEntry entry) throws HpoAnnotationModelException {
+  private static void checkDB(HpoAnnotationEntry entry, String diseaseName)  {
     try {
       String db = entry.getDatabasePrefix();
       if (!validDatabases.contains(db)) {
-        throw new HpoAnnotationModelException(String.format("Invalid database symbol: \"%s\"", db));
+        entry.addError( new HpoAnnotationModelError(diseaseName, String.format("Invalid database symbol: \"%s\"", db)) );
       }
     } catch (PhenolRuntimeException r) {
-      throw new HpoAnnotationModelException("Could not construct database: " + r.getMessage());
+      String message = "Could not construct database: " + r.getMessage();
+      entry.addError( new HpoAnnotationModelError(diseaseName, message));
+    }
+    String name = entry.getDiseaseName();
+    if (name == null || name.isEmpty()) {
+      entry.addError( new HpoAnnotationModelError(diseaseName,"Missing disease name"));
     }
   }
 
-  /**
-   * Check that this disease name is present.
-   */
-  private static void checkDiseaseName(String name) throws HpoAnnotationModelException {
-    if (name == null || name.isEmpty()) {
-      throw new HpoAnnotationModelException("Missing disease name");
-    }
-  }
+
 
 
   /**
@@ -602,48 +586,60 @@ public class HpoAnnotationEntry {
    *
    * @param entry the {@link HpoAnnotationEntry} to be checked
    */
-  private static void checkPhenotypeFields(HpoAnnotationEntry entry, Ontology ontology)
-          throws HpoAnnotationModelException, ObsoleteTermIdException {
+  private static void checkPhenotypeFields(HpoAnnotationEntry entry, Ontology ontology, String diseaseName) {
     TermId id = entry.getPhenotypeId();
     String termLabel = entry.getPhenotypeLabel();
     if (id == null) {
-      throw new HpoAnnotationModelException("Phenotype id was for \"" + termLabel + "\"");
+      entry.addError(new HpoAnnotationModelError(diseaseName,  "Phenotype id was null"));
     } else if (!ontology.containsTerm(id)) {
-      throw new HpoAnnotationModelException(String.format("Could not find HPO term id (\"%s\") for \"%s\"", id, termLabel));
+      String message = String.format("Could not find HPO term id (\"%s\") for \"%s\"", id, termLabel);
+      entry.addError(new HpoAnnotationModelError(diseaseName,  message));
     }
     TermId primaryId = ontology.getPrimaryTermId(id);
+    if (primaryId == null) {
+      String msg = String.format("no primary id found for \"%s\"", id.getValue());
+      entry.addError(new  ObsoleteTermIdError(diseaseName,id, id, msg));
+      return;
+    }
     Optional<String> opt = ontology.getTermLabel(primaryId);
-    String primaryLabel = opt.orElseThrow();
+    if (opt.isEmpty()) {
+      entry.addError(new  ObsoleteTermIdError(diseaseName,id, primaryId, "no label found"));
+    }
+    String primaryLabel = opt.orElse("n/a");
     if (!primaryId.equals(id)) {
-      throw new ObsoleteTermIdException(id, primaryId, primaryLabel);
+      entry.addError(new  ObsoleteTermIdError(diseaseName,id, primaryId, primaryLabel));
     }
     // if we get here, the TermId of the HPO Term was OK
     // now check that the label corresponds to the TermId
     if (termLabel == null || termLabel.isEmpty()) {
-      throw new HpoAnnotationModelException("Missing HPO term label for id=" + id.getValue());
+      String message = String.format("Missing HPO term label for id=%s", id.getValue());
+      entry.addError(new HpoAnnotationModelError(diseaseName,  message));
     }
     if (!primaryLabel.equals(termLabel)) {
       String errmsg = String.format("Wrong term label %s instead of %s for %s",
         termLabel, primaryLabel, primaryId.getValue());
       LOGGER.error(errmsg);
-      throw new HpoAnnotationModelException(errmsg);
+      entry.addError(new HpoAnnotationModelError(diseaseName,  errmsg));
     }
   }
 
 
-  private static void checkAgeOfOnsetFields(String id, String termLabel, Ontology ontology)
-          throws HpoAnnotationModelException, ObsoleteTermIdException {
-    if (id == null || id.isEmpty()) {
+  private static void checkAgeOfOnsetFields(HpoAnnotationEntry entry, Ontology ontology, String diseaseName) {
+    String onsetId = entry.getAgeOfOnsetId();
+    String onsetLabel = entry.getAgeOfOnsetLabel();
+    if (onsetId == null || onsetId.isEmpty()) {
       // valid, onset is not required, but let's check that there is not a stray label
-      if (termLabel != null && !termLabel.isEmpty()) {
-        throw new HpoAnnotationModelException("Onset ID empty but Onset label present");
+      if (onsetLabel != null && !onsetLabel.isEmpty()) {
+        entry.addError(new HpoAnnotationModelError(diseaseName,  "Onset ID empty but Onset label present"));
       } else {
         return; // OK!
       }
     }
-    TermId tid = TermId.of(id);
+    TermId tid = TermId.of(onsetId);
     if (!ontology.containsTerm(tid)) {
-      throw new HpoAnnotationModelException(String.format("Onset ID not found: \"%s\"", id));
+      String msg = String.format("Onset ID not found: \"%s\"", tid.getValue());
+      entry.addError(new HpoAnnotationModelError(diseaseName,  msg));
+
     }
     TermId primaryId = ontology.getPrimaryTermId(tid);
     // note we do not expect an error getting the label here, and we use orElse to simplify
@@ -651,29 +647,31 @@ public class HpoAnnotationEntry {
     // we also check the label further below
     String hpoLabel = ontology.getTermLabel(primaryId).orElseThrow();
     if (!primaryId.equals(tid)) {
-      throw new ObsoleteTermIdException(tid, primaryId, hpoLabel);
+      entry.addError(new ObsoleteTermIdError(diseaseName, tid, primaryId, hpoLabel));
     }
     if (! isValidInheritanceTerm(tid, ontology)) {
-      throw new HpoAnnotationModelException("Invalid ID in onset ID field: \"" + tid + "\"");
+      String msg = "Invalid ID in onset ID field: \"" + tid + "\"";
+      entry.addError(new HpoAnnotationModelError(diseaseName,  msg));
     }
     // if we get here, the Age of onset id was OK
     // now let's check the label
-    if (termLabel == null || termLabel.isEmpty()) {
-      throw new HpoAnnotationModelException("Missing HPO term label for onset id=" + id);
+    if (onsetLabel == null || onsetLabel.isEmpty()) {
+      entry.addError(new HpoAnnotationModelError(diseaseName,"Missing HPO term label for onset id=" + onsetId));
     }
-    if (!hpoLabel.equals(termLabel)) {
+    if (!hpoLabel.equals(onsetLabel)) {
       String errmsg = String.format("Wrong onset term label %s instead of %s for %s",
-        termLabel,
+        onsetId,
         hpoLabel,
         primaryId.getValue());
       LOGGER.error(errmsg);
-      throw new HpoAnnotationModelException(errmsg);
+      entry.addError(new HpoAnnotationModelError(diseaseName,  errmsg));
     }
   }
 
-  private static void checkEvidence(String evi) throws HpoAnnotationModelException {
+  private static void checkEvidence(HpoAnnotationEntry entry, String diseaseName)  {
+    String evi = entry.getEvidenceCode();
     if (!EVIDENCE_CODES.contains(evi)) {
-      throw new HpoAnnotationModelException(String.format("Invalid evidence code: \"%s\"", evi));
+      entry.addError(new HpoAnnotationModelError(diseaseName, String.format("Invalid evidence code: \"%s\"", evi)));
     }
   }
 
@@ -682,7 +680,8 @@ public class HpoAnnotationEntry {
    * There are 3 correct formats for frequency. For example, 4/7, 32% (or 32.6%), or
    * an HPO term from the frequency subontology.
    */
-  private static void checkFrequency(String freq, Ontology ontology) throws HpoAnnotationModelException {
+  private static void checkFrequency(HpoAnnotationEntry entry, Ontology ontology, String diseaseName)  {
+    String freq = entry.getFrequencyModifier();
     // it is ok not to have frequency data
     if (freq == null || freq.isEmpty()) {
       return;
@@ -692,7 +691,7 @@ public class HpoAnnotationEntry {
       int numerator = Integer.parseInt(matcher.group("numerator"));
       int denominator = Integer.parseInt(matcher.group("denominator"));
       if (numerator > denominator || denominator == 0) {
-        throw new HpoAnnotationModelException(String.format("Malformed frequency term: \"%s\"", freq));
+        entry.addError(new HpoAnnotationModelError(diseaseName, String.format("Malformed frequency term: \"%s\"", freq)));
       } else {
         return;
       }
@@ -701,28 +700,28 @@ public class HpoAnnotationEntry {
     if(matcher.matches()){
       float percent = Float.parseFloat(matcher.group("value"));
       if (percent > 100f || percent <= 0f) {
-        throw new HpoAnnotationModelException(String.format("Malformed frequency term: \"%s\"", freq));
+        entry.addError(new HpoAnnotationModelError(diseaseName,String.format("Malformed frequency term: \"%s\"", freq)));
       } else {
         return;
       }
     }
     if(!freq.matches("HP:\\d{7}")) {
       // cannot be a valid frequency term
-      throw new HpoAnnotationModelException(String.format("Malformed frequency term: \"%s\"", freq));
+      entry.addError(new HpoAnnotationModelError(diseaseName,String.format("Malformed frequency term: \"%s\"", freq)));
     }
     // if we get here and we can validate that the frequency term comes from the right subontology,
     // then the item is valid
     TermId id;
     try {
       id = TermId.of(freq);
-    } catch (PhenolRuntimeException pre) {
-      throw new HpoAnnotationModelException(String.format("Could not parse frequency term id: \"%s\"", freq));
-    }
     if (!isValidFrequencyTerm(id, ontology)) {
       LOGGER.error(String.format("Could not get label for %s", id.getValue()));
-      throw new HpoAnnotationModelException(String.format("Usage of incorrect term for frequency: %s [%s]",
+      entry.addError(new HpoAnnotationModelError(diseaseName,String.format("Usage of incorrect term for frequency: %s [%s]",
         ontology.getTermLabel(id).orElseThrow(),
-        id.getValue()));
+        id.getValue())));
+    }
+    } catch (PhenolRuntimeException pre) {
+      entry.addError(new HpoAnnotationModelError(diseaseName,String.format("Could not parse frequency term id: \"%s\"", freq)));
     }
   }
 
@@ -730,27 +729,28 @@ public class HpoAnnotationEntry {
    * The sex entry is used for annotations that are specific to either males or females. It is usually
    * empty. If present, it must be either MALE or FEMALE (for now we do no enforce capitalization).
    *
-   * @param sex THe sex-specificity entry
-   * @throws HpoAnnotationModelException if the sex-specifity field is malformed.
    */
-  private static void checkSexEntry(String sex) throws HpoAnnotationModelException {
+  private static void checkSexEntry(HpoAnnotationEntry entry, String diseaseName)  {
+    String sex = entry.getSex();
     if (sex == null || sex.isEmpty()) return; // OK,  not required
     if (!sex.equalsIgnoreCase("MALE") && !sex.equalsIgnoreCase("FEMALE"))
-      throw new HpoAnnotationModelException(String.format("Malformed sex entry: \"%s\"", sex));
+      entry.addError(new HpoaSkippableError(diseaseName,String.format("Malformed sex entry: \"%s\"", sex)));
   }
 
   /**
    * The negation string can be null or empty but if it is present it must be "NOT"
-   *
-   * @param negation Must be either the empty/null String or "NOT"
+   * <p>
+   * negation Must be either the empty/null String or "NOT"
    */
-  private static void checkNegation(String negation) throws HpoAnnotationModelException {
+  private static void checkNegation(HpoAnnotationEntry entry, String diseaseName)  {
+    String negation = entry.getNegation();
     if (negation != null && !negation.isEmpty() && !negation.equals("NOT")) {
-      throw new HpoAnnotationModelException(String.format("Malformed negation entry: \"%s\"", negation));
+      entry.addError(new HpoaSkippableError(diseaseName,String.format("Malformed negation entry: \"%s\"", negation)));
     }
   }
 
-  private static void checkModifier(String modifierString, Ontology ontology) throws HpoAnnotationModelException {
+  private static void checkModifier(HpoAnnotationEntry entry,  Ontology ontology, String diseaseName)  {
+    String modifierString = entry.getModifier();
     if (modifierString == null || modifierString.isEmpty()) return; // OK,  not required
     // If something is present in this field, it must be in the form of
     // HP:0000001;HP:0000002;...
@@ -764,56 +764,61 @@ public class HpoAnnotationEntry {
                   ontology.getTermLabel(tid).orElse("n/a"),
                   tid.getValue());
           LOGGER.error(errmsg);
-          throw new HpoAnnotationModelException(errmsg);
+          entry.addError(new HpoaSkippableError(diseaseName,errmsg));
         }
       } catch (PhenolRuntimeException e) {
-        throw new HpoAnnotationModelException(String.format("Malformed modifier term id: \"%s\"", a));
+        entry.addError(new HpoAnnotationModelError(diseaseName,String.format("Malformed modifier term id: \"%s\"", a)));
       }
     }
   }
 
 
-  private static void checkPublication(String pub) throws HpoAnnotationModelException {
+  private static void checkPublication(HpoAnnotationEntry entry, String diseaseName)  {
+    String pub = entry.getPublication();
     if (pub == null || pub.isEmpty()) {
-      throw new MalformedCitationException("Empty citation string");
+      entry.addError(new  MalformedCitationError(diseaseName,"Empty citation string"));
     }
     int index = pub.indexOf(":");
     if (index <= 0) { // there needs to be a colon in the middle of the string
-      throw new MalformedCitationException(String.format("Malformed citation id (not a CURIE): \"%s\"", pub));
+      entry.addError(new  MalformedCitationError(diseaseName, String.format("Malformed citation id (not a CURIE): \"%s\"", pub)));
     }
     if (pub.contains("::")) { // should only be one colon separating prefix and id
-      throw new MalformedCitationException(String.format("Malformed citation id (double colon): \"%s\"", pub));
+      entry.addError(new  MalformedCitationError(diseaseName, String.format("Malformed citation id (double colon): \"%s\"", pub)));
     }
     if (pub.contains(" ")) {
-      throw new MalformedCitationException(String.format("Malformed citation id (contains space): \"%s\"", pub));
+      entry.addError(new  MalformedCitationError(diseaseName, String.format("Malformed citation id (contains space): \"%s\"", pub)));
     }
     String prefix = pub.substring(0, index);
     if (!VALID_CITATION_PREFIXES.contains(prefix)) {
-      throw new MalformedCitationException(String.format("Did not recognize publication prefix: \"%s\" ", pub));
+      entry.addError(new  MalformedCitationError(diseaseName, String.format("Did not recognize publication prefix: \"%s\" ", pub)));
     }
     int len = pub.length();
     if (len - index < 2) {
-      throw new MalformedCitationException(String.format("Malformed publication string: \"%s\" ", pub));
+      entry.addError(new  MalformedCitationError(diseaseName, String.format("Malformed publication string: \"%s\" ", pub)));
     }
   }
 
-  private static void checkBiocuration(String entrylist) throws HpoAnnotationModelException {
-    BiocurationChecker.check(entrylist);
-  }
+
 
   /**
    * Todo -- consider refactor to not create new instance for each entry
-   * @param tid
-   * @param ontology
-   * @return
-   * @throws HpoAnnotationModelException
+   * @param tid TermId of an HPO term
+   * @param ontology  HPO
+   * @return String such as "P" representing the aspect
    */
-  private String getAspect(TermId tid, Ontology ontology) throws HpoAnnotationModelException {
+  private String getAspect(TermId tid, Ontology ontology)  {
     final AspectIdentifier aspectIdentifier = new AspectIdentifier(ontology);
     return aspectIdentifier.getAspect(tid);
   }
 
-  public String toBigFileLine(Ontology ontology) throws HpoAnnotationModelException {
+
+  /**
+   * Following quality control of an entry that has been ingested from a small file, and potentially merged,
+   * we export the corresponding line for the big file.
+   * @param ontology A reference to the HPO ontology
+   * @return A line for the phenotype.hpoa file
+   */
+  public String toBigFileLine(Ontology ontology) {
     String[] elems = {
       getDiseaseID(), //DB_Object_ID
       getDiseaseName(), // DB_Name
@@ -878,4 +883,7 @@ public class HpoAnnotationEntry {
   }
 
 
+  public boolean hasSkipabbleError() {
+    return errorList.stream().anyMatch(HpoaError::skippable);
+  }
 }

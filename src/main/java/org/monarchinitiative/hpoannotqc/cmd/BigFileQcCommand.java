@@ -2,8 +2,7 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 
 import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotationModelException;
-import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermIdException;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -88,11 +87,11 @@ public class BigFileQcCommand implements Callable<Integer> {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith("#")) continue; // header
-                try {
-                    HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, hpo);
+                HpoAnnotationEntry entry = HpoAnnotationEntry.fromLine(line, hpo);
+                List<HpoaError> errors = entry.getErrorList();
+                if (errors.isEmpty()) {
                     validLine++;
-                } catch (HpoAnnotationModelException | ObsoleteTermIdException ham) {
-                    System.err.printf("%s: %s\n", smallFile.getName(), ham.getMessage());
+                } else {
                     invalidLine++;
                 }
             }

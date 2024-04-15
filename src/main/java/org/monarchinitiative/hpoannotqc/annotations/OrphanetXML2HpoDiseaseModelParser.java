@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 
-import org.monarchinitiative.hpoannotqc.exception.*;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -55,7 +55,7 @@ import static org.monarchinitiative.hpoannotqc.annotations.hpo.HpoFrequencyTermI
  *
  * @author Peter Robinson
  */
-public class OrphanetXML2HpoDiseaseModelParser extends HpoDiseaseAnnotationParserAbstract {
+public class OrphanetXML2HpoDiseaseModelParser {
     private final static Logger LOGGER = LoggerFactory.getLogger(OrphanetXML2HpoDiseaseModelParser.class);
     /**
      * Path to {@code en_product4_HPO.xml} file.
@@ -139,8 +139,12 @@ public class OrphanetXML2HpoDiseaseModelParser extends HpoDiseaseAnnotationParse
             .collect(Collectors.toCollection(HashSet::new));
 
 
+    private final List<HpoaError> errorList;
+
+
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto, boolean tolerant) {
         super();
+        errorList = new ArrayList<>();
         orphanetXmlPath = xmlpath;
         this.ontology = onto;
         this.replaceObsoleteTermId = tolerant;
@@ -302,19 +306,6 @@ public class OrphanetXML2HpoDiseaseModelParser extends HpoDiseaseAnnotationParse
                             currentHpoTermLabel = null;
                             currentFrequencyTermId = null;// reset
                             currentAnnotationEntryList.add(entry);
-                        } catch (ObsoleteTermIdException obsE) {
-                            obsoleteTermIdSet.add(obsE.getMessage());
-                        } catch (HpoTermException htE) {
-                            String msg = String.format("%s: %s", htE.getMessage(), getDiseaseRef(currentDiseaseName, currentOrphanumber));
-                            problematicHpoTerms.add(msg);
-                        } catch (MalformedCitationException obsE) {
-                            malformedCitationMap.putIfAbsent(obsE.getMessage(), 0);
-                            malformedCitationMap.merge(obsE.getMessage(), 1, Integer::sum);
-                        } catch (MalformedBiocurationEntryException biocE) {
-                            malformedBiocurationIdMap.putIfAbsent(biocE.getBiocurationId(), 0);
-                            malformedBiocurationIdMap.merge(biocE.getBiocurationId(), 1, Integer::sum);
-                        } catch (HpoAnnotQcException e) {
-                            parseErrors.add(String.format(e.getMessage()));
                         } catch (Exception e) {
                             LOGGER.error(String.format("Parse error for %s [ORPHA:%s] HPOid: %s (%s)",
                                     currentDiseaseName != null ? currentDiseaseName : "n/a",
@@ -339,6 +330,11 @@ public class OrphanetXML2HpoDiseaseModelParser extends HpoDiseaseAnnotationParse
                         inDisorderType = false;
                         currentOrphanumber = null;
                         currentDiseaseName = null;
+                        if (currentAnnotationEntryList.stream().anyMatch(HpoAnnotationEntry::hasError)) {
+                            for (var entry: currentAnnotationEntryList) {
+                                errorList.addAll(entry.getErrorList());
+                            }
+                        }
                         currentAnnotationEntryList.clear();
                 }
             }
@@ -376,35 +372,17 @@ public class OrphanetXML2HpoDiseaseModelParser extends HpoDiseaseAnnotationParse
     }
 
     public boolean hasError() {
-        return ! (parseErrors.isEmpty()
-                && malformedBiocurationIdMap.isEmpty()
-                && malformedCitationMap.isEmpty()
-                && obsoleteTermIdSet.isEmpty());
+        return ! errorList.isEmpty();
     }
 
     public List<String> errorList() {
-        final String INDENTATION = "\t";
         if (! hasError()) {
             return List.of();
         }
         List<String> errors = new ArrayList<>();
-        errors.add("Orphanet annotations:");
-        for (var e: malformedBiocurationIdMap.entrySet()) {
-            errors.add(String.format("%sMalformed biocuration id: \"%s\": n=%d.",
-                    INDENTATION, e.getKey(), e.getValue()));
-        }
-        for (var s: obsoleteTermIdSet) {
-            errors.add(INDENTATION + s);
-        }
-        for (var e: malformedCitationMap.entrySet()) {
-            errors.add(String.format("%s\"%s\": n=%d.",
-                    INDENTATION, e.getKey(), e.getValue()));
-        }
-        for (var s: problematicHpoTerms) {
-            errors.add(INDENTATION + s);
-        }
-        for (var s: parseErrors) {
-            errors.add(INDENTATION + s);
+        errors.add("Orphanet annotations:\n");
+        for (var err : errorList) {
+            errors.add(err.getMessageWithDisease());
         }
         return errors;
     }

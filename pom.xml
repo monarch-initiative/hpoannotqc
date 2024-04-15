@@ -5,7 +5,7 @@
 
     <groupId>monarchinitiative</groupId>
     <artifactId>HpoAnnotQC</artifactId>
-    <version>1.9.21</version>
+    <version>1.10.1</version>
     <name>hpoannotqc</name>
     <packaging>jar</packaging>
 
