@@ -807,8 +807,8 @@ public class HpoAnnotationEntry {
    * @return String such as "P" representing the aspect
    */
   private String getAspect(TermId tid, Ontology ontology)  {
-    final AspectIdentifier aspectIdentifier = new AspectIdentifier(ontology);
-    return aspectIdentifier.getAspect(tid);
+    final AspectHelper aspectHelper = new AspectHelper(ontology);
+    return aspectHelper.parse(tid).toString();
   }
 
 
