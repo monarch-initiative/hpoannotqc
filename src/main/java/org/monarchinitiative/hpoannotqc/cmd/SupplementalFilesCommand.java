@@ -78,7 +78,7 @@ public class SupplementalFilesCommand implements Callable<Integer> {
             writer.newLine();
             hpoOntology.getTerms().stream().distinct().forEach(term -> {
                 final TermId phenotype = term.id();
-                Set<TermId> children = hpoOntology.graph().getChildren(phenotype);
+                Collection<TermId> children = hpoOntology.graph().extendWithDescendants(phenotype, true);
                 final Optional<String> phenotypeLabel = hpoOntology.getTermLabel(phenotype);
                 if(phenotypeLabel.isEmpty()) {
                     throw new RuntimeException(String.format("Can not find label for phenotype id %s.", phenotype));
