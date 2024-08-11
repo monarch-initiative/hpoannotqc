@@ -26,6 +26,7 @@ public class Main implements Callable<Integer> {
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
+                addSubcommand("bigfile", new BigFileGenerateCommand()).
                 addSubcommand("qc", new BigFileQcCommand()).
                 addSubcommand("supplemental-files", new SupplementalFilesCommand());
         cline.setToggleBooleanFlags(false);

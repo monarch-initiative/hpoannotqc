@@ -14,5 +14,6 @@ public enum HpoaErrorCategory {
     MALFORMED_TERM_ID,
     OBSOLETE_TERM_LABEL,
     OBSOLETE_TERM_ID,
+    OMIT_FILE_ERROR,
     TERM_ID_NOT_IN_ONTOLOGY
 }

@@ -31,4 +31,9 @@ public class HpoaMetadataError implements HpoaError {
         String err = String.format("Malformed negation entry: \"%s\"", negation);
         return new HpoaMetadataError(err, HpoaErrorCategory.MALFORMED_NEGATION);
     }
+
+    public static HpoaError omitEntriesError(String msg) {
+        String err = String.format("Error reading omitted entries: \"%s\"", msg);
+        return new HpoaMetadataError(err, HpoaErrorCategory.OMIT_FILE_ERROR);
+    }
 }

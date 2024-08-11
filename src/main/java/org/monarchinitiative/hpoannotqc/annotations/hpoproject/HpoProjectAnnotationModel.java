@@ -72,6 +72,10 @@ public class HpoProjectAnnotationModel {
     return ! errorList.isEmpty();
   }
 
+  public List<HpoaError> getErrorList() {
+    return errorList;
+  }
+
   /**
    * The constructor creates an immutable copy of the original list of {@link HpoAnnotationEntry} objects
    * provided by the parser

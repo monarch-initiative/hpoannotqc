@@ -1,7 +1,11 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationFileIngestor;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationFileIngestor;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +60,21 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         LOGGER.info("annotation directory = {}", hpoAnnotationFileDirectory);
         // 1. Get list of small files
         File hpoaSmallFileDir = new File(hpoAnnotationFileDirectory);
-        HpoAnnotationFileIngestor annotationFileIngestor =
-                new HpoAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
-        List<HpoAnnotationModel> models = annotationFileIngestor.getHpoaFileEntries();
+        HpoProjectAnnotationFileIngestor annotationFileIngestor =
+                new HpoProjectAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
+        List<HpoProjectAnnotationModel> models = annotationFileIngestor.getHpoaFileEntries();
+        List<HpoaError> errorList = annotationFileIngestor.getErrors();
+        if (errorList.isEmpty()) {
+            String msg = String.format("No errors found while parsing %d small files.",
+                    models.size());
+            LOGGER.info(msg);
+        } else {
+            // We want to be error free before generating the big file
+            for (HpoaError hpoaError : errorList) {
+                System.out.println(hpoaError.getCategoryAndError());
+            }
+            throw new PhenolRuntimeException("Found errors in small file ingest");
+        }
         // List<HpoaError> errors = models.;
         return 0;
     }

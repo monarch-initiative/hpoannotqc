@@ -10,4 +10,8 @@ public interface HpoaError {
         return false;
     }
 
+    default String getCategoryAndError() {
+        return String.format("%s: %s", category().name(), getMessage());
+    }
+
 }
