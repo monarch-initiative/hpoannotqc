@@ -2,13 +2,8 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.monarchinitiative.hpoannotqc.annotations.AspectIdentifierTest;
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
 import org.monarchinitiative.hpoannotqc.annotations.TestBase;
-import org.monarchinitiative.phenol.io.OntologyLoader;
-import org.monarchinitiative.phenol.ontology.data.Ontology;
-
-import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 

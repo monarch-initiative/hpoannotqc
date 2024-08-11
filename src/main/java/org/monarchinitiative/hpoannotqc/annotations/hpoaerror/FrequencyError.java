@@ -1,7 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoaerror;
 
-import org.monarchinitiative.phenol.ontology.data.TermId;
-
 public class FrequencyError implements HpoaError  {
 
 

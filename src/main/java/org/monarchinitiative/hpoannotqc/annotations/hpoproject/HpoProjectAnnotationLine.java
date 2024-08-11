@@ -7,7 +7,6 @@ import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
 import org.monarchinitiative.hpoannotqc.annotations.TermValidationResult;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.TermIdError;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.Term;

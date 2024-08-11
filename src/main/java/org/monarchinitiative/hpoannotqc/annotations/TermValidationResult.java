@@ -3,8 +3,6 @@ package org.monarchinitiative.hpoannotqc.annotations;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.ontology.data.Term;
 
-import java.util.List;
-
 public class TermValidationResult {
 
 

@@ -91,7 +91,7 @@ public final class DownloadCommand implements Callable<Integer> {
      * @param dir Directory to which to download files.
      */
     private void createDownloadDir(String dir) {
-        LOGGER.trace("creating download dir (and deleting previous version) at "+ dir);
+        LOGGER.trace("creating download dir (and deleting previous version) at {}.", dir);
         File d =new File(dir);
         if (d.exists()) {
             d.delete();

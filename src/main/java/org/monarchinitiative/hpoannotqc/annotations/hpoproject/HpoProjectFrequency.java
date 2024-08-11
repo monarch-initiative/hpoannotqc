@@ -1,11 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
-import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.FrequencyError;
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAnnotationModelError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
