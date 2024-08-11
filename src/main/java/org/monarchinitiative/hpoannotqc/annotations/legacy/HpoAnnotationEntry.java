@@ -1,6 +1,8 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.legacy;
 
 
+import org.monarchinitiative.hpoannotqc.annotations.AspectIdentifier;
+import org.monarchinitiative.hpoannotqc.annotations.DiseaseDatabase;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.*;
 import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;

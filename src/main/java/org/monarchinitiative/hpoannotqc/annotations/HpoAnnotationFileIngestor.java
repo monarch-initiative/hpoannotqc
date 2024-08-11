@@ -1,5 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationFileParser;
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -53,7 +55,7 @@ public class HpoAnnotationFileIngestor {
 
   private final List<String> errors = new ArrayList<>();
 
-  List<HpoAnnotationModel> getHpoaFileEntries() {
+  public List<HpoAnnotationModel> getHpoaFileEntries() {
     return hpoaFileList;
   }
 

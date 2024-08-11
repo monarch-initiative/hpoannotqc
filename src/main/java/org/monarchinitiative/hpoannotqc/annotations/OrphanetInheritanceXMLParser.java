@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;

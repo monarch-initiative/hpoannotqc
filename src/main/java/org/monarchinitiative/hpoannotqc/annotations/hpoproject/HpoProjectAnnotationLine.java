@@ -11,7 +11,6 @@ import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.Term;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +19,10 @@ import java.util.*;
 /**
  * Items of this class represent one line of an annotation file for one disease as curated
  * by the HPO project
+ *
  * @author Peter Robinson
  */
-public record HpoProjectAnnotationLine (
+public record HpoProjectAnnotationLine(
         Term diseaseTerm,
         Term phenotypeTerm,
         Term onsetTerm,
@@ -63,13 +63,11 @@ public record HpoProjectAnnotationLine (
     private static final int NUMBER_OF_FIELDS = 14;
 
 
-
-
     private String checkModifiers(String modifier, TermValidator validator) {
-        String [] modifiers = modifier.split(";");
+        String[] modifiers = modifier.split(";");
         for (String m : modifiers) {
             TermValidationResult tvalid = validator.checkModifier(m);
-            if (! tvalid.isValid()) {
+            if (!tvalid.isValid()) {
                 errorList.add(tvalid.getError());
             }
         }
@@ -82,7 +80,7 @@ public record HpoProjectAnnotationLine (
         } else if (sex.equals("MALE") || sex.equals("FEMALE")) {
             return Optional.of(sex);
         } else {
-           return Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -99,9 +97,9 @@ public record HpoProjectAnnotationLine (
     }
 
 
-    public static HpoProjectAnnotationLine fromLine(String line,
-                                                    TermValidator validator,
-                                                    Ontology ontology) {
+    public static AnnotationEntryI fromLine(String line,
+                                            TermValidator validator,
+                                            Ontology ontology) {
         String[] A = line.split("\t");
         if (A.length != NUMBER_OF_FIELDS) {
             // Non-recoverable error
@@ -137,10 +135,10 @@ public record HpoProjectAnnotationLine (
             errorList.add(HpoaMetadataError.malformedNegation(A[NEGATION]));
         }
         String modString = A[MODIFIER];
-        if (! modString.isEmpty()) {
+        if (!modString.isEmpty()) {
             // fine to nbe empty, but if something is present it must be valid
             tvalid = validator.checkModifier(modString);
-            if (! tvalid.isValid()) {
+            if (!tvalid.isValid()) {
                 errorList.add(tvalid.getError());
             }
         }
@@ -148,8 +146,8 @@ public record HpoProjectAnnotationLine (
         String publication = A[PUBLICATION] != null ? A[PUBLICATION] : EMPTY_STRING;
         String evidenceCode = A[12];
         Biocuration biocuration = new HpoProjectBiocuration(A[BIOCURATION]);
-        if (! biocuration.errors().isEmpty()) {
-            biocuration.errors().forEach(error -> errorList.add(error));
+        if (!biocuration.errors().isEmpty()) {
+            biocuration.errors().forEach(errorList::add);
         }
         return new HpoProjectAnnotationLine(disease,
                 phenotype,
@@ -164,8 +162,6 @@ public record HpoProjectAnnotationLine (
                 biocuration,
                 errorList);
     }
-
-
 
 
     @Override
@@ -189,8 +185,8 @@ public record HpoProjectAnnotationLine (
     }
 
     @Override
-    public TermId getPhenotypeId() {
-        return phenotypeTerm.id();
+    public String getPhenotypeId() {
+        return phenotypeTerm.id().getValue();
     }
 
     @Override
@@ -200,12 +196,12 @@ public record HpoProjectAnnotationLine (
 
     @Override
     public String getAgeOfOnsetId() {
-        return onsetTerm.id().getValue();
+        return onsetTerm == null ? EMPTY_STRING : onsetTerm.id().getValue();
     }
 
     @Override
     public String getAgeOfOnsetLabel() {
-        return onsetTerm.getName();
+        return onsetTerm == null ? EMPTY_STRING : onsetTerm.getName();
     }
 
     @Override
@@ -220,12 +216,12 @@ public record HpoProjectAnnotationLine (
 
     @Override
     public String getSex() {
-        return sex;
+        return sex == null ? EMPTY_STRING : sex;
     }
 
     @Override
     public String getNegation() {
-        return negation;
+        return negation == null ? EMPTY_STRING : negation;
     }
 
     @Override
@@ -255,6 +251,26 @@ public record HpoProjectAnnotationLine (
 
     @Override
     public boolean hasError() {
-        return ! errorList.isEmpty();
+        return !errorList.isEmpty();
+    }
+
+    @Override
+    public String getTsvLine() {
+        List<String> items = List.of(
+                getDiseaseID(),
+                getDiseaseName(),
+                getPhenotypeId(),
+                getPhenotypeLabel(),
+                getAgeOfOnsetId(),
+                getAgeOfOnsetLabel(),
+                getFrequencyModifier(),
+                getSex(),
+                getNegation(),
+                getModifier(),
+                getDescription(),
+                getPublication(),
+                getEvidenceCode(),
+                getBiocuration());
+        return String.join("\t", items);
     }
 }

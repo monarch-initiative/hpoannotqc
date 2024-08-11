@@ -2,6 +2,8 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;

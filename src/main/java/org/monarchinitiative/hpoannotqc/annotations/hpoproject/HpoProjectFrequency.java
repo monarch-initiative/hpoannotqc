@@ -8,6 +8,7 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +24,12 @@ public class HpoProjectFrequency implements FrequencyModifier {
 
     private String freq;
     private HpoaError error;
+
+    private HpoProjectFrequency() {
+        freq = EMPTY_STRING;
+        error = null;
+    }
+
 
     private HpoProjectFrequency(String frequencyField, Ontology ontology) {
         if (frequencyField == null || frequencyField.isEmpty()) {
@@ -99,4 +106,12 @@ public class HpoProjectFrequency implements FrequencyModifier {
         return Optional.ofNullable(error);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(freq);
+    }
+
+    public static FrequencyModifier empty() {
+        return new HpoProjectFrequency();
+    }
 }

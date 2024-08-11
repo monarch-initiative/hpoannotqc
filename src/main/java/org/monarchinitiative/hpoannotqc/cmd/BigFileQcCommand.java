@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 
-import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
+import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;

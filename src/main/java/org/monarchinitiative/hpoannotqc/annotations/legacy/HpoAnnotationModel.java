@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.legacy;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency;

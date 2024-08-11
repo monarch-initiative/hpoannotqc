@@ -6,6 +6,7 @@ import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.MalformedBiocurati
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,4 +52,8 @@ public class HpoProjectBiocuration implements Biocuration {
         return errorList;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(biocuration);
+    }
 }
