@@ -598,16 +598,16 @@ public class HpoAnnotationEntry {
     TermId primaryId = ontology.getPrimaryTermId(id);
     if (primaryId == null) {
       String msg = String.format("no primary id found for \"%s\"", id.getValue());
-      entry.addError(new  ObsoleteTermIdError(diseaseName,id, id, msg));
+      //entry.addError(new TermIdError(diseaseName,id, id, msg));
       return;
     }
     Optional<String> opt = ontology.getTermLabel(primaryId);
     if (opt.isEmpty()) {
-      entry.addError(new  ObsoleteTermIdError(diseaseName,id, primaryId, "no label found"));
+      //entry.addError(new TermIdError(diseaseName,id, primaryId, "no label found"));
     }
     String primaryLabel = opt.orElse("n/a");
     if (!primaryId.equals(id)) {
-      entry.addError(new  ObsoleteTermIdError(diseaseName,id, primaryId, primaryLabel));
+     // entry.addError(new TermIdError(diseaseName,id, primaryId, primaryLabel));
     }
     // if we get here, the TermId of the HPO Term was OK
     // now check that the label corresponds to the TermId
@@ -647,7 +647,7 @@ public class HpoAnnotationEntry {
     // we also check the label further below
     String hpoLabel = ontology.getTermLabel(primaryId).orElseThrow();
     if (!primaryId.equals(tid)) {
-      entry.addError(new ObsoleteTermIdError(diseaseName, tid, primaryId, hpoLabel));
+      entry.addError(TermIdError.idDoesNotMatchPrimary(tid, primaryId));
     }
     if (! isValidInheritanceTerm(tid, ontology)) {
       String msg = "Invalid ID in onset ID field: \"" + tid + "\"";
@@ -808,7 +808,7 @@ public class HpoAnnotationEntry {
    */
   private String getAspect(TermId tid, Ontology ontology)  {
     final AspectIdentifier aspectIdentifier = new AspectIdentifier(ontology);
-    return aspectIdentifier.getAspect(tid);
+    return aspectIdentifier.getAspectLetter(tid);
   }
 
 

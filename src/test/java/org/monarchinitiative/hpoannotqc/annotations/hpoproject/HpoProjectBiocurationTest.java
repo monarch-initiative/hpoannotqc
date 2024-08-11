@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.monarchinitiative.hpoannotqc.Biocuration;
-import org.monarchinitiative.hpoannotqc.annotations.TestBase;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorCategory;
 
@@ -12,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HpoProjectBiocurationTest extends TestBase {
+public class HpoProjectBiocurationTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"HPO:probinson[2021-06-21]",
@@ -67,6 +66,21 @@ public class HpoProjectBiocurationTest extends TestBase {
         String errString = String.format("Malformed biocuration entry: \"%s\"", curationString);
         assertEquals(errString, error.getMessage());
     }
+
+    @Test
+    public void onlyDate() {
+        String curationString = "[2024-04-01]";
+        Biocuration bc = new HpoProjectBiocuration(curationString);
+        List<HpoaError> errors = bc.errors();
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
+        HpoaError error = errors.get(0);
+        assertEquals(HpoaErrorCategory.MALFORMED_BIOCURATION_ENTRY, error.category());
+        String errString = String.format("Malformed biocuration entry: \"%s\"", curationString);
+        assertEquals(errString, error.getMessage());
+    }
+
+
 
 
 

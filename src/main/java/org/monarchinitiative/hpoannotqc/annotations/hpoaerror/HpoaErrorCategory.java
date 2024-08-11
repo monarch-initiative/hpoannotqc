@@ -1,7 +1,14 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoaerror;
 
 public enum HpoaErrorCategory {
+    INVALID_FRACTION,
+    INVALID_FREQUENCY_TERM,
+    INVALID_SUBONTOLOGY,
+    INVALID_PERCENTAGE,
     MALFORMED_BIOCURATION_ENTRY,
+    MALFORMED_FREQUENCY_STRING,
+    MALFORMED_TERM_ID,
     OBSOLETE_TERM_LABEL,
-    OBSOLETE_TERM_ID
+    OBSOLETE_TERM_ID,
+    TERM_ID_NOT_IN_ONTOLOGY
 }
