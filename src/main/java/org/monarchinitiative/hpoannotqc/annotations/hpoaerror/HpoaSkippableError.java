@@ -14,12 +14,12 @@ public class HpoaSkippableError implements HpoaError {
     }
 
 
-
-
     @Override
-    public String getDisease() {
-        return disease;
+    public HpoaErrorCategory category() {
+        return null;
     }
+
+
 
     @Override
     public String getMessage() {

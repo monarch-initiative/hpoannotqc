@@ -2,7 +2,6 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.PhenotypeDotHpoaFileWriter;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
-import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,26 +45,19 @@ public class BigFileCommand implements Callable<Integer> {
 
     /** Command to create the{@code phenotype.hpoa} file from the various small HPO Annotation files. */
     public BigFileCommand() {
-        if (hpJsonPath == null) {
-            hpJsonPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.json");
-        }
-        File f = new File(hpJsonPath);
-        if (! f.isFile()) {
-            String err = String.format("Could not find hp.jon file at \"%s\".", hpJsonPath);
-            System.err.println(err);
-            throw new PhenolRuntimeException(err);
-        }
+
     }
 
     @Override
     public Integer call()  {
+        Ontology ontology = HpoAnnotQcUtil.getHpo(hpJsonPath);
         // Path to the downloaded Orphanet XML file
         String orphanetXMLpath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product4.xml" );
         //  Path to the dowloaded Orphanet inheritance file, en_product9_ages.xml.
         String orphanetInheritanceXmlPath = String.format("%s%s%s",downloadDirectory,File.separator, "en_product9_ages.xml" );
-        Ontology ontology = OntologyLoader.loadOntology(new File(hpJsonPath));
+
         // path to the omit-list.txt file, which is located with the small files in the same directory
-        LOGGER.info("annotation directory = "+hpoAnnotationFileDirectory);
+        LOGGER.info("annotation directory = {}", hpoAnnotationFileDirectory);
         try {
             PhenotypeDotHpoaFileWriter pwriter = PhenotypeDotHpoaFileWriter.factory(ontology,
                     hpoAnnotationFileDirectory,
@@ -78,7 +70,7 @@ public class BigFileCommand implements Callable<Integer> {
         } catch (IOException e) {
             LOGGER.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
         } catch (PhenolRuntimeException pre) {
-            LOGGER.error("Caught phenol runtime exception: "+ pre.getMessage());
+            LOGGER.error("Caught phenol runtime exception: {}", pre.getMessage());
         }
         return 0;
     }

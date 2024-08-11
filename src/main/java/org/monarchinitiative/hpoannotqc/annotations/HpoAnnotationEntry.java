@@ -333,7 +333,7 @@ public class HpoAnnotationEntry {
 
 
   /**
-   * Return the row that will be used to write the V2 small files entries to a file. Note that
+   * Return the row that will be used to write the small files entries to a file. Note that
    * we replace null strings (which are a signal for no data available) with the empty string
    * to avoid the string "null" being written.
    *

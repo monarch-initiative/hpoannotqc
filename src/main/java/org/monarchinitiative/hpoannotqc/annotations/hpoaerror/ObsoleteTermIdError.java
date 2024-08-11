@@ -19,9 +19,10 @@ public class ObsoleteTermIdError implements HpoaError {
 
 
   @Override
-  public String getDisease() {
-    return diseaseLabel;
+  public HpoaErrorCategory category() {
+    return HpoaErrorCategory.OBSOLETE_TERM_ID;
   }
+
 
   @Override
   public String getMessage() {

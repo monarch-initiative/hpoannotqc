@@ -17,14 +17,14 @@ public class BiocurationChecker {
     public static void checkEntry(HpoAnnotationEntry entry, String diseaseName) {
         String entryList = entry.getBiocuration();
         if (entryList == null || entryList.isEmpty()) {
-            entry.addError(new MalformedBiocurationEntryError(diseaseName,  "empty biocuration entry"));
+            entry.addError(new MalformedBiocurationEntryError( "empty biocuration entry"));
         }
         String[] fields = entryList.split(";");
         for (String f : fields) {
             Matcher matcher = biocurationPattern.matcher(f);
             if (!matcher.find()) {
                 String msg = String.format("Malformed biocuration entry: \"%s\".", f);
-                entry.addError(new MalformedBiocurationEntryError(diseaseName,  msg));
+                entry.addError(new MalformedBiocurationEntryError( msg));
             }
         }
     }

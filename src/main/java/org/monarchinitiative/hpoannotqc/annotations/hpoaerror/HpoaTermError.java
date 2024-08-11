@@ -22,9 +22,10 @@ public class HpoaTermError implements HpoaError {
     }
 
 
-
     @Override
-    public String getDisease() {
-        return this.disease;
+    public HpoaErrorCategory category() {
+        return null;
     }
+
+
 }

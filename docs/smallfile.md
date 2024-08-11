@@ -1,11 +1,11 @@
-HPO Annotation Small Files
-==========================
+# Small Files
+
 
 Each annotated disease in the HPO corpus is represented in a single so-called small file.
 
 
-Small file format
-~~~~~~~~~~~~~~~~~
+## Small file format
+
 The small files have tab-separated value format, i.e., TSVs. Please note that
 the format is different from our main release file (the "big file", phenotype.hpoa),
 which is created by combining data from the small files. There are 14 fields.

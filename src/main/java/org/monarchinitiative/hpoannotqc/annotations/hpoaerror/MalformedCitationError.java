@@ -11,9 +11,11 @@ public class MalformedCitationError implements HpoaError {
     }
 
     @Override
-    public String getDisease() {
-        return disease;
+    public HpoaErrorCategory category() {
+        return null;
     }
+
+
 
     @Override
     public String getMessage() {

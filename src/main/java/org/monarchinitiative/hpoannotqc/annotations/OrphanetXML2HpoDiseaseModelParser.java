@@ -178,23 +178,18 @@ public class OrphanetXML2HpoDiseaseModelParser {
      * @return corresponding HPO Frequency TermId
      */
     private TermId string2frequency(String fstring) throws PhenolRuntimeException {
-        switch (fstring) {
-            case "28405":
-                return OBLIGATE;
-            case "28412":
-                return VERY_FREQUENT;
-            case "28419":
-                return FREQUENT;
-            case "28426":
-                return OCCASIONAL;
-            case "28433":
-                return VERY_RARE;
-            case "28440":
-                return EXCLUDED;
-        }
-        // the following should never happen, actually!
-        throw new PhenolRuntimeException("[ERROR] Could not find TermId for Orphanet frequency {}. " +
-                "This indicates a serious and unexpected error, please report to the developers" + fstring);
+        return switch (fstring) {
+            case "28405" -> OBLIGATE;
+            case "28412" -> VERY_FREQUENT;
+            case "28419" -> FREQUENT;
+            case "28426" -> OCCASIONAL;
+            case "28433" -> VERY_RARE;
+            case "28440" -> EXCLUDED;
+            default ->
+                // the following should never happen, actually!
+                    throw new PhenolRuntimeException("[ERROR] Could not find TermId for Orphanet frequency {}. " +
+                            "This indicates a serious and unexpected error, please report to the developers" + fstring);
+        };
     }
 
 
@@ -382,7 +377,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         List<String> errors = new ArrayList<>();
         errors.add("Orphanet annotations:\n");
         for (var err : errorList) {
-            errors.add(err.getMessageWithDisease());
+            errors.add(err.getMessage());
         }
         return errors;
     }

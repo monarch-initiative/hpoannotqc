@@ -227,8 +227,11 @@ public class PhenotypeDotHpoaFileWriter {
    */
   public void outputBigFile() throws IOException {
     String description = String.format("#description: \"HPO annotations for rare diseases [%d: OMIM; %d: DECIPHER; %d ORPHANET]\"", n_omim, n_decipher, n_orphanet);
-    if (n_unknown > 0)
+    List<String> errorList = new ArrayList<>();
+    if (n_unknown > 0) {
       description = String.format("%s -- warning: %d entries could not be assigned to a database", description, n_unknown);
+      errorList.add(description);
+    }
     BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
     writer.write(description + "\n");
     writer.write(String.format("#version: %s\n", getDate()));
@@ -238,7 +241,7 @@ public class PhenotypeDotHpoaFileWriter {
       if(!ontologyMetaInfo.get("release").equals(getDate())){
         String err = String.format("Mismatching release dates-now %s, ontology-release: %s.",
                 getDate(), ontologyMetaInfo.get("release"));
-        System.err.println(err);
+        errorList.add(err);
         LOGGER.warn(err);
       }
       writer.write(String.format("#hpo-version: %s\n", ontologyMetaInfo.get("data-version")));
@@ -254,22 +257,23 @@ public class PhenotypeDotHpoaFileWriter {
           writer.write(bigfileLine + "\n");
         } else {
           String err = String.format("[ERROR] with entry (%s) skipping line: %s",
-                  entry.getErrorList().get(0).getMessageWithDisease(),
+                  entry.getErrorList().get(0).getMessage(),
                   entry.getLineNoTabs());
           System.err.println(err);
           LOGGER.error(err);
+          errorList.add(err);
         }
         n++;
       }
     }
-    LOGGER.info("[INFO] We output a total of " + n + " big file lines from internal HPO Annotation files");
+    LOGGER.info("[INFO] We will output a total of {} big file lines from internal HPO Annotation files", n);
     int m = 0;
     for (HpoAnnotationModel smallFile : this.orphanetSmallFileList) {
       List<HpoAnnotationEntry> entryList = smallFile.getEntryList();
       for (HpoAnnotationEntry entry : entryList) {
         if (entry.hasError()) {
           String err = String.format("[ERROR] with entry (%s): %s",
-                  entry.getErrorList().get(0).getMessageWithDisease(),
+                  entry.getErrorList().get(0).getMessage(),
                   entry.getLineNoTabs());
 
           if (entry.hasSkipabbleError()){
@@ -277,6 +281,7 @@ public class PhenotypeDotHpoaFileWriter {
             continue;
           } else {
             LOGGER.warn(err);
+            errorList.add(err);
           }
         }
         try {
@@ -289,12 +294,21 @@ public class PhenotypeDotHpoaFileWriter {
         m++;
       }
     }
-    LOGGER.info("We output a total of " + m + " big file lines from the Orphanet Annotation files");
-    LOGGER.info("Total output lines was " + (n + m));
+    LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files", m);
+    LOGGER.info("Total output lines was {}", (n + m));
     for (String line : this.parseResultAndErrorSummaryLines) {
       LOGGER.warn(line);
     }
     writer.close();
+    if (!errorList.isEmpty()) {
+      System.out.println("**********************");
+      System.out.println("**********************");
+      System.out.println("**********************");
+      System.out.println("ERRORS");
+      for (String line : errorList) {
+        System.out.println(line);
+      }
+    }
   }
 
   /**
