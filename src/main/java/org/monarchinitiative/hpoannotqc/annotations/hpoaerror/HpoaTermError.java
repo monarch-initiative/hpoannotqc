@@ -28,6 +28,13 @@ public class HpoaTermError implements HpoaError {
         return new HpoaTermError(err, HpoaErrorCategory.INVALID_FREQUENCY_TERM);
     }
 
+    public static HpoaError emptyDiseaseName(String termIdString) {
+        String err = String.format("Disease with id %s had empty or null disease name",
+                termIdString);
+        return new HpoaTermError(err, HpoaErrorCategory.EMPTY_DISEASE_NAME);
+    }
+
+
 
     @Override
     public String getMessage() {
@@ -37,7 +44,7 @@ public class HpoaTermError implements HpoaError {
 
     @Override
     public HpoaErrorCategory category() {
-        return null;
+        return category;
     }
 
 

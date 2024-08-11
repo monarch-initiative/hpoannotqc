@@ -1,6 +1,9 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.ontology.data.TermId;
+
+import java.util.List;
 
 public interface AnnotationEntryI {
 
@@ -79,4 +82,8 @@ public interface AnnotationEntryI {
      * @return a string representing the biocuration history.
      */
     public String getBiocuration();
+
+    public List<HpoaError> getErrors();
+
+    public boolean hasError();
 }

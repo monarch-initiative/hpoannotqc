@@ -13,12 +13,12 @@ public class FrequencyError implements HpoaError  {
 
     @Override
     public HpoaErrorCategory category() {
-        return null;
+        return category;
     }
 
     @Override
     public String getMessage() {
-        return "";
+        return message;
     }
 
     public static FrequencyError invalidFraction(String freqField) {

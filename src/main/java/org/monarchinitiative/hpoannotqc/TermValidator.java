@@ -9,6 +9,7 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 
 
 import java.util.Optional;
+import java.util.Set;
 
 public class TermValidator {
 
@@ -17,6 +18,12 @@ public class TermValidator {
      * Identifier of the HPO term "Onset", which is the root of all of the onset terms.
      */
     private final TermId ONSET_ROOT_ID = TermId.of("HP:0003674");
+    /**
+     * Identifier of the HPO term "Clinical modifier HP:0012823",
+     */
+    private final TermId MODIFIER_ROOT_ID = TermId.of("HP:0012823");
+
+    private final Set<String> VALID_DB_PREFIXES = Set.of("OMIM", "DECIPHER", "ORPHA");
 
     public TermValidator(Ontology hpoOntology) {
         this.ontology = hpoOntology;
@@ -33,6 +40,28 @@ public class TermValidator {
         } else {
             return false;
         }
+    }
+
+
+    public TermValidationResult validateDiseaseTerm(String termId, String termName) {
+        String [] fields = termId.split(":");
+        if (fields.length != 2) {
+            return TermValidationResult.of(TermIdError.malformed(termId));
+        }
+        String candidatePrefix = fields[0];
+        if (!VALID_DB_PREFIXES.contains(candidatePrefix)) {
+            return TermValidationResult.of(TermIdError.malformed(candidatePrefix));
+        }
+        if (termName == null || termName.isEmpty()) {
+            return TermValidationResult.of(HpoaTermError.emptyDiseaseName(termId));
+        }
+        Term validDbTerm = Term.builder(TermId.of(termId)).name(termName).build();
+        return TermValidationResult.of(validDbTerm);
+    }
+
+    public boolean isValidCurie(String candidateCurie) {
+        String [] fields = candidateCurie.split(":");
+        return fields.length == 2;
     }
 
     public TermValidationResult checkValidTerm(String hpoId,
@@ -77,6 +106,10 @@ public class TermValidator {
      *
      */
     public TermValidationResult checkOnsetTerm(String onsetId, String onsetName) {
+        if (onsetId == null || onsetId.isEmpty()) {
+            Term inexistentOnsetTerm = null;
+            return TermValidationResult.of(inexistentOnsetTerm);
+        }
         TermValidationResult checkResult = checkValidTerm(onsetId, onsetName);
         if (!checkResult.isValid()) {
             return checkResult;
@@ -88,6 +121,29 @@ public class TermValidator {
             } else {
                 // if we get here, we have a valid HPO term that is not in the Onset subhierarchy
                 return TermValidationResult.of(HpoaTermError.invalidFrequencyTerm(candidateTerm));
+            }
+        }
+    }
+
+    public TermValidationResult checkModifier(String hpoModifierId) {
+        if ( isMalformedCurie(hpoModifierId, "HP")) {
+            return TermValidationResult.of(TermIdError.malformed(hpoModifierId));
+        }
+        TermId termId = TermId.of(hpoModifierId);
+        if (!ontology.containsTermId(termId)) {
+            return TermValidationResult.of(TermIdError.termIdNotInOntology(termId));
+        } else {
+            Optional<Term> termOpt = ontology.termForTermId(termId);
+            if (termOpt.isEmpty()) {
+                return TermValidationResult.of(TermIdError.termIdNotInOntology(termId));
+            }
+            Term candidateTerm = termOpt.get();
+            if (ontology.graph().isDescendantOf(candidateTerm.id(), MODIFIER_ROOT_ID) ||
+                    candidateTerm.id().equals(ONSET_ROOT_ID)) {
+                return TermValidationResult.of(candidateTerm);
+            } else {
+                // if we get here, we have a valid HPO term that is not in the Onset subhierarchy
+                return TermValidationResult.of(TermIdError.invalidModifierId(termId.getValue()));
             }
         }
     }

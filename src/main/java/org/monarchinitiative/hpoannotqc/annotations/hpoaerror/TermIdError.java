@@ -50,6 +50,11 @@ public class TermIdError implements HpoaError {
     return new TermIdError(err, HpoaErrorCategory.MALFORMED_TERM_ID);
   }
 
+  public static HpoaError invalidModifierId(String termIdString) {
+        String err = String.format("Term id \"%s\" is not in Clinical modifier subontology.", termIdString);
+      return new TermIdError(err, HpoaErrorCategory.INVALID_MODIFIER_TERMID);
+  }
+
 
 }
 

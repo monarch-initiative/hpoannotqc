@@ -3,6 +3,8 @@ package org.monarchinitiative.hpoannotqc.annotations;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.ontology.data.Term;
 
+import java.util.List;
+
 public class TermValidationResult {
 
 
@@ -35,6 +37,15 @@ public class TermValidationResult {
 
     public Term getTerm() {
         return term;
+    }
+
+    public Term validate(List<HpoaError> errors) {
+        if (isValid()) {
+            return getTerm();
+        } else {
+            errors.add(getError());
+            return null;
+        }
     }
 
 }
