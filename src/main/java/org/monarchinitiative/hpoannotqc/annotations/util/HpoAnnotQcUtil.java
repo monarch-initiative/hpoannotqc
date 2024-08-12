@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.util;
 
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;

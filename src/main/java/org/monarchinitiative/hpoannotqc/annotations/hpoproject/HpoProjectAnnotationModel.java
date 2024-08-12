@@ -1,13 +1,13 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * This class represents one disease-entity annotation consisting usually of multiple annotations lines, and using
@@ -25,9 +25,9 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
    */
   private final String basename;
   /**
-   * List of {@link AnnotationEntryI} objects representing the original lines of the small file
+   * List of {@link AnnotationEntry} objects representing the original lines of the small file
    */
-  private List<AnnotationEntryI> entryList;
+  private List<AnnotationEntry> entryList;
   private final List<HpoaError> errorList;
 
 
@@ -74,14 +74,14 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
   }
 
   /**
-   * The constructor creates an immutable copy of the original list of {@link AnnotationEntryI} objects
+   * The constructor creates an immutable copy of the original list of {@link AnnotationEntry} objects
    * provided by the parser
    *
    * @param name    Name of the "small file"
-   * @param entries List of {@link AnnotationEntryI} objects -- one per line of the small file.
+   * @param entries List of {@link AnnotationEntry} objects -- one per line of the small file.
    */
   public HpoProjectAnnotationModel(String name,
-                                   List<AnnotationEntryI> entries,
+                                   List<AnnotationEntry> entries,
                                    List<HpoaError> errors,
                                    HpoAnnotationMerger merger) {
     basename = name;
@@ -93,14 +93,22 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
     annotationMerger = merger;
   }
 
-  public Stream<HpoaError> getErrors() {
-    return errorList.stream();
+  @Override
+  public List<HpoaError> getErrors() {
+    return errorList;
+  }
+
+  @Override
+  public String getTitle() {
+    if (entryList.isEmpty()) return "n/a"; // should never happen
+    AnnotationEntry entry = entryList.get(0);
+    return String.format("%s - %s (%s)", getBasename(), entry.getDiseaseName(), entry.getDiseaseID());
   }
 
   /** Seems a stale function? */
   @Deprecated()
-  public HpoProjectAnnotationModel mergeWithInheritanceAnnotations(Collection<AnnotationEntryI> inherit) {
-    List<AnnotationEntryI> builder = new ArrayList<>();
+  public HpoProjectAnnotationModel mergeWithInheritanceAnnotations(Collection<AnnotationEntry> inherit) {
+    List<AnnotationEntry> builder = new ArrayList<>();
       builder.addAll(this.entryList);
       builder.addAll(inherit);
     return new HpoProjectAnnotationModel(this.basename, List.copyOf(builder),
@@ -133,10 +141,22 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
 
 
   /**
-   * @return the {@link AnnotationEntryI} objects -- one per line of the small file.
+   * @return the {@link AnnotationEntry} objects -- one per line of the small file.
    */
-  public List<AnnotationEntryI> getEntryList() {
+  public List<AnnotationEntry> getEntryList() {
     return entryList;
+  }
+
+
+
+  @Override
+  public List<HpoaErrorReport> getHpoaErrorReportList() {
+    if (errorList.isEmpty()) return List.of();
+    List<HpoaErrorReport> reports = new ArrayList<>();
+    for (HpoaError error : errorList) {
+      reports.add(new HpoaErrorReport(getTitle(), error));
+    }
+    return reports;
   }
 
   public int getNumberOfAnnotations() {
@@ -151,20 +171,20 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
    * @param entrylist List of annotation lines to the same HPO term that we will merge
    * @return a merged entry
    */
-  private AnnotationEntryI mergeEntries(List<AnnotationEntryI> entrylist) {
+  private AnnotationEntry mergeEntries(List<AnnotationEntry> entrylist) {
       return annotationMerger.mergeEntries(entrylist);
   }
 
 
   public HpoProjectAnnotationModel getMergedModel() {
-    Map<String, List<AnnotationEntryI>> termId2AnnotEntryListMap = new HashMap<>();
-    for (AnnotationEntryI entry : this.entryList) {
+    Map<String, List<AnnotationEntry>> termId2AnnotEntryListMap = new HashMap<>();
+    for (AnnotationEntry entry : this.entryList) {
       termId2AnnotEntryListMap.putIfAbsent(entry.getPhenotypeId(), new ArrayList<>());
       termId2AnnotEntryListMap.get(entry.getPhenotypeId()).add(entry);
     }
-    List<AnnotationEntryI> builder = new ArrayList<>();
+    List<AnnotationEntry> builder = new ArrayList<>();
     for (String tid : termId2AnnotEntryListMap.keySet()) {
-      List<AnnotationEntryI> entrylist = termId2AnnotEntryListMap.get(tid);
+      List<AnnotationEntry> entrylist = termId2AnnotEntryListMap.get(tid);
       if (entrylist.size() == 1) { // No duplicate entries for this TermId
         builder.add(entrylist.get(0));
       } else {
@@ -178,7 +198,7 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
           mergable = false;
         }
         if (mergable) {
-          AnnotationEntryI merged = mergeEntries(entrylist);
+          AnnotationEntry merged = mergeEntries(entrylist);
           builder.add(merged);
         } else {
           builder.addAll(entrylist); // cannot merge, add each separately
@@ -198,14 +218,14 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
    * @return The diseaseID of this model
    */
   public TermId getDiseaseId() {
-    AnnotationEntryI entry = entryList.iterator().next();
+    AnnotationEntry entry = entryList.iterator().next();
     return TermId.of(entry.getDiseaseID());
   }
 
   public String getDiseaseName() {
     return entryList
       .stream()
-      .map(AnnotationEntryI::getDiseaseName)
+      .map(AnnotationEntry::getDiseaseName)
       .findAny()
       .orElse("n/a");
   }

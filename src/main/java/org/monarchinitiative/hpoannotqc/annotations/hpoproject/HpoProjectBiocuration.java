@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
-import org.monarchinitiative.hpoannotqc.Biocuration;
+import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.MalformedBiocurationEntryError;
 

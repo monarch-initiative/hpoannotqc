@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotQcUtil;
-import org.monarchinitiative.phenol.base.PhenolRuntimeException;
+import org.monarchinitiative.hpoannotqc.annotations.util.HpoAnnotQcUtil;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

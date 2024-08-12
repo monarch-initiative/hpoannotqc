@@ -1,6 +1,5 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.util;
 
-import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

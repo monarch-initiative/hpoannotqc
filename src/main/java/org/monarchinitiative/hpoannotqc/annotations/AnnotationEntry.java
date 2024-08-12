@@ -1,12 +1,12 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.monarchinitiative.hpoannotqc.annotations.util.AspectIdentifier;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.List;
 
-public interface AnnotationEntryI {
+public interface AnnotationEntry {
 
     String getDiseaseID();
 

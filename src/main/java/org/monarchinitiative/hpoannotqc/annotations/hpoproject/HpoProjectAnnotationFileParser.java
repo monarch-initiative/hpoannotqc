@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAnnotationModelError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
@@ -85,14 +85,14 @@ public class HpoProjectAnnotationFileParser {
    */
   public HpoProjectAnnotationModel parse(File hpoAnnotationFile, boolean faultTolerant) {
     String basename = hpoAnnotationFile.getName();
-    List<AnnotationEntryI> entryList = new ArrayList<>();
+    List<AnnotationEntry> entryList = new ArrayList<>();
     List<HpoaError> errorList = new ArrayList<>();
     try {
       BufferedReader br = new BufferedReader(new FileReader(hpoAnnotationFile));
       String line = br.readLine();
       qcHeaderLine(line);
       while ((line = br.readLine()) != null) {
-          AnnotationEntryI entry = HpoProjectAnnotationLine.fromLine(line, termValidator, ontology);
+          AnnotationEntry entry = HpoProjectAnnotationLine.fromLine(line, termValidator, ontology);
           if (entry.hasError()) {
               errorList.addAll(entry.getErrors());
           } else {
@@ -148,9 +148,7 @@ public class HpoProjectAnnotationFileParser {
   }
 
 
-  public List<HpoaError> errorList() {
-    return diseaseAnnotationModels.stream().flatMap(HpoProjectAnnotationModel::getErrors).toList();
-  }
+
 
 
 }

@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
-import org.monarchinitiative.hpoannotqc.Biocuration;
+import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 
 import java.text.SimpleDateFormat;

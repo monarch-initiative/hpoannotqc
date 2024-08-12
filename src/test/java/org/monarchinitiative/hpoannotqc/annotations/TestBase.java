@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectFrequencyTest;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 

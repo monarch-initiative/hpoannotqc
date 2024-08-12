@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.TermIdError;
@@ -40,7 +40,7 @@ public class OrphanetInheritanceXMLParser {
    * Key: an Orphanet disease id; value: an array list of HpoAnnotations, one for each inheritance mode
    * that is associated with the disease.
    */
-  private final Map<TermId, Collection<AnnotationEntryI>> disease2inheritanceMultimap;
+  private final Map<TermId, Collection<AnnotationEntry>> disease2inheritanceMultimap;
   // XML Parsing
   private static final String DISORDER = "Disorder";
   private static final String ORPHA_NUMBER = "OrphaNumber";
@@ -91,7 +91,7 @@ public class OrphanetInheritanceXMLParser {
   }
 
 
-  public Map<TermId, Collection<AnnotationEntryI>> getDisease2inheritanceMultimap() {
+  public Map<TermId, Collection<AnnotationEntry>> getDisease2inheritanceMultimap() {
     return disease2inheritanceMultimap;
   }
 
@@ -155,7 +155,7 @@ public class OrphanetInheritanceXMLParser {
               continue;
             }
             String hpoLabel = ontology.getTermLabel(hpoInheritanceId).orElseThrow();
-            AnnotationEntryI entry = OrphaAnnotationLine.fromOrphaInheritanceData(disId.getValue(),
+            AnnotationEntry entry = OrphaAnnotationLine.fromOrphaInheritanceData(disId.getValue(),
               currentDiseaseName,
               hpoInheritanceId.getValue(),
               hpoLabel,

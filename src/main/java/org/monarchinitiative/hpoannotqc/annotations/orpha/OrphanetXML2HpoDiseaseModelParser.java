@@ -1,8 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
@@ -223,7 +223,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         TermId currentFrequencyTermId = null;
         String currentOrphanumber = null;
         String currentDiseaseName = null;
-        List<AnnotationEntryI> currentAnnotationEntryList = new ArrayList<>();
+        List<AnnotationEntry> currentAnnotationEntryList = new ArrayList<>();
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
@@ -298,7 +298,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case HPO_DISORDER_ASSOCIATION:
                         try {
-                            AnnotationEntryI entry = OrphaAnnotationLine.fromOrphaData(
+                            AnnotationEntry entry = OrphaAnnotationLine.fromOrphaData(
                                     String.format("ORPHA:%s", currentOrphanumber),
                                     currentDiseaseName,
                                     currentHpoId,

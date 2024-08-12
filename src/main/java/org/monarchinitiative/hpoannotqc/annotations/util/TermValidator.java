@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc;
+package org.monarchinitiative.hpoannotqc.annotations.util;
 
 import org.monarchinitiative.hpoannotqc.annotations.TermValidationResult;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;

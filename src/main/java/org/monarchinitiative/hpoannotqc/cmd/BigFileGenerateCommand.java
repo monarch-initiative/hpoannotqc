@@ -1,9 +1,12 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.util.AspectIdentifier;
+import org.monarchinitiative.hpoannotqc.annotations.util.HpoAnnotQcUtil;
+import org.monarchinitiative.hpoannotqc.annotations.util.HpoBigfileUtil;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -72,15 +75,15 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         HpoProjectAnnotationFileIngestor annotationFileIngestor =
                 new HpoProjectAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
         List<HpoProjectAnnotationModel> models = annotationFileIngestor.getHpoaFileEntries();
-        List<HpoaError> errorList = annotationFileIngestor.getErrors();
+        List<HpoaErrorReport> errorList = annotationFileIngestor.getErrors();
         if (errorList.isEmpty()) {
             String msg = String.format("No errors found while parsing %d small files.",
                     models.size());
             LOGGER.info(msg);
         } else {
             // We want to be error free before generating the big file
-            for (HpoaError hpoaError : errorList) {
-                System.out.println(hpoaError.getCategoryAndError());
+            for (HpoaErrorReport report : errorList) {
+                System.out.printf("%s: %s\n", report.title(), report.error().getCategoryAndError());
             }
             throw new PhenolRuntimeException("Found errors in HPO project small file ingest");
         }
@@ -101,8 +104,8 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         int n = 0;
 
         for (AnnotationModel smallFile : hpoModels) {
-            List<AnnotationEntryI> entryList = smallFile.getEntryList();
-            for (AnnotationEntryI entry : entryList) {
+            List<AnnotationEntry> entryList = smallFile.getEntryList();
+            for (AnnotationEntry entry : entryList) {
                 if (! entry.hasError()) {
                     String bigfileLine = entry.toBigFileLine(aspectIdentifier);
                     writer.write(bigfileLine + "\n");
@@ -125,8 +128,8 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                                        List<AnnotationModel> orphaModels) throws IOException {
         int m = 0;
         for (AnnotationModel smallFile : orphaModels) {
-            List<AnnotationEntryI> entryList = smallFile.getEntryList();
-            for (AnnotationEntryI entry : entryList) {
+            List<AnnotationEntry> entryList = smallFile.getEntryList();
+            for (AnnotationEntry entry : entryList) {
                 if (entry.hasError()) {
                     String err = String.format("[ERROR] with entry (%s): %s",
                             entry.getDiseaseName(),

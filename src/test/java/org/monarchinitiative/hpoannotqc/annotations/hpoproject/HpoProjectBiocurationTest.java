@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.monarchinitiative.hpoannotqc.Biocuration;
+import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorCategory;
 
@@ -26,7 +26,13 @@ public class HpoProjectBiocurationTest {
     }
 
 
-
+@Test
+public void testValidOrcid() {
+    String curationString = "ORCID:0000-0002-0736-9199[2024-04-01]";
+    Biocuration bc = new HpoProjectBiocuration(curationString);
+    List<HpoaError> errors = bc.errors();
+    assertTrue(errors.isEmpty());
+}
 
     @Test
     public void lacksClosingBracket() {

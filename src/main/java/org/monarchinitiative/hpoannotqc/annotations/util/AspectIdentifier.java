@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.util;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAspect;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;

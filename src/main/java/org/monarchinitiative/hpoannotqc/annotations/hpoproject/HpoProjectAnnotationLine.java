@@ -1,9 +1,9 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 
-import org.monarchinitiative.hpoannotqc.Biocuration;
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
 import org.monarchinitiative.hpoannotqc.annotations.TermValidationResult;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
@@ -36,7 +36,7 @@ public record HpoProjectAnnotationLine(
         String evidenceCode,
         Biocuration biocuration,
         List<HpoaError> errorList
-) implements AnnotationEntryI {
+) implements AnnotationEntry {
     private final static Logger LOGGER = LoggerFactory.getLogger(HpoProjectAnnotationLine.class);
 
     private final static String EMPTY_STRING = "";
@@ -97,9 +97,9 @@ public record HpoProjectAnnotationLine(
     }
 
 
-    public static AnnotationEntryI fromLine(String line,
-                                            TermValidator validator,
-                                            Ontology ontology) {
+    public static AnnotationEntry fromLine(String line,
+                                           TermValidator validator,
+                                           Ontology ontology) {
         String[] A = line.split("\t");
         if (A.length != NUMBER_OF_FIELDS) {
             // Non-recoverable error

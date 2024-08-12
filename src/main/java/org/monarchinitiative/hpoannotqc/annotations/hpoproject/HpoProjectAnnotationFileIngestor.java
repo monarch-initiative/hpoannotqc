@@ -1,6 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -193,7 +195,11 @@ public class HpoProjectAnnotationFileIngestor {
     return fileNames;
   }
 
-  public List<HpoaError> getErrors() {
-    return errors;
+  public List<HpoaErrorReport> getErrors() {
+    List<HpoaErrorReport> reports = new ArrayList<>();
+    for (AnnotationModel model : hpoaFileList) {
+      reports.addAll(model.getHpoaErrorReportList());
+    }
+    return reports;
   }
 }

@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
 import org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
@@ -36,8 +36,8 @@ public class HpoAnnotationMerger {
         this.validator = validator;
     }
 
-    public AnnotationEntryI mergeEntries(List<AnnotationEntryI> entrylist) {
-        AnnotationEntryI first = entrylist.get(0);
+    public AnnotationEntry mergeEntries(List<AnnotationEntry> entrylist) {
+        AnnotationEntry first = entrylist.get(0);
         String diseaseId=first.getDiseaseID();
         String diseaseName=first.getDiseaseName();
         String phenoId=first.getPhenotypeId();
@@ -80,14 +80,14 @@ public class HpoAnnotationMerger {
      * @param entrylist List of frequency strings
      * @return merged frequency string
      */
-    public FrequencyModifier mergeFrequencies(final List<AnnotationEntryI> entrylist) {
+    public FrequencyModifier mergeFrequencies(final List<AnnotationEntry> entrylist) {
         int sum_of_numerators = 0;
         int sum_of_denominators = 0;
         List<Integer> numerators = new ArrayList<>();
         List<Integer> denominators = new ArrayList<>();
         final int DEFAULT_NUMBER_OF_OBSERVATIONS = 10;
 
-        for (AnnotationEntryI e : entrylist) {
+        for (AnnotationEntry e : entrylist) {
             String q = e.getFrequencyModifier();
             Matcher matcher = n_of_m_pattern.matcher(q);
             Matcher percentageMatcher = percentage_pattern.matcher(q);
@@ -131,9 +131,9 @@ public class HpoAnnotationMerger {
         return HpoProjectFrequency.fromHpoaLine(mergedFreqString, ontology);
     }
 
-    public static  String mergeModifiers(final List<AnnotationEntryI> entrylist) {
+    public static  String mergeModifiers(final List<AnnotationEntry> entrylist) {
         List<String> modifiers=new ArrayList<>();
-        for (AnnotationEntryI entry : entrylist) {
+        for (AnnotationEntry entry : entrylist) {
             String mod = entry.getModifier();
             if (mod!=null && !mod.isEmpty()) {
                 modifiers.add(mod);
@@ -146,9 +146,9 @@ public class HpoAnnotationMerger {
         }
     }
 
-    public static  String mergeDescriptions(final List<AnnotationEntryI> entrylist) {
+    public static  String mergeDescriptions(final List<AnnotationEntry> entrylist) {
         List<String> descriptions=new ArrayList<>();
-        for (AnnotationEntryI entry : entrylist) {
+        for (AnnotationEntry entry : entrylist) {
             String mod = entry.getDescription();
             if (mod != null && ! mod.isEmpty()) {
                 descriptions.add(mod);
@@ -161,17 +161,17 @@ public class HpoAnnotationMerger {
         }
     }
 
-    public static  String mergePublications(final List<AnnotationEntryI> entrylist) {
+    public static  String mergePublications(final List<AnnotationEntry> entrylist) {
         Set<String> pubs=new HashSet<>();
-        for (AnnotationEntryI entry : entrylist) {
+        for (AnnotationEntry entry : entrylist) {
             pubs.add(entry.getPublication());
         }
         return String.join(";",pubs);
     }
 
-    public static String getHighestEvidenceCode(final List<AnnotationEntryI> entrylist) {
+    public static String getHighestEvidenceCode(final List<AnnotationEntry> entrylist) {
         String evi="IEA";//default
-        for (AnnotationEntryI entry : entrylist) {
+        for (AnnotationEntry entry : entrylist) {
             if (entry.getEvidenceCode().equals("PCS")) {
                 return "PCS";
             } else if (entry.getEvidenceCode().equals("TAS")) {
@@ -181,15 +181,15 @@ public class HpoAnnotationMerger {
         return evi;
     }
 
-    public static String mergeBiocuration(final List<AnnotationEntryI> entrylist) {
+    public static String mergeBiocuration(final List<AnnotationEntry> entrylist) {
         Set<String> biocuration=new HashSet<>();
-        for (AnnotationEntryI entry : entrylist) {
+        for (AnnotationEntry entry : entrylist) {
             biocuration.add(entry.getBiocuration());
         }
         return String.join(";",biocuration);
     }
 
-    public boolean divergentNegation(List<AnnotationEntryI> entrylist) {
+    public boolean divergentNegation(List<AnnotationEntry> entrylist) {
         String firstItemNegated = entrylist.get(0).getNegation();
         for (int i = 1; i < entrylist.size(); ++i) {
             if (!firstItemNegated.equals(entrylist.get(i).getNegation())) {
@@ -201,7 +201,7 @@ public class HpoAnnotationMerger {
 
 
 
-    public boolean divergentSex(List<AnnotationEntryI> entrylist) {
+    public boolean divergentSex(List<AnnotationEntry> entrylist) {
         String firstItemSex = entrylist.get(0).getSex();
         for (int i = 1; i < entrylist.size(); ++i) {
             if (!firstItemSex.equals(entrylist.get(i).getSex())) {
@@ -213,7 +213,7 @@ public class HpoAnnotationMerger {
 
 
 
-    public boolean divergentOnset(List<AnnotationEntryI> entrylist) {
+    public boolean divergentOnset(List<AnnotationEntry> entrylist) {
         String firstItemOnsetId = entrylist.get(0).getAgeOfOnsetId();
         for (int i = 1; i < entrylist.size(); ++i) {
             if (!firstItemOnsetId.equals(entrylist.get(i).getAgeOfOnsetId())) {

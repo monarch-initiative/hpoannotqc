@@ -2,7 +2,7 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.monarchinitiative.hpoannotqc.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.TermValidationResult;
 import org.monarchinitiative.hpoannotqc.annotations.TestBase;
 

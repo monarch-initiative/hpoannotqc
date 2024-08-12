@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
-import org.monarchinitiative.hpoannotqc.Biocuration;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.EXCLUDED;
 
-public class OrphaAnnotationLine implements AnnotationEntryI {
+public class OrphaAnnotationLine implements AnnotationEntry {
     static Logger LOGGER = LoggerFactory.getLogger(OrphaAnnotationLine.class);
 
     private static final String EMPTY_STRING = "";
@@ -79,14 +79,14 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
      * @param replaceObsoleteTermId if true, correct obsolete term ids and do not throw an exception.
      * @return corresponding HpoAnnotationEntry object
      */
-    public static AnnotationEntryI fromOrphaData(String diseaseID,
-                                                   String diseaseName,
-                                                   String hpoId,
-                                                   String hpoLabel,
-                                                   TermId frequency,
-                                                   Ontology ontology,
-                                                   String biocuration,
-                                                   boolean replaceObsoleteTermId) {
+    public static AnnotationEntry fromOrphaData(String diseaseID,
+                                                String diseaseName,
+                                                String hpoId,
+                                                String hpoLabel,
+                                                TermId frequency,
+                                                Ontology ontology,
+                                                String biocuration,
+                                                boolean replaceObsoleteTermId) {
 
         if (hpoId == null) {
             throw new PhenolRuntimeException("Null String passed as hpoId for disease " + (diseaseID != null ? diseaseID : "n/a"));
@@ -123,7 +123,7 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
             }
         }
 
-        AnnotationEntryI entry = new OrphaAnnotationLine(diseaseID,
+        AnnotationEntry entry = new OrphaAnnotationLine(diseaseID,
                 diseaseName,
                 phenotypeId.getValue(),
                 hpoLabel,
@@ -147,12 +147,12 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
      * @param biocuration      A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
      * @return corresponding HpoAnnotationEntry object
      */
-    public static AnnotationEntryI fromOrphaInheritanceData(String diseaseID,
-                                                              String diseaseName,
-                                                              String hpoInheritanceId,
-                                                              String hpoLabel,
-                                                              String biocuration,
-                                                            List<HpoaError> errorList) {
+    public static AnnotationEntry fromOrphaInheritanceData(String diseaseID,
+                                                           String diseaseName,
+                                                           String hpoInheritanceId,
+                                                           String hpoLabel,
+                                                           String biocuration,
+                                                           List<HpoaError> errorList) {
         return new OrphaAnnotationLine(diseaseID,
                 diseaseName,
                 hpoInheritanceId,
@@ -166,10 +166,10 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
      * it throws an Exception (upon the first error). If no exception is thrown, then the
      * no errors were found.
      *
-     * @param entry    The {@link AnnotationEntryI} to be tested.
+     * @param entry    The {@link AnnotationEntry} to be tested.
      * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
      */
-    private static void performQualityControl(AnnotationEntryI entry, Ontology ontology, String diseaseName)  {
+    private static void performQualityControl(AnnotationEntry entry, Ontology ontology, String diseaseName)  {
 
         //checkAgeOfOnsetFields(entry, ontology, diseaseName);
 

@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
-import org.monarchinitiative.hpoannotqc.TermValidator;
-import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
@@ -23,7 +23,7 @@ public class OrphanetIngestor {
 
 
 
-    private final Map<TermId, Collection<AnnotationEntryI>> inheritanceMultiMap;
+    private final Map<TermId, Collection<AnnotationEntry>> inheritanceMultiMap;
     private final ArrayList<AnnotationModel> orphanetSmallFileList;
 
     private List<HpoaError> errorList;
@@ -51,7 +51,7 @@ public class OrphanetIngestor {
         this.errorList = new ArrayList<>();
         OrphanetInheritanceXMLParser inheritanceXMLParser =
                 new OrphanetInheritanceXMLParser(orphaInheritanceXMLfile.getAbsolutePath(), ontology);
-        Map<TermId, Collection<AnnotationEntryI>> inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
+        Map<TermId, Collection<AnnotationEntry>> inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
         if (inheritanceXMLParser.hasError()) {
             this.errorList.addAll(inheritanceXMLParser.getErrorlist());
         }
@@ -65,7 +65,7 @@ public class OrphanetIngestor {
         for (TermId diseaseId : prelimOrphaDiseaseMap.keySet()) {
             OrphaAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
             if (this.inheritanceMultiMap.containsKey(diseaseId)) {
-                Collection<AnnotationEntryI> inheritanceEntryList = this.inheritanceMultiMap.get(diseaseId);
+                Collection<AnnotationEntry> inheritanceEntryList = this.inheritanceMultiMap.get(diseaseId);
                 OrphaAnnotationModel mergedModel = model.mergeWithInheritanceAnnotations(inheritanceEntryList, annotationMerger);
                 prelimOrphaDiseaseMap.put(diseaseId,mergedModel); // replace with model that has inheritance
                 c++;
