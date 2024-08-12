@@ -1,5 +1,11 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
+import org.monarchinitiative.hpoannotqc.TermValidator;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.TermIdError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -35,7 +41,7 @@ public class OrphanetInheritanceXMLParser {
    * Key: an Orphanet disease id; value: an array list of HpoAnnotations, one for each inheritance mode
    * that is associated with the disease.
    */
-  private final Map<TermId, Collection<HpoAnnotationEntry>> disease2inheritanceMultimap;
+  private final Map<TermId, Collection<AnnotationEntryI>> disease2inheritanceMultimap;
   // XML Parsing
   private static final String DISORDER = "Disorder";
   private static final String ORPHA_NUMBER = "OrphaNumber";
@@ -67,7 +73,12 @@ public class OrphanetInheritanceXMLParser {
   private boolean isInAverageAgeOfDeathList = false;
   private boolean inDisorderType = false;
 
-  private final List<String> errorlist;
+  private final List<HpoaError> errorlist;
+
+  private final HpoAnnotationMerger annotationMerger;
+
+  private final TermValidator validator;
+
 
   public OrphanetInheritanceXMLParser(String xmlpath, Ontology onto) {
     this.ontology = onto;
@@ -76,10 +87,12 @@ public class OrphanetInheritanceXMLParser {
     orphanetBiocurationString = String.format("ORPHA:orphadata[%s]", todaysDate);
     disease2inheritanceMultimap = new HashMap<>();
     parse(new File(xmlpath));
+    this.validator = new TermValidator(ontology);
+    this.annotationMerger = new HpoAnnotationMerger(onto, validator);
   }
 
 
-  public Map<TermId, Collection<HpoAnnotationEntry>> getDisease2inheritanceMultimap() {
+  public Map<TermId, Collection<AnnotationEntryI>> getDisease2inheritanceMultimap() {
     return disease2inheritanceMultimap;
   }
 
@@ -138,15 +151,17 @@ public class OrphanetInheritanceXMLParser {
               continue;
             }
             if (!ontology.containsTerm(hpoInheritanceId)) {
-              this.errorlist.add("[WARNING] Could not find HPO label for Orphanet inheritance term" + hpoInheritanceId.getValue());
+              HpoaError error = HpoaTermError.missingLabel(String.format("Could not find HPO label for Orphanet inheritance term %s", hpoInheritanceId.getValue()));
+              this.errorlist.add(error);
               continue;
             }
             String hpoLabel = ontology.getTermLabel(hpoInheritanceId).orElseThrow();
-            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaInheritanceData(disId.getValue(),
+            AnnotationEntryI entry = OrphaAnnotationLine.fromOrphaInheritanceData(disId.getValue(),
               currentDiseaseName,
-              hpoInheritanceId,
+              hpoInheritanceId.getValue(),
               hpoLabel,
-              orphanetBiocurationString);
+              orphanetBiocurationString,
+              List.of());
             disease2inheritanceMultimap.computeIfAbsent(disId, key -> new HashSet<>())
               .add(entry);
           } else if (localPart.equals(AVERAGE_AGE_OF_ONSET_LIST)) {
@@ -213,7 +228,8 @@ public class OrphanetInheritanceXMLParser {
     } else if (orphaInheritanceId.equals("409936") && orphaLabel.equals("Oligogenic")) {
       return OLIGOGENIC;
     } else {
-      this.errorlist.add("[WARNING] Could not find HPO id for Orphanet inheritence entry: " + orphaLabel + "(" + orphaInheritanceId + ")");
+      HpoaError missingId = TermIdError.termIdNotInOntology(TermId.of(orphaInheritanceId));
+      this.errorlist.add(missingId);
       return null; // could not find correct id.
     }
   }
@@ -222,7 +238,7 @@ public class OrphanetInheritanceXMLParser {
     return !this.errorlist.isEmpty();
   }
 
-  public List<String> getErrorlist() {
+  public List<HpoaError> getErrorlist() {
     return errorlist;
   }
 

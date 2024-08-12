@@ -136,6 +136,32 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
 
         return entry;
     }
+
+    /**
+     * If the frequency of an HPO term is listed in Orphanet as Excluded (0%), then we encode it as
+     * a NOT (negated) term.
+     *
+     * @param diseaseID        Orphanet ID, e.g., ORPHA:99776
+     * @param diseaseName      Orphanet disease name, e.g., Moasic trisomy 9
+     * @param hpoInheritanceId HPO id (e.g., HP:0001234) for an inheritance term
+     * @param hpoLabel         corresponding HPO term Label
+     * @param biocuration      A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
+     * @return corresponding HpoAnnotationEntry object
+     */
+    public static AnnotationEntryI fromOrphaInheritanceData(String diseaseID,
+                                                              String diseaseName,
+                                                              String hpoInheritanceId,
+                                                              String hpoLabel,
+                                                              String biocuration,
+                                                            List<HpoaError> errorList) {
+        return new OrphaAnnotationLine(diseaseID,
+                diseaseName,
+                hpoInheritanceId,
+                hpoLabel,
+                EMPTY_STRING, // frequency, always empty for inheritance
+                biocuration,
+                errorList);
+    }
     /**
      * This method checks all the fields of the HpoAnnotationEntry. If there is an error, then
      * it throws an Exception (upon the first error). If no exception is thrown, then the

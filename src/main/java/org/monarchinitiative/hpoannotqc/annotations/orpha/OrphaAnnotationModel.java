@@ -46,11 +46,7 @@ public class OrphaAnnotationModel {
   }
 
   public List<HpoaError> getErrorList() {
-    List<HpoaError> errors = new ArrayList<>();
-//    for (var e:entryList){
-//      errors.addAll(e.getErrorList());
-//    }
-    return errors;
+    return errorList;
   }
 
 

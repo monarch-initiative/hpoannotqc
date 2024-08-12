@@ -2,6 +2,8 @@ package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetInheritanceXMLParser;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -160,7 +162,7 @@ public class PhenotypeDotHpoaFileWriter {
     if (n_omitted>0) {
       LOGGER.trace("{} small files were omitted.", n_omitted);
     }
-/*
+
     // 2. Get the Orphanet Inheritance Annotations
     OrphanetInheritanceXMLParser inheritanceXMLParser =
             new OrphanetInheritanceXMLParser(orphaInheritanceXMLfile.getAbsolutePath(), ontology);
@@ -190,7 +192,7 @@ public class PhenotypeDotHpoaFileWriter {
     info = String.format("[INFO] We added inheritance information to %d Orphanet disease entries", c);
     LOGGER.info(info);
     this.orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
-    */
+
     orphanetSmallFileList = new ArrayList<>(n_omitted);
     this.inheritanceMultiMap = new HashMap<>(n_omitted);
     setOntologyMetadata(ont.getMetaInfo());

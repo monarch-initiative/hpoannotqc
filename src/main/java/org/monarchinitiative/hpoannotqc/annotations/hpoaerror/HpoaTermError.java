@@ -22,6 +22,12 @@ public class HpoaTermError implements HpoaError {
         category = cat;
     }
 
+
+    public static HpoaError missingLabel(String msg){
+        return new HpoaTermError(msg, HpoaErrorCategory.MISSING_LABEL);
+    }
+
+
     public static HpoaError invalidFrequencyTerm(Term term) {
         String err = String.format("Term %s (%s) used as frequency but is not a valid frequency term",
                 term.getName(), term.id().getValue());

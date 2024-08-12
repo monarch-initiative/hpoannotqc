@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
@@ -74,7 +75,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     /**
      * A map of diseases parsed from Orphanet.
      */
-    private final Map<TermId, HpoAnnotationModel> orphanetDiseaseMap = new HashMap<>();
+    private final Map<TermId, AnnotationEntryI> orphanetDiseaseMap = new HashMap<>();
     /**
      * If true, replace obsolete term ids without throwing Exception.
      */
@@ -143,6 +144,9 @@ public class OrphanetXML2HpoDiseaseModelParser {
 
     private final List<HpoaError> errorList;
 
+    public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto) {
+        this(xmlpath, onto, true); // default -- replace obsolete ids.
+    }
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto, boolean tolerant) {
         super();
@@ -159,7 +163,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         }
     }
 
-    public Map<TermId, HpoAnnotationModel> getOrphanetDiseaseMap() {
+    public Map<TermId, AnnotationEntryI> getOrphanetDiseaseMap() {
         return this.orphanetDiseaseMap;
     }
 
@@ -215,7 +219,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         TermId currentFrequencyTermId = null;
         String currentOrphanumber = null;
         String currentDiseaseName = null;
-        List<HpoAnnotationEntry> currentAnnotationEntryList = new ArrayList<>();
+        List<AnnotationEntryI> currentAnnotationEntryList = new ArrayList<>();
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
@@ -290,7 +294,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case HPO_DISORDER_ASSOCIATION:
                         try {
-                            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaData(
+                            AnnotationEntryI entry = OrphaAnnotationLine.fromOrphaData(
                                     String.format("ORPHA:%s", currentOrphanumber),
                                     currentDiseaseName,
                                     currentHpoId,
@@ -321,7 +325,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case DISORDER:
                         TermId orphaDiseaseId = TermId.of(String.format("ORPHA:%s", currentOrphanumber));
-                        HpoAnnotationModel model = new HpoAnnotationModel(String.format("ORPHA:%s", currentOrphanumber),
+                        AnnotationEntryI model = new OrphaAnnotationModel(String.format("ORPHA:%s", currentOrphanumber),
                                 currentAnnotationEntryList);
                         orphanetDiseaseMap.put(orphaDiseaseId, model);
                         inDisorderType = false;
@@ -372,15 +376,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         return ! errorList.isEmpty();
     }
 
-    public List<String> errorList() {
-        if (! hasError()) {
-            return List.of();
-        }
-        List<String> errors = new ArrayList<>();
-        errors.add("Orphanet annotations:\n");
-        for (var err : errorList) {
-            errors.add(err.getMessage());
-        }
-        return errors;
+    public List<HpoaError> errorList() {
+        return this.errorList;
     }
 }
