@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.hpoannotqc.annotations.PhenotypeDotHpoaFileWriter;
+import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotQcUtil;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class BigFileCommand implements Callable<Integer> {
 
         // path to the omit-list.txt file, which is located with the small files in the same directory
         LOGGER.info("annotation directory = {}", hpoAnnotationFileDirectory);
-        try {
+      /*  try {
             PhenotypeDotHpoaFileWriter pwriter = PhenotypeDotHpoaFileWriter.factory(ontology,
                     hpoAnnotationFileDirectory,
                     orphanetXMLpath,
@@ -67,11 +67,13 @@ public class BigFileCommand implements Callable<Integer> {
                     tolerant,
                     merge_frequency);
             pwriter.outputBigFile();
+
+
         } catch (IOException e) {
             LOGGER.error("[ERROR] Could not output phenotype.hpoa (big file). ",e);
         } catch (PhenolRuntimeException pre) {
             LOGGER.error("Caught phenol runtime exception: {}", pre.getMessage());
-        }
+        }*/
         return 0;
     }
 

@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
@@ -83,7 +82,7 @@ public class BigFileQcCommand implements Callable<Integer> {
     }
 
     private void qcOneSmallFile(File smallFile, Ontology hpo) throws PhenolRuntimeException{
-        try (BufferedReader br = new BufferedReader(new FileReader(smallFile))) {
+       /* try (BufferedReader br = new BufferedReader(new FileReader(smallFile))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith("#")) continue; // header
@@ -98,7 +97,7 @@ public class BigFileQcCommand implements Callable<Integer> {
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-        }
+        } */
     }
 
 

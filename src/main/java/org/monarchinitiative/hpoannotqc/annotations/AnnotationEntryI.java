@@ -1,6 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.List;
 
@@ -31,6 +33,8 @@ public interface AnnotationEntryI {
      * @return HPO id of this annotation.
      */
     String getPhenotypeId();
+
+    TermId getPhenotypeTermId();
 
     /**
      * @return HPO term label of this annotation.
@@ -104,4 +108,30 @@ public interface AnnotationEntryI {
                     getBiocuration());
             return String.join("\t", items);
     }
+
+    /**
+     * Following quality control of an entry that has been ingested from a small file, and potentially merged,
+     * we export the corresponding line for the big file.
+     * @param ontology A reference to the HPO ontology
+     * @return A line for the phenotype.hpoa file
+     */
+    default String toBigFileLine(AspectIdentifier aspectIdentifier) {
+        String[] elems = {
+                getDiseaseID(), //DB_Object_ID
+                getDiseaseName(), // DB_Name
+                getNegation(), // Qualifier
+                getPhenotypeId(), // HPO_ID
+                getPublication(), // DB_Reference
+                getEvidenceCode(), // Evidence_Code
+                getAgeOfOnsetId(), // Onset
+                getFrequencyModifier(), // Frequency
+                getSex(), // Sex
+                getModifier(), // Modifier
+                aspectIdentifier.getAspectLetter(getPhenotypeTermId()), // Aspect
+                getBiocuration() // Biocuration
+        };
+        return String.join("\t", elems);
+    }
+
+
 }

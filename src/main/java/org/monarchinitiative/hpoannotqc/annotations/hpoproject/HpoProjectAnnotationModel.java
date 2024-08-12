@@ -1,8 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
@@ -19,13 +19,13 @@ import java.util.stream.Stream;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
-public class HpoProjectAnnotationModel {
+public class HpoProjectAnnotationModel implements AnnotationModel {
   /**
    * The base name of the HPO Annotation file.
    */
   private final String basename;
   /**
-   * List of {@link HpoAnnotationEntry} objects representing the original lines of the small file
+   * List of {@link AnnotationEntryI} objects representing the original lines of the small file
    */
   private List<AnnotationEntryI> entryList;
   private final List<HpoaError> errorList;
@@ -74,11 +74,11 @@ public class HpoProjectAnnotationModel {
   }
 
   /**
-   * The constructor creates an immutable copy of the original list of {@link HpoAnnotationEntry} objects
+   * The constructor creates an immutable copy of the original list of {@link AnnotationEntryI} objects
    * provided by the parser
    *
    * @param name    Name of the "small file"
-   * @param entries List of {@link HpoAnnotationEntry} objects -- one per line of the small file.
+   * @param entries List of {@link AnnotationEntryI} objects -- one per line of the small file.
    */
   public HpoProjectAnnotationModel(String name,
                                    List<AnnotationEntryI> entries,
@@ -133,7 +133,7 @@ public class HpoProjectAnnotationModel {
 
 
   /**
-   * @return the {@link HpoAnnotationEntry} objects -- one per line of the small file.
+   * @return the {@link AnnotationEntryI} objects -- one per line of the small file.
    */
   public List<AnnotationEntryI> getEntryList() {
     return entryList;
@@ -210,13 +210,6 @@ public class HpoProjectAnnotationModel {
       .orElse("n/a");
   }
 
-
-  public void addInheritanceEntryCollection(Collection<AnnotationEntryI> entries) {
-    List<AnnotationEntryI> builder = new ArrayList<>();
-    builder.addAll(this.entryList);
-    builder.addAll(entries);
-    this.entryList = List.copyOf(builder);
-  }
 
 
 }

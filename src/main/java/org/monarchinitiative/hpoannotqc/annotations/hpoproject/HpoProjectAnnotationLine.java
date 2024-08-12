@@ -11,6 +11,7 @@ import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.Term;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,6 +185,11 @@ public record HpoProjectAnnotationLine(
     @Override
     public String getPhenotypeId() {
         return phenotypeTerm.id().getValue();
+    }
+
+    @Override
+    public TermId getPhenotypeTermId() {
+        return phenotypeTerm.id();
     }
 
     @Override

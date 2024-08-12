@@ -4,7 +4,6 @@ import org.monarchinitiative.hpoannotqc.Biocuration;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -167,7 +166,7 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
      * it throws an Exception (upon the first error). If no exception is thrown, then the
      * no errors were found.
      *
-     * @param entry    The {@link HpoAnnotationEntry} to be tested.
+     * @param entry    The {@link AnnotationEntryI} to be tested.
      * @param ontology A reference to an HpoOntology object (needed for Q/C'ing terms).
      */
     private static void performQualityControl(AnnotationEntryI entry, Ontology ontology, String diseaseName)  {
@@ -199,6 +198,11 @@ public class OrphaAnnotationLine implements AnnotationEntryI {
     @Override
     public String getPhenotypeId() {
         return phenotypeId;
+    }
+
+    @Override
+    public TermId getPhenotypeTermId() {
+        return TermId.of(phenotypeId);
     }
 
     @Override

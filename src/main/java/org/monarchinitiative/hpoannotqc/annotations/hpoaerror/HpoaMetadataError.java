@@ -36,4 +36,9 @@ public class HpoaMetadataError implements HpoaError {
         String err = String.format("Error reading omitted entries: \"%s\"", msg);
         return new HpoaMetadataError(err, HpoaErrorCategory.OMIT_FILE_ERROR);
     }
+
+    public static HpoaError ioError(String msg) {
+        return new HpoaMetadataError(msg, HpoaErrorCategory.IO_ERROR);
+    }
+
 }

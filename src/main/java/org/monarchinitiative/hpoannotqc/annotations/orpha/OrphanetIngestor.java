@@ -1,9 +1,10 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
+import org.monarchinitiative.hpoannotqc.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -20,19 +21,22 @@ public class OrphanetIngestor {
     private final File orphaInheritanceXMLfile;
     private final File orphaPhenotypeXMLfile;
 
-    /**
-     * List of all of the {@link HpoAnnotationModel} objects derived from the Orphanet XML file.
-     */
-    private final List<AnnotationEntryI> orphanetSmallFileList;
+
 
     private final Map<TermId, Collection<AnnotationEntryI>> inheritanceMultiMap;
+    private final ArrayList<AnnotationModel> orphanetSmallFileList;
 
     private List<HpoaError> errorList;
+
+    private final TermValidator termValidator;
+    private final HpoAnnotationMerger annotationMerger;
 
     public OrphanetIngestor(File orphaPhenotypeXMLfile,
                             File orphaInheritanceXMLfile,
                             Ontology ontology) {
         this.ontology = ontology;
+        this.termValidator = new TermValidator(ontology);
+        this.annotationMerger = new HpoAnnotationMerger(ontology,termValidator);
         if (!orphaPhenotypeXMLfile.exists()) {
             throw new PhenolRuntimeException("Could not find " + orphaPhenotypeXMLfile.getAbsolutePath()
                     + " (We were expecting the path to en_product4_HPO.xml");
@@ -55,14 +59,14 @@ public class OrphanetIngestor {
         // 3. Get Orphanet disease models
         OrphanetXML2HpoDiseaseModelParser orphaParser =
                 new OrphanetXML2HpoDiseaseModelParser(this.orphaPhenotypeXMLfile.getAbsolutePath(), ontology);
-        Map<TermId, HpoAnnotationModel> prelimOrphaDiseaseMap = orphaParser.getOrphanetDiseaseMap();
+        Map<TermId, OrphaAnnotationModel> prelimOrphaDiseaseMap = orphaParser.getOrphanetDiseaseMap();
         LOGGER.info("We parsed {} Orphanet disease entries", prelimOrphaDiseaseMap.size());
         int c = 0;
         for (TermId diseaseId : prelimOrphaDiseaseMap.keySet()) {
-            HpoAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
+            OrphaAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
             if (this.inheritanceMultiMap.containsKey(diseaseId)) {
                 Collection<AnnotationEntryI> inheritanceEntryList = this.inheritanceMultiMap.get(diseaseId);
-                HpoAnnotationModel mergedModel = model.mergeWithInheritanceAnnotations(inheritanceEntryList);
+                OrphaAnnotationModel mergedModel = model.mergeWithInheritanceAnnotations(inheritanceEntryList, annotationMerger);
                 prelimOrphaDiseaseMap.put(diseaseId,mergedModel); // replace with model that has inheritance
                 c++;
             }
@@ -71,11 +75,11 @@ public class OrphanetIngestor {
         this.orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
     }
 
-
-    public List<AnnotationEntryI> parse() {
-        // 2. Get the Orphanet Inheritance Annotations
-
+    public ArrayList<AnnotationModel> getOrphanetSmallFileList() {
+        return orphanetSmallFileList;
     }
+
+
 
 
 }

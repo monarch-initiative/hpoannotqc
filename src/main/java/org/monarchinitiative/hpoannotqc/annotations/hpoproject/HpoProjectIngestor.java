@@ -1,7 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationFileParser;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -28,9 +29,9 @@ public class HpoProjectIngestor {
      */
     private final List<File> smallFilePaths;
     /**
-     * List of all of the {@link HpoAnnotationModel} objects, which represent annotated diseases.
+     * List of all of the {@link org.monarchinitiative.hpoannotqc.annotations.AnnotationModel} objects, which represent annotated diseases.
      */
-    private final List<HpoAnnotationModel> hpoaFileList = new ArrayList<>();
+    private final List<AnnotationModel> hpoaFileList = new ArrayList<>();
     /**
      * Names of entries (small files) that we will omit because they do not represent diseases.
      */
@@ -46,9 +47,9 @@ public class HpoProjectIngestor {
      */
     private boolean mergeEntries = false;
 
-    private final List<String> errors = new ArrayList<>();
+    private final List<HpoaError> errors = new ArrayList<>();
 
-    public List<HpoAnnotationModel> getHpoaFileEntries() {
+    public List<AnnotationModel> getHpoaFileEntries() {
         return hpoaFileList;
     }
 
@@ -65,14 +66,14 @@ public class HpoProjectIngestor {
     private void inputHpoAnnotationFiles() {
         int i = 0;
         for (File file : smallFilePaths) {
-            HpoAnnotationFileParser parser = new HpoAnnotationFileParser(file.getAbsolutePath(), ontology);
+            HpoProjectAnnotationFileParser parser = new HpoProjectAnnotationFileParser( ontology);
 
-            HpoAnnotationModel smallFile = parser.parse(true);
+            HpoProjectAnnotationModel smallFile = parser.parse(file);
             if (mergeEntries) {
                 smallFile = smallFile.getMergedModel();
             }
-            if (parser.hasError()) {
-                this.errors.addAll(parser.errorList());
+            if (smallFile.hasError()) {
+                this.errors.addAll(smallFile.getErrorList());
             }
             n_total_annotation_lines += smallFile.getNumberOfAnnotations();
             hpoaFileList.add(smallFile);
@@ -84,8 +85,8 @@ public class HpoProjectIngestor {
             String ERROR_FILE = "HPOA-errors.txt";
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(ERROR_FILE))) {
                 for (var line: errors) {
-                    bw.write(line + "\n");
-                    LOGGER.error(line);
+                    bw.write(line.getCategoryAndError() + "\n");
+                    LOGGER.error(line.getCategoryAndError());
                 }
             } catch (IOException e){
                 LOGGER.error(e.getMessage());
@@ -120,7 +121,7 @@ public class HpoProjectIngestor {
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
-            errors.add(e.getMessage());
+            errors.add(HpoaMetadataError.omitEntriesError(e.getMessage()));
         }
         return entrylist;
     }
@@ -164,7 +165,7 @@ public class HpoProjectIngestor {
                 }
             }
         } catch (IOException ex) {
-            errors.add(String.format("Could not get list of small smallFilePaths from %s [%s]. Terminating...",
+            throw new PhenolRuntimeException(String.format("Could not get list of small smallFilePaths from %s [%s]. Terminating...",
                     smallFileDirectory, ex));
         }
         return fileNames;

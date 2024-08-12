@@ -2,7 +2,6 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ import java.util.Set;
 /**
  * This class coordinates the input of all the HPO Annotation files ("small files"). If an
  * {@code omit-list.txt} is provided by the user, then these files are
- * omitted. The output of this class is a list of {@link HpoAnnotationModel} objects
+ * omitted. The output of this class is a list of {@link org.monarchinitiative.hpoannotqc.annotations.AnnotationModel} objects
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
@@ -36,7 +35,7 @@ public class HpoProjectAnnotationFileIngestor {
    */
   private final List<File> smallFilePaths;
   /**
-   * List of all of the {@link HpoAnnotationModel} objects, which represent annotated diseases.
+   * List of all of the {@link org.monarchinitiative.hpoannotqc.annotations.AnnotationModel} objects, which represent annotated diseases.
    */
   private final List<HpoProjectAnnotationModel> hpoaFileList = new ArrayList<>();
   /**

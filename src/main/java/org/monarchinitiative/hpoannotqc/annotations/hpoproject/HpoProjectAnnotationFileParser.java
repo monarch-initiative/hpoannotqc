@@ -2,7 +2,6 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAnnotationModelError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Parse of a single HPO Annotation File into a {@link HpoAnnotationModel} object. The HPO project uses a single
+ * Parse of a single HPO Annotation File into a {@link org.monarchinitiative.hpoannotqc.annotations.AnnotationModel} object. The HPO project uses a single
  * tab-separated file with 14 fields (see {@link #expectedFields}) to store information about individual
  * diseases. Colloquially, we have called these files "small-files" to distinguish them from the
  * {@code phenotype.hpoa} file that is created by combining the information from all ca. 8500 small files
@@ -78,11 +77,11 @@ public class HpoProjectAnnotationFileParser {
 
   /**
    * Parse a single HPO Annotation file. If {@code faultTolerant} is set to true, then we will parse as
-   * much as we can of an annotation file and return the {@link HpoAnnotationModel} object, even if one or more
+   * much as we can of an annotation file and return the {@link HpoProjectAnnotationModel} object, even if one or more
    * parse errors occured. Otherwise, an {@link HpoAnnotationModelError} will be thrown
    *
    * @param faultTolerant If true, report errors to STDERR but do not throw an exception
-   * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
+   * @return A {@link HpoProjectAnnotationModel} object corresponding to the data in the HPO Annotation file
    */
   public HpoProjectAnnotationModel parse(File hpoAnnotationFile, boolean faultTolerant) {
     String basename = hpoAnnotationFile.getName();

@@ -6,7 +6,6 @@ import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.TermIdError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;

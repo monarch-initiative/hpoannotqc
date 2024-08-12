@@ -1,10 +1,10 @@
 package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 
+import org.monarchinitiative.hpoannotqc.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -75,7 +75,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
     /**
      * A map of diseases parsed from Orphanet.
      */
-    private final Map<TermId, AnnotationEntryI> orphanetDiseaseMap = new HashMap<>();
+    private final Map<TermId, OrphaAnnotationModel> orphanetDiseaseMap = new HashMap<>();
     /**
      * If true, replace obsolete term ids without throwing Exception.
      */
@@ -143,6 +143,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
 
 
     private final List<HpoaError> errorList;
+    private final TermValidator termValidator;
+    private final HpoAnnotationMerger annotationMerger;
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto) {
         this(xmlpath, onto, true); // default -- replace obsolete ids.
@@ -156,6 +158,8 @@ public class OrphanetXML2HpoDiseaseModelParser {
         this.replaceObsoleteTermId = tolerant;
         String todaysDate = getTodaysDate();
         orphanetBiocurationString = String.format("ORPHA:orphadata[%s]", todaysDate);
+        termValidator = new TermValidator(onto);
+        annotationMerger = new HpoAnnotationMerger(onto, termValidator);
         try {
             parse();
         } catch (XMLStreamException | IOException e) {
@@ -163,7 +167,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
         }
     }
 
-    public Map<TermId, AnnotationEntryI> getOrphanetDiseaseMap() {
+    public Map<TermId, OrphaAnnotationModel> getOrphanetDiseaseMap() {
         return this.orphanetDiseaseMap;
     }
 
@@ -325,15 +329,15 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case DISORDER:
                         TermId orphaDiseaseId = TermId.of(String.format("ORPHA:%s", currentOrphanumber));
-                        AnnotationEntryI model = new OrphaAnnotationModel(String.format("ORPHA:%s", currentOrphanumber),
-                                currentAnnotationEntryList);
+                        OrphaAnnotationModel model = new OrphaAnnotationModel(String.format("ORPHA:%s", currentOrphanumber),
+                                currentAnnotationEntryList, annotationMerger);
                         orphanetDiseaseMap.put(orphaDiseaseId, model);
                         inDisorderType = false;
                         currentOrphanumber = null;
                         currentDiseaseName = null;
-                        if (currentAnnotationEntryList.stream().anyMatch(HpoAnnotationEntry::hasError)) {
+                        if (currentAnnotationEntryList.stream().anyMatch(e -> e.hasError())) {
                             for (var entry: currentAnnotationEntryList) {
-                                errorList.addAll(entry.getErrorList());
+                                errorList.addAll(entry.getErrors());
                             }
                         }
                         currentAnnotationEntryList.clear();
@@ -342,11 +346,11 @@ public class OrphanetXML2HpoDiseaseModelParser {
         }
 
         if (hasError()) {
-            List<String> errors = errorList();
+            List<HpoaError> errors = errorList();
             String error_outname = "ORPHA_ANNOTS_ERRORS.txt";
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(error_outname))) {
                 for (var line: errors) {
-                    bw.write(line + "\n");
+                    bw.write(line.getCategoryAndError() + "\n");
                 }
             }
 
