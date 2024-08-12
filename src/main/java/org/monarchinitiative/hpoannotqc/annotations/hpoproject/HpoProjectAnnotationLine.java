@@ -89,7 +89,6 @@ public record HpoProjectAnnotationLine(
             // fine
             return Optional.of(EMPTY_STRING);
         } else if (!negation.equals("NOT")) {
-
             return Optional.empty();
         } else { // well-formed, i.e., "NOT"
             return Optional.of(negation);
@@ -115,9 +114,7 @@ public record HpoProjectAnnotationLine(
         Term onsetTerm = tvalid.validate(errorList);
         FrequencyModifier freqMod = HpoProjectFrequency.fromHpoaLine(A[FREQUENCY], ontology);
         Optional<HpoaError> errorOpt = freqMod.error();
-        if (errorOpt.isPresent()) {
-            errorList.add(freqMod.error().get());
-        }
+        errorOpt.ifPresent(errorList::add);
         Optional<String> sexOpt = checkSexString(A[SEX]);
         String sexString;
         if (sexOpt.isPresent()) {
@@ -147,7 +144,7 @@ public record HpoProjectAnnotationLine(
         String evidenceCode = A[12];
         Biocuration biocuration = new HpoProjectBiocuration(A[BIOCURATION]);
         if (!biocuration.errors().isEmpty()) {
-            biocuration.errors().forEach(errorList::add);
+            errorList.addAll(biocuration.errors());
         }
         return new HpoProjectAnnotationLine(disease,
                 phenotype,

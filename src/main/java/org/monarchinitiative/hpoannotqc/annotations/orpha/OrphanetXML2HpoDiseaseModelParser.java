@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations;
+package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;

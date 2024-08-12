@@ -1,13 +1,12 @@
-package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
+package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntryI;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * This class represents one disease-entity annotation consisting usually of multiple annotations lines, and using
@@ -19,7 +18,7 @@ import java.util.stream.Stream;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
-public class HpoProjectAnnotationModel {
+public class OrphaAnnotationModel {
   /**
    * The base name of the HPO Annotation file.
    */
@@ -28,34 +27,16 @@ public class HpoProjectAnnotationModel {
    * List of {@link HpoAnnotationEntry} objects representing the original lines of the small file
    */
   private List<AnnotationEntryI> entryList;
-  private final List<HpoaError> errorList;
 
+  private List<HpoaError> errorList;
 
-
-  /**
-   * These are the databases currently represented in our data resource.
-   */
-  private enum Database {
-    OMIM, DECIPHER, UNKNOWN
-  }
-
-  /**
-   * What is the source of the current HpoAnnotationModel?
-   */
-  private final Database database;
 
   private static final String EMPTY_STRING = "";
 
-  /**
-   * To be used for matching n/m frequencies.
-   */
-  private final static Pattern n_of_m_pattern = Pattern.compile("^(\\d+)/(\\d+?)");
-
-  private final static Pattern percentage_pattern = Pattern.compile("^(\\d*\\.?\\d+)%");
-
-  private final static Pattern hpoTerm_pattern = Pattern.compile("^HP:\\d{7}$");
 
   private final HpoAnnotationMerger annotationMerger;
+
+
 
   /**
    * @return The base name of the HPO Annotation file.
@@ -64,14 +45,15 @@ public class HpoProjectAnnotationModel {
     return basename;
   }
 
-
-  public boolean hasError() {
-    return ! errorList.isEmpty();
-  }
-
   public List<HpoaError> getErrorList() {
-    return errorList;
+    List<HpoaError> errors = new ArrayList<>();
+//    for (var e:entryList){
+//      errors.addAll(e.getErrorList());
+//    }
+    return errors;
   }
+
+
 
   /**
    * The constructor creates an immutable copy of the original list of {@link HpoAnnotationEntry} objects
@@ -80,60 +62,25 @@ public class HpoProjectAnnotationModel {
    * @param name    Name of the "small file"
    * @param entries List of {@link HpoAnnotationEntry} objects -- one per line of the small file.
    */
-  public HpoProjectAnnotationModel(String name,
-                                   List<AnnotationEntryI> entries,
-                                   List<HpoaError> errors,
-                                   HpoAnnotationMerger merger) {
+  public OrphaAnnotationModel(String name,
+                              List<AnnotationEntryI> entries,
+                              HpoAnnotationMerger annotationMerger) {
     basename = name;
     entryList = List.copyOf(entries);
-    errorList = List.copyOf(errors);
-    if (basename.contains("OMIM")) this.database = Database.OMIM;
-    else if (basename.contains("DECIPHER")) this.database = Database.DECIPHER;
-    else this.database = Database.UNKNOWN;
-    annotationMerger = merger;
+    this.annotationMerger = annotationMerger;
   }
 
-  public Stream<HpoaError> getErrors() {
-    return errorList.stream();
-  }
-
-  /** Seems a stale function? */
-  @Deprecated()
-  public HpoProjectAnnotationModel mergeWithInheritanceAnnotations(Collection<AnnotationEntryI> inherit) {
+  public OrphaAnnotationModel mergeWithInheritanceAnnotations(Collection<OrphaAnnotationLine> inherit,
+                                                              HpoAnnotationMerger annotationMerger) {
     List<AnnotationEntryI> builder = new ArrayList<>();
       builder.addAll(this.entryList);
       builder.addAll(inherit);
-    return new HpoProjectAnnotationModel(this.basename, List.copyOf(builder),
-            List.of(),
-            annotationMerger);
-  }
-
-  /**
-   * Private constructor, intended to be used by {@link #getMergedModel()}
-   *
-   * param base    base name of small file
-   * param db      database (OMIM, DECIPHER)
-   * param entries list of (merged) entries.
-
-  private HpoProjectAnnotationModel(String base, Database db, List<AnnotationEntryI> entries) {
-    this.basename = base;
-    this.database = db;
-    this.entryList = entries;
-    errorList = new ArrayList<>();
-  } */
-
-
-  public boolean isOMIM() {
-    return this.database.equals(Database.OMIM);
-  }
-
-  public boolean isDECIPHER() {
-    return this.database.equals(Database.DECIPHER);
+    return new OrphaAnnotationModel(this.basename, List.copyOf(builder), annotationMerger);
   }
 
 
   /**
-   * @return the {@link HpoAnnotationEntry} objects -- one per line of the small file.
+   * @return  {@link AnnotationEntryI}
    */
   public List<AnnotationEntryI> getEntryList() {
     return entryList;
@@ -144,6 +91,8 @@ public class HpoProjectAnnotationModel {
   }
 
 
+
+
   /**
    * If this method is called, then we have checked that Sex, Negation, AgeOfOnset are the same
    * Merge everything else, concatenating biocuration and PMID and modifier and description
@@ -152,11 +101,25 @@ public class HpoProjectAnnotationModel {
    * @return a merged entry
    */
   private AnnotationEntryI mergeEntries(List<AnnotationEntryI> entrylist) {
-      return annotationMerger.mergeEntries(entrylist);
+    AnnotationEntryI first = entrylist.get(0);
+    String diseaseId=first.getDiseaseID();
+    String diseaseName=first.getDiseaseName();
+    String phenoId=first.getPhenotypeId();
+    String phenoName=first.getPhenotypeLabel();
+    String mergedFrequency = annotationMerger.mergeFrequencies(entrylist).frequencyString();
+    String mergedBiocuration = HpoAnnotationMerger.mergeBiocuration(entrylist);
+    return new OrphaAnnotationLine(diseaseId,
+      diseaseName,
+      phenoId,
+      phenoName, mergedFrequency,
+      mergedBiocuration,
+      List.of());
   }
 
 
-  public HpoProjectAnnotationModel getMergedModel() {
+
+
+  public OrphaAnnotationModel getMergedModel() {
     Map<String, List<AnnotationEntryI>> termId2AnnotEntryListMap = new HashMap<>();
     for (AnnotationEntryI entry : this.entryList) {
       termId2AnnotEntryListMap.putIfAbsent(entry.getPhenotypeId(), new ArrayList<>());
@@ -170,11 +133,7 @@ public class HpoProjectAnnotationModel {
       } else {
         boolean mergable = true;
         // check for things that keep us from merging
-        if (annotationMerger.divergentNegation(entrylist)) {
-          mergable = false;
-        } else if (annotationMerger.divergentSex(entrylist)) {
-          mergable = false;
-        } else if (annotationMerger.divergentOnset(entrylist)) {
+        if (annotationMerger.divergentOnset(entrylist)) {
           mergable = false;
         }
         if (mergable) {
@@ -185,10 +144,7 @@ public class HpoProjectAnnotationModel {
         }
       }
     }
-    return new HpoProjectAnnotationModel(this.basename,
-            List.copyOf(builder),
-            getErrorList(),
-            annotationMerger);
+    return new OrphaAnnotationModel(this.basename, List.copyOf(builder),annotationMerger);
   }
 
   /**
@@ -211,7 +167,7 @@ public class HpoProjectAnnotationModel {
   }
 
 
-  public void addInheritanceEntryCollection(Collection<AnnotationEntryI> entries) {
+  public void addInheritanceEntryCollection(Collection<OrphaAnnotationLine> entries) {
     List<AnnotationEntryI> builder = new ArrayList<>();
     builder.addAll(this.entryList);
     builder.addAll(entries);

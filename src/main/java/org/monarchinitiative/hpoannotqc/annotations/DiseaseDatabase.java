@@ -21,17 +21,12 @@ public enum DiseaseDatabase {
   }
 
   public static DiseaseDatabase fromString(String s) {
-    switch (s.toUpperCase(Locale.ROOT)) {
-      case "OMIM":
-        return OMIM;
-      case "ORPHA":
-      case "ORPHANET":
-        return ORPHANET;
-      case "DECIPHER":
-        return DECIPHER;
-      default:
-        return UNKNOWN;
-    }
+      return switch (s.toUpperCase(Locale.ROOT)) {
+          case "OMIM" -> OMIM;
+          case "ORPHA", "ORPHANET" -> ORPHANET;
+          case "DECIPHER" -> DECIPHER;
+          default -> UNKNOWN;
+      };
   }
 
   public static Set<DiseaseDatabase> allKnownDiseaseDatabases() {

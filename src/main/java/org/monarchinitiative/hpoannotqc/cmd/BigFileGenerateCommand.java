@@ -1,10 +1,8 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
-import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationModel;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
@@ -73,7 +71,7 @@ public class BigFileGenerateCommand implements Callable<Integer> {
             for (HpoaError hpoaError : errorList) {
                 System.out.println(hpoaError.getCategoryAndError());
             }
-            throw new PhenolRuntimeException("Found errors in small file ingest");
+            throw new PhenolRuntimeException("Found errors in HPO project small file ingest");
         }
         // List<HpoaError> errors = models.;
         return 0;

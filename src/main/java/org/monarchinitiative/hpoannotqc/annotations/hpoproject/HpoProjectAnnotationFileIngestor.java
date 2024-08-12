@@ -1,10 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorCategory;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaMetadataError;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationEntry;
-import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationFileParser;
 import org.monarchinitiative.hpoannotqc.annotations.legacy.HpoAnnotationModel;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -111,8 +108,9 @@ public class HpoProjectAnnotationFileIngestor {
         }
       } catch (IOException e){
         LOGGER.error(e.getMessage());
+        throw new PhenolRuntimeException("Parse errors encountered with HPOA file generation!");
       }
-      throw new PhenolRuntimeException("Parse errors encountered with HPOA file generation!");
+
     }
   }
 

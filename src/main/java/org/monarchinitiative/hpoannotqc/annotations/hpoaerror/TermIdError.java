@@ -33,13 +33,13 @@ public class TermIdError implements HpoaError {
     }
 
     public static TermIdError idDoesNotMatchPrimary(TermId tid, TermId primary) {
-      String err = String.format("Term id \"%s\" does not match primary id  \"%s\".",
+      String err = String.format("Term id \"%s\" does not match primary id \"%s\".",
               tid.getValue(), primary.getValue());
       return new TermIdError(err, HpoaErrorCategory.OBSOLETE_TERM_ID);
     }
 
   public static HpoaError labelDoesNotMatchPrimary(String hpoLabel, String primaryLabel) {
-    String err = String.format("Term label \"%s\" does not match primary id  \"%s\".",
+    String err = String.format("Term label \"%s\" does not match primary label \"%s\".",
             hpoLabel, primaryLabel);
     return new TermIdError(err, HpoaErrorCategory.OBSOLETE_TERM_LABEL);
   }

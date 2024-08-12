@@ -160,7 +160,7 @@ public class PhenotypeDotHpoaFileWriter {
     if (n_omitted>0) {
       LOGGER.trace("{} small files were omitted.", n_omitted);
     }
-
+/*
     // 2. Get the Orphanet Inheritance Annotations
     OrphanetInheritanceXMLParser inheritanceXMLParser =
             new OrphanetInheritanceXMLParser(orphaInheritanceXMLfile.getAbsolutePath(), ontology);
@@ -190,6 +190,9 @@ public class PhenotypeDotHpoaFileWriter {
     info = String.format("[INFO] We added inheritance information to %d Orphanet disease entries", c);
     LOGGER.info(info);
     this.orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
+    */
+    orphanetSmallFileList = new ArrayList<>(n_omitted);
+    this.inheritanceMultiMap = new HashMap<>(n_omitted);
     setOntologyMetadata(ont.getMetaInfo());
     setNumberOfDiseasesForHeader();
   }

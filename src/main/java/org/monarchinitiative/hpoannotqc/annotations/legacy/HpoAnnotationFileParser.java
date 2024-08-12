@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations.legacy;
 
-import org.monarchinitiative.hpoannotqc.annotations.OrphanetXML2HpoDiseaseModelParser;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAnnotationModelError;
 import org.monarchinitiative.hpoannotqc.exception.*;
 import org.monarchinitiative.phenol.ontology.data.Ontology;

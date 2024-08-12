@@ -65,7 +65,7 @@ public class HpoProjectAnnotationFileParser {
 
 
 
-  public HpoProjectAnnotationFileParser( Ontology ontology) {
+  public HpoProjectAnnotationFileParser(Ontology ontology) {
     this.ontology = ontology;
     this.termValidator = new TermValidator(ontology);
     this.annotationMerger = new HpoAnnotationMerger(ontology, termValidator);
@@ -95,13 +95,13 @@ public class HpoProjectAnnotationFileParser {
       while ((line = br.readLine()) != null) {
           AnnotationEntryI entry = HpoProjectAnnotationLine.fromLine(line, termValidator, ontology);
           if (entry.hasError()) {
-            entry.getErrors().forEach(errorList::add);
+              errorList.addAll(entry.getErrors());
           } else {
             entryList.add(entry);
           }
       }
       br.close();
-      return new HpoProjectAnnotationModel(basename, entryList, annotationMerger);
+      return new HpoProjectAnnotationModel(basename, entryList, errorList, annotationMerger);
     } catch (IOException e) {
       throw new HpoAnnotQcException(String.format("Error parsing %s: %s", hpoAnnotationFile, e.getMessage()));
     }

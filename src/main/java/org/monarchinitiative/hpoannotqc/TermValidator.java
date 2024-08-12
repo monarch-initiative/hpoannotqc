@@ -85,15 +85,13 @@ public class TermValidator {
                     Term term = termOpt.get();
                     String primaryLabel = term.getName();
                     if (!primaryLabel.equals(hpoLabel)) {
-                        TermValidationResult.of(TermIdError.labelDoesNotMatchPrimary(hpoLabel, primaryLabel));
+                       return TermValidationResult.of(TermIdError.labelDoesNotMatchPrimary(hpoLabel, primaryLabel));
                     } else {
                         return TermValidationResult.of(term);
                     }
                 }
             }
         }
-        // should never get here but compiler complains
-        return TermValidationResult.of(TermIdError.termIdNotInOntology(termId));
     }
 
     /**
