@@ -35,11 +35,7 @@ public class TermValidator {
         String [] fields = termId.split(":");
         if (fields.length != 2) {
             return true;
-        } else if (!fields[0].equals(expectedPrefix)) {
-            return true;
-        } else {
-            return false;
-        }
+        } else return !fields[0].equals(expectedPrefix);
     }
 
 
@@ -123,6 +119,13 @@ public class TermValidator {
         }
     }
 
+    /**
+     * The modifier field can be empty or can contain one or more HPO term ids from
+     * the modifier subontology.  This function is only called if the field is not
+     * empty and then on each subfield.
+     * @param hpoModifierId a candidate HPO term id that must be from the Modifier subontology
+     * @return a validation result that assessed the argument
+     */
     public TermValidationResult checkModifier(String hpoModifierId) {
         if ( isMalformedCurie(hpoModifierId, "HP")) {
             return TermValidationResult.of(TermIdError.malformed(hpoModifierId));

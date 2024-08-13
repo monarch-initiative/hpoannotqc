@@ -1,6 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations.hpoaerror;
 
 public enum HpoaErrorCategory {
+    ANNOTATION_MODEL_ERROR,
+    CITATION_ERROR,
     EMPTY_DISEASE_NAME,
     INVALID_FRACTION,
     INVALID_FREQUENCY_TERM,
@@ -16,5 +18,7 @@ public enum HpoaErrorCategory {
     OBSOLETE_TERM_LABEL,
     OBSOLETE_TERM_ID,
     OMIT_FILE_ERROR,
-    IO_ERROR, TERM_ID_NOT_IN_ONTOLOGY
+    IO_ERROR,
+    TERM_ERROR,
+    TERM_ID_NOT_IN_ONTOLOGY
 }

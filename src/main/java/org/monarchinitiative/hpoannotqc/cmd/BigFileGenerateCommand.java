@@ -2,21 +2,28 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationFileIngestor;
-import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphaAnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetInheritanceXMLParser;
+import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetXML2HpoDiseaseModelParser;
 import org.monarchinitiative.hpoannotqc.annotations.util.AspectIdentifier;
 import org.monarchinitiative.hpoannotqc.annotations.util.HpoAnnotQcUtil;
 import org.monarchinitiative.hpoannotqc.annotations.util.HpoBigfileUtil;
+import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
+import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -67,6 +74,8 @@ public class BigFileGenerateCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Ontology ontology = HpoAnnotQcUtil.getHpo(hpJsonPath);
+        TermValidator validator = new TermValidator(ontology);
+        HpoAnnotationMerger annotationMerger = new HpoAnnotationMerger(ontology, validator);
         String orphanetXMLpath = String.format("%s%s%s", downloadDirectory, File.separator, "en_product4.xml");
         String orphanetInheritanceXmlPath = String.format("%s%s%s", downloadDirectory, File.separator, "en_product9_ages.xml");
         LOGGER.info("annotation directory = {}", hpoAnnotationFileDirectory);
@@ -74,11 +83,11 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         File hpoaSmallFileDir = new File(hpoAnnotationFileDirectory);
         HpoProjectAnnotationFileIngestor annotationFileIngestor =
                 new HpoProjectAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
-        List<HpoProjectAnnotationModel> models = annotationFileIngestor.getHpoaFileEntries();
+        List<AnnotationModel> hpoAnnotationModels = annotationFileIngestor.getHpoaFileEntries();
         List<HpoaErrorReport> errorList = annotationFileIngestor.getErrors();
         if (errorList.isEmpty()) {
             String msg = String.format("No errors found while parsing %d small files.",
-                    models.size());
+                    hpoAnnotationModels.size());
             LOGGER.info(msg);
         } else {
             // We want to be error free before generating the big file
@@ -87,11 +96,37 @@ public class BigFileGenerateCommand implements Callable<Integer> {
             }
             throw new PhenolRuntimeException("Found errors in HPO project small file ingest");
         }
-        // List<HpoaError> errors = models.;
+        // Now ingest Orpha data
+        // 3. Get Orphanet disease models
+        OrphanetXML2HpoDiseaseModelParser orphaParser =
+                new OrphanetXML2HpoDiseaseModelParser(orphanetXMLpath, ontology, tolerant);
+        Map<TermId, OrphaAnnotationModel> prelimOrphaDiseaseMap = orphaParser.getOrphanetDiseaseMap();
+        String info = String.format("[INFO] We parsed %d Orphanet disease entries", prelimOrphaDiseaseMap.size());
+        System.out.println(info);
+        LOGGER.info(info);
+        OrphanetInheritanceXMLParser inheritanceXMLParser =
+                new OrphanetInheritanceXMLParser(orphanetInheritanceXmlPath, ontology);
+        var inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
+        int c = 0;
+        for (TermId diseaseId : prelimOrphaDiseaseMap.keySet()) {
+            OrphaAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
+            if (inheritanceMultiMap.containsKey(diseaseId)) {
+                Collection<AnnotationEntry> inheritanceEntryList = inheritanceMultiMap.get(diseaseId);
+                OrphaAnnotationModel mergedModel = model.mergeWithInheritanceAnnotations(inheritanceEntryList, annotationMerger);
+                prelimOrphaDiseaseMap.put(diseaseId,mergedModel); // replace with model that has inheritance
+                c++;
+            }
+        }
+        info = String.format("[INFO] We added inheritance information to %d Orphanet disease entries", c);
+        LOGGER.info(info);
+        List<AnnotationModel> orphanetSmallFileList = new ArrayList<>(prelimOrphaDiseaseMap.values());
 
-        // Use this to determine the aspect of HPO terms
+       // setNumberOfDiseasesForHeader();
 
-
+        outputBigFile( new File(outputFilePath),
+                 ontology,
+                hpoAnnotationModels,
+                orphanetSmallFileList);
 
         return 0;
     }

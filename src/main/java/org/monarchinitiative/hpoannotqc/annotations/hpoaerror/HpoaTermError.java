@@ -3,6 +3,8 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoaerror;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.monarchinitiative.phenol.ontology.data.Term;
 
+import static org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorCategory.TERM_ERROR;
+
 public class HpoaTermError implements HpoaError {
 
 
@@ -10,10 +12,10 @@ public class HpoaTermError implements HpoaError {
     private final String message;
     private final HpoaErrorCategory category;
 
-    public HpoaTermError(String disease, TermId tid, String msg){
+    public HpoaTermError(TermId tid, String msg){
         this.hpoId = tid;
         this.message = msg;
-        category = null;
+        category = TERM_ERROR;
     }
 
     public HpoaTermError(String msg, HpoaErrorCategory cat){
@@ -44,7 +46,7 @@ public class HpoaTermError implements HpoaError {
 
     @Override
     public String getMessage() {
-        return String.format("%s: %s", hpoId.getValue(), message);
+        return message;
     }
 
 

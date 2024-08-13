@@ -39,7 +39,7 @@ public class HpoProjectAnnotationFileIngestor {
   /**
    * List of all of the {@link org.monarchinitiative.hpoannotqc.annotations.AnnotationModel} objects, which represent annotated diseases.
    */
-  private final List<HpoProjectAnnotationModel> hpoaFileList = new ArrayList<>();
+  private final List<AnnotationModel> hpoaFileList = new ArrayList<>();
   /**
    * Names of entries (small files) that we will omit because they do not represent diseases.
    */
@@ -57,7 +57,7 @@ public class HpoProjectAnnotationFileIngestor {
 
   private final List<HpoaError> errors = new ArrayList<>();
 
-  public List<HpoProjectAnnotationModel> getHpoaFileEntries() {
+  public List<AnnotationModel> getHpoaFileEntries() {
     return hpoaFileList;
   }
 

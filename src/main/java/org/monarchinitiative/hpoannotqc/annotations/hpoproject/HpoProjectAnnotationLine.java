@@ -134,15 +134,19 @@ public record HpoProjectAnnotationLine(
         }
         String modString = A[MODIFIER];
         if (!modString.isEmpty()) {
-            // fine to nbe empty, but if something is present it must be valid
-            tvalid = validator.checkModifier(modString);
-            if (!tvalid.isValid()) {
-                errorList.add(tvalid.getError());
+            // fine to be empty, but if something is present it must be valid
+            // if we get here, we could have either HP:0001234 or HP:0001234;HP:0001235
+            String [] modifiers = modString.split(";");
+            for (String m : modifiers) {
+                tvalid = validator.checkModifier(m);
+                if (!tvalid.isValid()) {
+                    errorList.add(tvalid.getError());
+                }
             }
         }
         String description = A[DESCRIPTION] != null ? A[DESCRIPTION] : EMPTY_STRING;
         String publication = A[PUBLICATION] != null ? A[PUBLICATION] : EMPTY_STRING;
-        String evidenceCode = A[12];
+        String evidenceCode = A[EVIDENCE];
         Biocuration biocuration = new HpoProjectBiocuration(A[BIOCURATION]);
         if (!biocuration.errors().isEmpty()) {
             errorList.addAll(biocuration.errors());

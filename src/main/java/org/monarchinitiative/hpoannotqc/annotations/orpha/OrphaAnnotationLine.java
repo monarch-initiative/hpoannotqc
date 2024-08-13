@@ -105,7 +105,7 @@ public class OrphaAnnotationLine implements AnnotationEntry {
                 String newLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
                 String message = String.format("Replacing obsolete TermId \"%s\" with current ID \"%s\" (and obsolete label %s with current label %s)",
                         hpoId, currentPhenotypeId.getValue(), hpoLabel, newLabel);
-                HpoaError hpoae = new HpoaTermError(diseaseName, currentPhenotypeId, message);
+                HpoaError hpoae = new HpoaTermError(currentPhenotypeId, message);
                 errorList.add(hpoae);
                 phenotypeId = currentPhenotypeId;
                 hpoLabel = newLabel;
@@ -116,7 +116,7 @@ public class OrphaAnnotationLine implements AnnotationEntry {
                 if (!hpoLabel.equals(currentPhenotypeLabel)) {
                     String message = String.format("Replacing obsolete Term label \"%s\" with current label \"%s\"",
                             hpoLabel, currentPhenotypeLabel);
-                    errorList.add(new HpoaTermError(diseaseName, currentPhenotypeId, message));
+                    errorList.add(new HpoaTermError(currentPhenotypeId, message));
                     LOGGER.warn("{}: {}", diseaseID, message);
                     hpoLabel = currentPhenotypeLabel;
                 }

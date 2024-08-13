@@ -112,7 +112,7 @@ public interface AnnotationEntry {
     /**
      * Following quality control of an entry that has been ingested from a small file, and potentially merged,
      * we export the corresponding line for the big file.
-     * @param ontology A reference to the HPO ontology
+     * @param aspectIdentifier An object to decide what "aspect" this line is
      * @return A line for the phenotype.hpoa file
      */
     default String toBigFileLine(AspectIdentifier aspectIdentifier) {
