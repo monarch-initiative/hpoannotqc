@@ -20,7 +20,7 @@ public class HpoProjectBiocurationTest {
     "HPO:skoehler[2015-04-05]",
     "HPO:probinson[2023-03-09];ORCID:0000-0002-0736-9199[2024-04-01]"}) // valid strings
     void shouldReturnValidParse(String curation) {
-        HpoProjectBiocuration biocuration = new HpoProjectBiocuration(curation);
+        HpoBiocuration biocuration = new HpoBiocuration(curation);
         assertEquals(curation, biocuration.curation());
         assertTrue(biocuration.errors().isEmpty());
     }
@@ -29,7 +29,7 @@ public class HpoProjectBiocurationTest {
 @Test
 public void testValidOrcid() {
     String curationString = "ORCID:0000-0002-0736-9199[2024-04-01]";
-    Biocuration bc = new HpoProjectBiocuration(curationString);
+    Biocuration bc = new HpoBiocuration(curationString);
     List<HpoaError> errors = bc.errors();
     assertTrue(errors.isEmpty());
 }
@@ -37,7 +37,7 @@ public void testValidOrcid() {
     @Test
     public void lacksClosingBracket() {
         String curationString = "ORCID:0000-0002-0736-9199[2024-04-01";
-        Biocuration bc = new HpoProjectBiocuration(curationString);
+        Biocuration bc = new HpoBiocuration(curationString);
         List<HpoaError> errors = bc.errors();
         assertFalse(errors.isEmpty());
         assertEquals(1, errors.size());
@@ -50,7 +50,7 @@ public void testValidOrcid() {
     @Test
     public void noColon() {
         String curationString = "HPOprobinson[2024-04-01]";
-        Biocuration bc = new HpoProjectBiocuration(curationString);
+        Biocuration bc = new HpoBiocuration(curationString);
         List<HpoaError> errors = bc.errors();
         assertFalse(errors.isEmpty());
         assertEquals(1, errors.size());
@@ -63,7 +63,7 @@ public void testValidOrcid() {
     @Test
     public void noDate() {
         String curationString = "HPO:probinson";
-        Biocuration bc = new HpoProjectBiocuration(curationString);
+        Biocuration bc = new HpoBiocuration(curationString);
         List<HpoaError> errors = bc.errors();
         assertFalse(errors.isEmpty());
         assertEquals(1, errors.size());
@@ -76,7 +76,7 @@ public void testValidOrcid() {
     @Test
     public void onlyDate() {
         String curationString = "[2024-04-01]";
-        Biocuration bc = new HpoProjectBiocuration(curationString);
+        Biocuration bc = new HpoBiocuration(curationString);
         List<HpoaError> errors = bc.errors();
         assertFalse(errors.isEmpty());
         assertEquals(1, errors.size());

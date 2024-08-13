@@ -19,7 +19,6 @@ public class HpoAnnotQcUtil {
         File f = new File(hpJsonPath);
         if (! f.isFile()) {
             String err = String.format("Could not find hp.json file at \"%s\".", hpJsonPath);
-            System.err.println(err);
             throw new PhenolRuntimeException(err);
         }
         return OntologyLoader.loadOntology(f);

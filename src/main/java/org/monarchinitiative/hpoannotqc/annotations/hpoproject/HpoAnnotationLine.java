@@ -23,7 +23,7 @@ import java.util.*;
  *
  * @author Peter Robinson
  */
-public record HpoProjectAnnotationLine(
+public record HpoAnnotationLine(
         Term diseaseTerm,
         Term phenotypeTerm,
         Term onsetTerm,
@@ -37,7 +37,7 @@ public record HpoProjectAnnotationLine(
         Biocuration biocuration,
         List<HpoaError> errorList
 ) implements AnnotationEntry {
-    private final static Logger LOGGER = LoggerFactory.getLogger(HpoProjectAnnotationLine.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationLine.class);
 
     private final static String EMPTY_STRING = "";
 
@@ -113,7 +113,7 @@ public record HpoProjectAnnotationLine(
         Term phenotype = tvalid.validate(errorList);
         tvalid = validator.checkOnsetTerm(A[4], A[5]);
         Term onsetTerm = tvalid.validate(errorList);
-        FrequencyModifier freqMod = HpoProjectFrequency.fromHpoaLine(A[FREQUENCY], ontology);
+        FrequencyModifier freqMod = HpoFrequencyField.fromHpoaLine(A[FREQUENCY], ontology);
         Optional<HpoaError> errorOpt = freqMod.error();
         errorOpt.ifPresent(errorList::add);
         Optional<String> sexOpt = checkSexString(A[SEX]);
@@ -147,11 +147,11 @@ public record HpoProjectAnnotationLine(
         String description = A[DESCRIPTION] != null ? A[DESCRIPTION] : EMPTY_STRING;
         String publication = A[PUBLICATION] != null ? A[PUBLICATION] : EMPTY_STRING;
         String evidenceCode = A[EVIDENCE];
-        Biocuration biocuration = new HpoProjectBiocuration(A[BIOCURATION]);
+        Biocuration biocuration = new HpoBiocuration(A[BIOCURATION]);
         if (!biocuration.errors().isEmpty()) {
             errorList.addAll(biocuration.errors());
         }
-        return new HpoProjectAnnotationLine(disease,
+        return new HpoAnnotationLine(disease,
                 phenotype,
                 onsetTerm,
                 freqMod,
@@ -279,5 +279,16 @@ public record HpoProjectAnnotationLine(
                 getEvidenceCode(),
                 getBiocuration());
         return String.join("\t", items);
+    }
+
+    @Override
+    public String toString() {
+        List<String> items = new ArrayList<>();
+        items.add("[HpoAnnotationLine]");
+        items.add("PhenotypeId: " + getPhenotypeId());
+        items.add("PhenotypeLabel: " + getPhenotypeLabel());
+        items.add("DiseaseId: " + getDiseaseID());
+        items.add("label: " + getDiseaseName());
+        return String.join(";", items);
     }
 }

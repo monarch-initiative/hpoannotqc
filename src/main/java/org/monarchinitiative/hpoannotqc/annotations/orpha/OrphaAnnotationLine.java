@@ -3,7 +3,7 @@ package org.monarchinitiative.hpoannotqc.annotations.orpha;
 import org.monarchinitiative.hpoannotqc.annotations.Biocuration;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaTermError;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.TermIdError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -103,10 +103,7 @@ public class OrphaAnnotationLine implements AnnotationEntry {
             TermId currentPhenotypeId = ontology.getPrimaryTermId(phenotypeId);
             if (currentPhenotypeId != null && !currentPhenotypeId.equals(phenotypeId)) {
                 String newLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
-                String message = String.format("Replacing obsolete TermId \"%s\" with current ID \"%s\" (and obsolete label %s with current label %s)",
-                        hpoId, currentPhenotypeId.getValue(), hpoLabel, newLabel);
-                HpoaError hpoae = new HpoaTermError(currentPhenotypeId, message);
-                errorList.add(hpoae);
+                errorList.add(TermIdError.idDoesNotMatchPrimary(phenotypeId, currentPhenotypeId));
                 phenotypeId = currentPhenotypeId;
                 hpoLabel = newLabel;
             }
@@ -114,10 +111,7 @@ public class OrphaAnnotationLine implements AnnotationEntry {
             if (currentPhenotypeId != null) { // we can only get new name if we got the new id!
                 String currentPhenotypeLabel = ontology.getTermLabel(phenotypeId).orElseThrow();
                 if (!hpoLabel.equals(currentPhenotypeLabel)) {
-                    String message = String.format("Replacing obsolete Term label \"%s\" with current label \"%s\"",
-                            hpoLabel, currentPhenotypeLabel);
-                    errorList.add(new HpoaTermError(currentPhenotypeId, message));
-                    LOGGER.warn("{}: {}", diseaseID, message);
+                    errorList.add(TermIdError.labelDoesNotMatchPrimary(currentPhenotypeLabel, hpoLabel));
                     hpoLabel = currentPhenotypeLabel;
                 }
             }
@@ -268,5 +262,16 @@ public class OrphaAnnotationLine implements AnnotationEntry {
     @Override
     public boolean hasError() {
         return ! errorList.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        List<String> items = new ArrayList<>();
+        items.add("[OrphaAnnotationLine]");
+        items.add("PhenotypeId: " + getPhenotypeId());
+        items.add("PhenotypeLabel: " + getPhenotypeLabel());
+        items.add("DiseaseId: " + getDiseaseID());
+        items.add("label: " + getDiseaseName());
+        return String.join(";", items);
     }
 }

@@ -26,8 +26,8 @@ import java.util.Set;
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  */
-public class HpoProjectAnnotationFileIngestor {
-  private static final Logger LOGGER = LoggerFactory.getLogger(HpoProjectAnnotationFileIngestor.class);
+public class HpoAnnotationFileIngestor {
+  private static final Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationFileIngestor.class);
   /**
    * Reference to the HPO object.
    */
@@ -63,7 +63,7 @@ public class HpoProjectAnnotationFileIngestor {
 
 
 
-  public HpoProjectAnnotationFileIngestor(String directoryPath, Ontology ontology, boolean merge_fr) {
+  public HpoAnnotationFileIngestor(String directoryPath, Ontology ontology, boolean merge_fr) {
     this(directoryPath,
       String.format("%s%s%s", directoryPath, File.separator, "omit-list.txt"),
       ontology,
@@ -76,7 +76,7 @@ public class HpoProjectAnnotationFileIngestor {
    * @param ontology      reference to HPO ontologt object
    * @param merge         Should we merge small file lines with the same HPO but different metadata?
    */
-  public HpoProjectAnnotationFileIngestor(String directoryPath, String omitFile, Ontology ontology, boolean merge) {
+  public HpoAnnotationFileIngestor(String directoryPath, String omitFile, Ontology ontology, boolean merge) {
     omitEntries = getOmitEntries(omitFile);
     this.mergeEntries = merge;
     smallFilePaths = getListOfSmallFiles(directoryPath);
@@ -85,9 +85,9 @@ public class HpoProjectAnnotationFileIngestor {
   }
 
   private void inputHpoAnnotationFiles() {
-    HpoProjectAnnotationFileParser parser = new HpoProjectAnnotationFileParser(ontology);
+    HpoAnnotationFileParser parser = new HpoAnnotationFileParser(ontology);
     for (File file : smallFilePaths) {
-      HpoProjectAnnotationModel smallFile = parser.parse(file);
+      HpoAnnotationModel smallFile = parser.parse(file);
       if (mergeEntries) {
         smallFile = smallFile.getMergedModel();
       }
@@ -111,7 +111,8 @@ public class HpoProjectAnnotationFileIngestor {
         LOGGER.error(e.getMessage());
         throw new PhenolRuntimeException("Parse errors encountered with HPOA file generation!");
       }
-
+    } else {
+      LOGGER.info("No errors detected with HPOA annotation files");
     }
   }
 

@@ -335,7 +335,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         inDisorderType = false;
                         currentOrphanumber = null;
                         currentDiseaseName = null;
-                        if (currentAnnotationEntryList.stream().anyMatch(e -> e.hasError())) {
+                        if (currentAnnotationEntryList.stream().anyMatch(AnnotationEntry::hasError)) {
                             for (var entry: currentAnnotationEntryList) {
                                 errorList.addAll(entry.getErrors());
                             }

@@ -40,7 +40,7 @@ public class HpoAnnotationMergerTest extends TestBase  {
         fields.add(evidence);
         fields.add(biocuration);
         String line = String.join("\t", fields);
-        return HpoProjectAnnotationLine.fromLine(line, validator, ontology);
+        return HpoAnnotationLine.fromLine(line, validator, ontology);
     }
 
 
@@ -70,7 +70,7 @@ public class HpoAnnotationMergerTest extends TestBase  {
                 onsetLabel,
                 EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,EMPTY_STRING, PUBLICATION, "IEA", BIOCURATION2);
         String line = String.join("\t", fields);
-        return HpoProjectAnnotationLine.fromLine(line, validator, ontology);
+        return HpoAnnotationLine.fromLine(line, validator, ontology);
     }
 
     private final static AnnotationEntry entryFreq1 = makeAnnotationEntry("4/5", EMPTY_STRING, "TAS");

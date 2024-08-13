@@ -1,9 +1,10 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
+import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorCategory;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
-import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoProjectAnnotationFileIngestor;
+import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationFileIngestor;
 import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphaAnnotationModel;
 import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetInheritanceXMLParser;
 import org.monarchinitiative.hpoannotqc.annotations.orpha.OrphanetXML2HpoDiseaseModelParser;
@@ -81,8 +82,8 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         LOGGER.info("annotation directory = {}", hpoAnnotationFileDirectory);
         // 1. Get list of small files
         File hpoaSmallFileDir = new File(hpoAnnotationFileDirectory);
-        HpoProjectAnnotationFileIngestor annotationFileIngestor =
-                new HpoProjectAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
+        HpoAnnotationFileIngestor annotationFileIngestor =
+                new HpoAnnotationFileIngestor(hpoaSmallFileDir.getAbsolutePath(), ontology, this.merge_frequency);
         List<AnnotationModel> hpoAnnotationModels = annotationFileIngestor.getHpoaFileEntries();
         List<HpoaErrorReport> errorList = annotationFileIngestor.getErrors();
         if (errorList.isEmpty()) {
@@ -108,6 +109,7 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                 new OrphanetInheritanceXMLParser(orphanetInheritanceXmlPath, ontology);
         var inheritanceMultiMap = inheritanceXMLParser.getDisease2inheritanceMultimap();
         int c = 0;
+
         for (TermId diseaseId : prelimOrphaDiseaseMap.keySet()) {
             OrphaAnnotationModel model = prelimOrphaDiseaseMap.get(diseaseId);
             if (inheritanceMultiMap.containsKey(diseaseId)) {
@@ -162,16 +164,24 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                                        AspectIdentifier aspectIdentifier,
                                        List<AnnotationModel> orphaModels) throws IOException {
         int m = 0;
+        int n_updated_ids = 0;
+        int n_updated_labels = 0;
         for (AnnotationModel smallFile : orphaModels) {
             List<AnnotationEntry> entryList = smallFile.getEntryList();
             for (AnnotationEntry entry : entryList) {
                 if (entry.hasError()) {
-                    String err = String.format("[ERROR] with entry (%s): %s",
-                            entry.getDiseaseName(),
-                            entry.getErrors().get(0).getMessage());
-                    System.err.printf("TODO: HOW TO PROCESS: %sn",err);
-                    // TODO
-
+                    for  (var er: entry.getErrors()) {
+                        if (er.category().equals(HpoaErrorCategory.OBSOLETE_TERM_ID)) {
+                            n_updated_ids++;
+                        } else if (er.category().equals(HpoaErrorCategory.OBSOLETE_TERM_LABEL)) {
+                            n_updated_labels++;
+                        } else {
+                            String err = String.format("[ERROR] with entry (%s): %s",
+                                    entry.getDiseaseName(),
+                                    er.getCategoryAndError());
+                            System.err.printf("%s\n",err);
+                        }
+                    }
                 }
                 try {
                     String bigfileLine = entry.toBigFileLine(aspectIdentifier);
@@ -179,10 +189,15 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                 } catch (HpoAnnotQcException e) {
                     LOGGER.error(e.getMessage());
                     System.err.println(e.getMessage());
+                } catch (PhenolRuntimeException pre) {
+                    String err = String.format("Could not output annotation because of null term id error for data: %s ", entry);
+                    System.err.printf("%s\n",err);
                 }
                 m++;
             }
         }
+        LOGGER.warn("Replaced {} obsoleted ids in ORPHA annotations.\n",n_updated_ids );
+        LOGGER.warn("Replaced {} obsoleted labels in ORPHA annotations.\n",n_updated_labels );
         LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files", m);
         return m;
     }

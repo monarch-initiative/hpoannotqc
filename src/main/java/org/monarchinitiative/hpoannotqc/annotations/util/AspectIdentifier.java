@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.annotations.util;
 
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoAspect;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
@@ -46,7 +47,7 @@ public class AspectIdentifier {
     public HpoAspect getAspect(TermId tid) throws HpoAnnotQcException {
         TermId primaryHpoId = hpoOntology.getPrimaryTermId(tid);
         if (primaryHpoId == null) {
-            throw new HpoAnnotQcException("Cannot compute Aspect of NULL term");
+            throw new PhenolRuntimeException("Cannot compute Aspect of NULL term");
         }
         if (! primaryHpoId.equals(tid)) {
             throw new HpoAnnotQcException(String.format("TermId %s did not match primary id %s", tid.getValue(), primaryHpoId.getValue()));

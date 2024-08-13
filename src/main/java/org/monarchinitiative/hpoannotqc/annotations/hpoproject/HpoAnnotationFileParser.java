@@ -25,8 +25,8 @@ import java.util.*;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 2/05/2018.
  */
-public class HpoProjectAnnotationFileParser {
-  private final static Logger LOGGER = LoggerFactory.getLogger(HpoProjectAnnotationFileParser.class);
+public class HpoAnnotationFileParser {
+  private final static Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationFileParser.class);
   /**
    * A reference to the HPO Ontology object.
    */
@@ -60,11 +60,11 @@ public class HpoProjectAnnotationFileParser {
   /**
    * A list of all erroneous Small File lines encountered during parsing
    */
-  private List<HpoProjectAnnotationModel> diseaseAnnotationModels;
+  private List<HpoAnnotationModel> diseaseAnnotationModels;
 
 
 
-  public HpoProjectAnnotationFileParser(Ontology ontology) {
+  public HpoAnnotationFileParser(Ontology ontology) {
     this.ontology = ontology;
     this.termValidator = new TermValidator(ontology);
     this.annotationMerger = new HpoAnnotationMerger(ontology, termValidator);
@@ -77,13 +77,13 @@ public class HpoProjectAnnotationFileParser {
 
   /**
    * Parse a single HPO Annotation file. If {@code faultTolerant} is set to true, then we will parse as
-   * much as we can of an annotation file and return the {@link HpoProjectAnnotationModel} object, even if one or more
+   * much as we can of an annotation file and return the {@link HpoAnnotationModel} object, even if one or more
    * parse errors occured. Otherwise, an {@link HpoAnnotationModelError} will be thrown
    *
    * @param faultTolerant If true, report errors to STDERR but do not throw an exception
-   * @return A {@link HpoProjectAnnotationModel} object corresponding to the data in the HPO Annotation file
+   * @return A {@link HpoAnnotationModel} object corresponding to the data in the HPO Annotation file
    */
-  public HpoProjectAnnotationModel parse(File hpoAnnotationFile, boolean faultTolerant) {
+  public HpoAnnotationModel parse(File hpoAnnotationFile, boolean faultTolerant) {
     String basename = hpoAnnotationFile.getName();
     List<AnnotationEntry> entryList = new ArrayList<>();
     List<HpoaError> errorList = new ArrayList<>();
@@ -92,7 +92,7 @@ public class HpoProjectAnnotationFileParser {
       String line = br.readLine();
       qcHeaderLine(line);
       while ((line = br.readLine()) != null) {
-          AnnotationEntry entry = HpoProjectAnnotationLine.fromLine(line, termValidator, ontology);
+          AnnotationEntry entry = HpoAnnotationLine.fromLine(line, termValidator, ontology);
           if (entry.hasError()) {
               errorList.addAll(entry.getErrors());
           } else {
@@ -100,7 +100,7 @@ public class HpoProjectAnnotationFileParser {
           }
       }
       br.close();
-      return new HpoProjectAnnotationModel(basename, entryList, errorList, annotationMerger);
+      return new HpoAnnotationModel(basename, entryList, errorList, annotationMerger);
     } catch (IOException e) {
       throw new HpoAnnotQcException(String.format("Error parsing %s: %s", hpoAnnotationFile, e.getMessage()));
     }
@@ -111,7 +111,7 @@ public class HpoProjectAnnotationFileParser {
    * error is encountered, throw an {@link HpoAnnotationModelError}.
    *
    */
-  public HpoProjectAnnotationModel parse(File hpoAnnotationFile)  {
+  public HpoAnnotationModel parse(File hpoAnnotationFile)  {
     return parse(hpoAnnotationFile,false);
   }
 
@@ -121,7 +121,7 @@ public class HpoProjectAnnotationFileParser {
    * @return true if one or more parse errors occured
    */
   public boolean hasErrors() {
-    return diseaseAnnotationModels.stream().anyMatch(HpoProjectAnnotationModel::hasError);
+    return diseaseAnnotationModels.stream().anyMatch(HpoAnnotationModel::hasError);
   }
 
   /**

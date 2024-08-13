@@ -3,7 +3,6 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 import org.monarchinitiative.hpoannotqc.annotations.util.TermValidator;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.FrequencyModifier;
-import org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -67,7 +66,7 @@ public class HpoAnnotationMerger {
                 evidence,
                 mergedBiocuration);
         String mergedAnnotationLine = String.join("\t", entries);
-        return HpoProjectAnnotationLine.fromLine(mergedAnnotationLine, validator,ontology);
+        return HpoAnnotationLine.fromLine(mergedAnnotationLine, validator,ontology);
     }
 
     /**
@@ -114,7 +113,7 @@ public class HpoAnnotationMerger {
                 sum_of_denominators += DEFAULT_NUMBER_OF_OBSERVATIONS;
             } else if (termMatcher.matches()){
                 TermId freqid = TermId.of(q);
-                HpoFrequency hpofreq= HpoFrequency.fromTermId(freqid);
+                org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency hpofreq= org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.fromTermId(freqid);
                 double proportion = hpofreq.mean();
                 int n=(int)Math.round(proportion*10.0);
                 sum_of_numerators += n;
@@ -125,10 +124,10 @@ public class HpoAnnotationMerger {
             }
         }
         if (sum_of_numerators == 0 && sum_of_denominators == 0) {
-            return HpoProjectFrequency.empty();
+            return HpoFrequencyField.empty();
         }
         String mergedFreqString = String.format("%d/%d",sum_of_numerators,sum_of_denominators);
-        return HpoProjectFrequency.fromHpoaLine(mergedFreqString, ontology);
+        return HpoFrequencyField.fromHpoaLine(mergedFreqString, ontology);
     }
 
     public static  String mergeModifiers(final List<AnnotationEntry> entrylist) {

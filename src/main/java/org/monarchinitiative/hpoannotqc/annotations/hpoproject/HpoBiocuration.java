@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HpoProjectBiocuration implements Biocuration {
+public class HpoBiocuration implements Biocuration {
 
     private static final String biocurationRegex = "(\\w+:\\w+|ORCID:\\d{4}-\\d{4}-\\d{4}-\\d{4})\\[\\d{4}-\\d{2}-\\d{2}]";
     /**
@@ -24,7 +24,7 @@ public class HpoProjectBiocuration implements Biocuration {
 
     private final List<HpoaError> errorList;
 
-    public HpoProjectBiocuration(String curationString) {
+    public HpoBiocuration(String curationString) {
         errorList = new ArrayList<>();
         if (curationString == null ||curationString.isEmpty()) {
             biocuration = EMPTY_STRING;

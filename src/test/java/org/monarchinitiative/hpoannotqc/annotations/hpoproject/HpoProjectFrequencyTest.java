@@ -16,7 +16,7 @@ public class HpoProjectFrequencyTest extends TestBase {
             "32%",
             "HP:0040281"}) // valid frequency strings, note HP:0040281=Very frequent
     void shouldReturnValidParse(String frequencyString) {
-        FrequencyModifier freqMod = HpoProjectFrequency.fromHpoaLine(frequencyString, ontology);
+        FrequencyModifier freqMod = HpoFrequencyField.fromHpoaLine(frequencyString, ontology);
         assertFalse(freqMod.error().isPresent());
     }
 
@@ -26,7 +26,7 @@ public class HpoProjectFrequencyTest extends TestBase {
             "332%",
             "HP:0001166"}) // invalid frequency strings, note HP:0001166=Arachnodactyly
     void shouldReturnFail(String frequencyString) {
-        FrequencyModifier freqMod = HpoProjectFrequency.fromHpoaLine(frequencyString, ontology);
+        FrequencyModifier freqMod = HpoFrequencyField.fromHpoaLine(frequencyString, ontology);
         assertTrue(freqMod.error().isPresent());
     }
 

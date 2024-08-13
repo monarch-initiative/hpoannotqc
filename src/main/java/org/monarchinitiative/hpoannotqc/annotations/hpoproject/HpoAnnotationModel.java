@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
  * Created by peter on 1/20/2018.
  */
-public class HpoProjectAnnotationModel implements AnnotationModel {
+public class HpoAnnotationModel implements AnnotationModel {
   /**
    * The base name of the HPO Annotation file.
    */
@@ -80,10 +80,10 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
    * @param name    Name of the "small file"
    * @param entries List of {@link AnnotationEntry} objects -- one per line of the small file.
    */
-  public HpoProjectAnnotationModel(String name,
-                                   List<AnnotationEntry> entries,
-                                   List<HpoaError> errors,
-                                   HpoAnnotationMerger merger) {
+  public HpoAnnotationModel(String name,
+                            List<AnnotationEntry> entries,
+                            List<HpoaError> errors,
+                            HpoAnnotationMerger merger) {
     basename = name;
     entryList = List.copyOf(entries);
     errorList = List.copyOf(errors);
@@ -107,11 +107,11 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
 
   /** Seems a stale function? */
   @Deprecated()
-  public HpoProjectAnnotationModel mergeWithInheritanceAnnotations(Collection<AnnotationEntry> inherit) {
+  public HpoAnnotationModel mergeWithInheritanceAnnotations(Collection<AnnotationEntry> inherit) {
     List<AnnotationEntry> builder = new ArrayList<>();
       builder.addAll(this.entryList);
       builder.addAll(inherit);
-    return new HpoProjectAnnotationModel(this.basename, List.copyOf(builder),
+    return new HpoAnnotationModel(this.basename, List.copyOf(builder),
             List.of(),
             annotationMerger);
   }
@@ -176,7 +176,7 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
   }
 
 
-  public HpoProjectAnnotationModel getMergedModel() {
+  public HpoAnnotationModel getMergedModel() {
     Map<String, List<AnnotationEntry>> termId2AnnotEntryListMap = new HashMap<>();
     for (AnnotationEntry entry : this.entryList) {
       termId2AnnotEntryListMap.putIfAbsent(entry.getPhenotypeId(), new ArrayList<>());
@@ -205,7 +205,7 @@ public class HpoProjectAnnotationModel implements AnnotationModel {
         }
       }
     }
-    return new HpoProjectAnnotationModel(this.basename,
+    return new HpoAnnotationModel(this.basename,
             List.copyOf(builder),
             getErrorList(),
             annotationMerger);

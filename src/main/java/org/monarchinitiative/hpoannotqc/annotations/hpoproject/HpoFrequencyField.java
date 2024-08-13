@@ -13,8 +13,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HpoProjectFrequency implements FrequencyModifier {
-    private final static Logger LOGGER = LoggerFactory.getLogger(HpoProjectFrequency.class);
+public class HpoFrequencyField implements FrequencyModifier {
+    private final static Logger LOGGER = LoggerFactory.getLogger(HpoFrequencyField.class);
     // To match e.g. 10/20
     private static final Pattern RATIO_PATTERN = Pattern.compile("(?<numerator>\\d+)/(?<denominator>\\d+)");
     // To match an int of optionally a float percentage (e.g. 1% or 1.23456789%).
@@ -25,13 +25,13 @@ public class HpoProjectFrequency implements FrequencyModifier {
     private String freq;
     private HpoaError error;
 
-    private HpoProjectFrequency() {
+    private HpoFrequencyField() {
         freq = EMPTY_STRING;
         error = null;
     }
 
 
-    private HpoProjectFrequency(String frequencyField, Ontology ontology) {
+    private HpoFrequencyField(String frequencyField, Ontology ontology) {
         if (frequencyField == null || frequencyField.isEmpty()) {
             freq = EMPTY_STRING; // OK, frequency is not required
             return;
@@ -92,7 +92,7 @@ public class HpoProjectFrequency implements FrequencyModifier {
 
 
     public static FrequencyModifier fromHpoaLine(String freq, Ontology ontology) {
-        return new HpoProjectFrequency(freq, ontology);
+        return new HpoFrequencyField(freq, ontology);
     }
 
 
@@ -112,6 +112,6 @@ public class HpoProjectFrequency implements FrequencyModifier {
     }
 
     public static FrequencyModifier empty() {
-        return new HpoProjectFrequency();
+        return new HpoFrequencyField();
     }
 }

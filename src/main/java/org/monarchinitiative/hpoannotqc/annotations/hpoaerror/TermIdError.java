@@ -55,6 +55,11 @@ public class TermIdError implements HpoaError {
       return new TermIdError(err, HpoaErrorCategory.INVALID_MODIFIER_TERMID);
   }
 
+  public static HpoaError nullTermIdError(String message) {
+
+        return new TermIdError(message, HpoaErrorCategory.NULL_TERM_ID);
+  }
+
 
 }
 
