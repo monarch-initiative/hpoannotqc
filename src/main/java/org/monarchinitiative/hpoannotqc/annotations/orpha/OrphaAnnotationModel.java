@@ -2,6 +2,7 @@ package org.monarchinitiative.hpoannotqc.annotations.orpha;
 
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.DiseaseDatabase;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoproject.HpoAnnotationMerger;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -92,6 +93,11 @@ public class OrphaAnnotationModel implements AnnotationModel {
       if (entryList.isEmpty()) return "n/a"; // should never happen
       AnnotationEntry entry = entryList.get(0);
       return String.format("%s - %s (%s)", getBasename(), entry.getDiseaseName(), entry.getDiseaseID());
+  }
+
+  @Override
+  public DiseaseDatabase getDatabase() {
+    return DiseaseDatabase.ORPHANET;
   }
 
   public int getNumberOfAnnotations() {

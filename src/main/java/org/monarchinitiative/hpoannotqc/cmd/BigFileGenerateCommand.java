@@ -203,39 +203,16 @@ public class BigFileGenerateCommand implements Callable<Integer> {
     }
 
 
-    /*
-    /**
-   * In the header of the {@code phenotype.hpoa} file, we write the
-   * number of OMIM, Orphanet, and DECIPHER entries. This is calculated
-   * here (except for Orphanet).
-    private void setNumberOfDiseasesForHeader() {
-        this.n_decipher = 0;
-        this.n_omim = 0;
-        this.n_unknown = 0;
-        for (HpoAnnotationModel diseaseModel : internalAnnotationModelList) {
-            if (diseaseModel.isOMIM()) n_omim++;
-            else if (diseaseModel.isDECIPHER()) n_decipher++;
-            else n_unknown++;
-        }
-        this.n_orphanet = orphanetSmallFileList.size();
-    }
 
-     */
 
     public void outputBigFile(File outputFile,
                               Ontology ontology,
                               List<AnnotationModel> hpoModels,
                               List<AnnotationModel> orphaModels) throws IOException {
-        int n_omim = 42;
-        int n_decipher = 42;
-        int n_orpha = 42;
-        int n_unknown = 0;
+        long n_omim = hpoModels.stream().filter(annot -> annot.getDatabase().equals(DiseaseDatabase.OMIM)).count();
+        long n_decipher = hpoModels.stream().filter(annot -> annot.getDatabase().equals(DiseaseDatabase.DECIPHER)).count();
+        int n_orpha = orphaModels.size();
         String description = String.format("#description: \"HPO annotations for rare diseases [%d: OMIM; %d: DECIPHER; %d ORPHANET]\"", n_omim, n_decipher, n_orpha);
-        List<String> errorList = new ArrayList<>();
-        if (n_unknown > 0) {
-            description = String.format("%s -- warning: %d entries could not be assigned to a database", description, n_unknown);
-            errorList.add(description);
-        }
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
         writer.write(description + "\n");
         HpoBigfileUtil bfUtil = new HpoBigfileUtil(ontology);
@@ -251,16 +228,5 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         int m = outputOrphaAnnotations(writer, aspectIdentifier, orphaModels);
         LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files", m);
         LOGGER.info("Total output lines was {}", (n + m));
-
-        writer.close();
-        if (!errorList.isEmpty()) {
-            System.out.println("**********************");
-            System.out.println("**********************");
-            System.out.println("**********************");
-            System.out.println("ERRORS");
-            for (String line : errorList) {
-                System.out.println(line);
-            }
-        }
     }
 }

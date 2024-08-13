@@ -2,11 +2,14 @@ package org.monarchinitiative.hpoannotqc.annotations.hpoproject;
 
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationEntry;
 import org.monarchinitiative.hpoannotqc.annotations.AnnotationModel;
+import org.monarchinitiative.hpoannotqc.annotations.DiseaseDatabase;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
 import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaErrorReport;
+import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -103,6 +106,16 @@ public class HpoAnnotationModel implements AnnotationModel {
     if (entryList.isEmpty()) return "n/a"; // should never happen
     AnnotationEntry entry = entryList.get(0);
     return String.format("%s - %s (%s)", getBasename(), entry.getDiseaseName(), entry.getDiseaseID());
+  }
+
+  @Override
+  public DiseaseDatabase getDatabase() {
+    if (entryList.isEmpty()) {
+      return DiseaseDatabase.UNKNOWN;
+    }
+    AnnotationEntry entry = entryList.get(0);
+    String prefix =  entry.getDatabasePrefix();
+    return DiseaseDatabase.fromString(prefix);
   }
 
   /** Seems a stale function? */

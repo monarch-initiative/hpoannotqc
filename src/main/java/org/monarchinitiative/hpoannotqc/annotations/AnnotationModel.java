@@ -17,6 +17,8 @@ public interface AnnotationModel {
 
     String getTitle();
 
+    DiseaseDatabase getDatabase();
+
     default List<HpoaErrorReport> getHpoaErrorReportList() {
         List<HpoaErrorReport> reports = new ArrayList<>();
         for (HpoaError error : getErrors()) {
