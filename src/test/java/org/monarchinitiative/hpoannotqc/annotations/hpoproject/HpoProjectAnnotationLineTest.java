@@ -31,6 +31,26 @@ public class HpoProjectAnnotationLineTest extends TestBase {
             "PCS",
             "HPO:probinson[2022-03-31]");
 
+    // OMIM-191900.tab - Muckle-Wells syndrome (OMIM:191900): MALFORMED_TERM_ID: Malformed term identifier "HP:0025206;HP:0025303".
+    // HP:0025206 Triggered by cold
+    // Episodic HP:0025303
+    private final static List<String> omim191900template = List.of(
+            "OMIM:191900",
+            "Muckle-Wells syndrome",
+            "HP:0000509",
+            "Conjunctivitis",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "3/3",
+            EMPTY_STRING,
+            EMPTY_STRING,
+            "HP:0025206;HP:0025303", // modifier
+            "Episodic", // description (free text)
+            "PMID:14872505",
+            "PCS",
+            "HPO:probinson[2009-02-17];HPO:probinson[2020-11-17]");
+
+
 
     @Test
     public void testemplateFieldNumber() {
@@ -163,5 +183,13 @@ public class HpoProjectAnnotationLineTest extends TestBase {
         assertEquals(1, errors.size());
         HpoaError error1 = errors.get(0);
         assertEquals(HpoaErrorCategory.MALFORMED_BIOCURATION_ENTRY, error1.category());
+    }
+
+
+    @Test
+    public void testLineWithTwoModifiers() {
+        String line = String.join("\t", omim191900template);
+        AnnotationEntry entry = HpoAnnotationLine.fromLine(line, validator, ontology);
+        assertFalse(entry.hasError());
     }
 }
