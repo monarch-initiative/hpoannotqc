@@ -17,4 +17,6 @@ public class TestBase {
 
     protected static final TermValidator validator = new TermValidator(ontology);
 
+    protected final static String EMPTY_STRING = "";
+
 }
