@@ -83,7 +83,6 @@ public class HpoFrequencyField implements FrequencyModifier {
         if (!valid) {
             error = FrequencyError.invalidSubontology(frequencyField);
             freq = EMPTY_STRING;
-            return;
         } else {
             freq = frequencyField;
             error = null;

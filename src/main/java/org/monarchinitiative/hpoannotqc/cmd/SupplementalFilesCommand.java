@@ -89,7 +89,7 @@ public class SupplementalFilesCommand implements Callable<Integer> {
                         .flatMap(termId -> phenotypeToGene.getOrDefault(termId, Collections.emptyList()).stream())
                         .filter(distinctByKey(HpoGeneAnnotation::getEntrezGeneId))
                         .filter(g -> !g.getEntrezGeneSymbol().equals("-"))
-                        .sorted(Comparator.comparing(HpoGeneAnnotation::id)).collect(Collectors.toList());
+                        .sorted(Comparator.comparing(HpoGeneAnnotation::id)).toList();
                 for (HpoGeneAnnotation annotation: annotations) {
 
                     try {
