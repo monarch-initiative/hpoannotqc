@@ -25,7 +25,6 @@ public class Main implements Callable<Integer> {
         logger.trace("Starting HPO Annotation Quality Control");
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
-                addSubcommand("big-file", new BigFileCommand()).
                 addSubcommand("bigfile", new BigFileGenerateCommand()).
                 addSubcommand("qc", new BigFileQcCommand()).
                 addSubcommand("supplemental-files", new SupplementalFilesCommand());

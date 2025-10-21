@@ -186,6 +186,7 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                 try {
                     String bigfileLine = entry.toBigFileLine(aspectIdentifier);
                     writer.write(bigfileLine + "\n");
+                    m++;
                 } catch (HpoAnnotQcException e) {
                     LOGGER.error(e.getMessage());
                     System.err.println(e.getMessage());
@@ -193,12 +194,12 @@ public class BigFileGenerateCommand implements Callable<Integer> {
                     String err = String.format("Could not output annotation because of null term id error for data: %s ", entry);
                     System.err.printf("%s\n",err);
                 }
-                m++;
+
             }
         }
-        LOGGER.warn("Replaced {} obsoleted ids in ORPHA annotations.\n",n_updated_ids );
-        LOGGER.warn("Replaced {} obsoleted labels in ORPHA annotations.\n",n_updated_labels );
-        LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files", m);
+        LOGGER.warn("Replaced {} obsoleted ids in ORPHA annotations.",n_updated_ids );
+        LOGGER.warn("Replaced {} obsoleted labels in ORPHA annotations.",n_updated_labels );
+        LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files.", m);
         return m;
     }
 
@@ -226,7 +227,8 @@ public class BigFileGenerateCommand implements Callable<Integer> {
         writer.write(bfUtil.getHeaderLine() + "\n");
         int n = outputHpoProjectAnnotations(writer, hpoModels, aspectIdentifier);
         int m = outputOrphaAnnotations(writer, aspectIdentifier, orphaModels);
-        LOGGER.info("We output a total of {} big file lines from the Orphanet Annotation files", m);
+        writer.close();
         LOGGER.info("Total output lines was {}", (n + m));
+        LOGGER.info("Wrote to {}", outputFile.getAbsolutePath());
     }
 }

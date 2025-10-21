@@ -23,6 +23,13 @@ org.monarchinitiative.phenol.base.PhenolRuntimeException: Found errors in HPO pr
 
 Use the PhenoteFX app to update labels! (Edit menu: "Update all outdated labels")
 
+## Q/C
+The following command can be run to perform Q/C on the big-file (``phenotype.hpoa``) produced by the previous command.
+
+```bash
+ java -jar target/HpoAnnotQc.jar qc [-p /path/to/phenotype.hpoa]
+ ```
+ Note that the default value for the -p argument is in the current directory, i.e., the location where the ``bigfile``command will write the file.
 
 ## Create accessory files
 This command intends to create the g2p, p2g, g2d files that are available at the HPO website.
