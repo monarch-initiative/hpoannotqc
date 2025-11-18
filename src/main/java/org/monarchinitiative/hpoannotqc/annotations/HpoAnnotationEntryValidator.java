@@ -1,6 +1,8 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.annotations.error.*;
+import org.monarchinitiative.hpoannotqc.exception.HpoaEntryError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteAspectError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermError;
 import org.monarchinitiative.phenol.annotations.base.Sex;
 import org.monarchinitiative.phenol.annotations.formats.EvidenceCode;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;

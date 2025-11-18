@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations.error;
+package org.monarchinitiative.hpoannotqc.exception;
 
 /**
  * Base runtime exception for HPOA-related errors that provides common functionality

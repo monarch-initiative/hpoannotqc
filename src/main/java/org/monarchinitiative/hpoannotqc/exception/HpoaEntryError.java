@@ -1,4 +1,4 @@
-package org.monarchinitiative.hpoannotqc.annotations.error;
+package org.monarchinitiative.hpoannotqc.exception;
 
 import org.monarchinitiative.hpoannotqc.annotations.HpoAnnotationEntry;
 import org.monarchinitiative.phenol.ontology.data.TermId;

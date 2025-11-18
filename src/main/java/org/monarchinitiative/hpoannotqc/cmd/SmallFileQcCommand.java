@@ -2,11 +2,12 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
-import org.monarchinitiative.hpoannotqc.annotations.error.*;
+import org.monarchinitiative.hpoannotqc.exception.HpoaEntryError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteAspectError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
-import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

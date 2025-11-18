@@ -1,6 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.annotations.error.HpoaEntryError;
+import org.monarchinitiative.hpoannotqc.exception.HpoaEntryError;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
