@@ -353,8 +353,6 @@ public class HpoAnnotationEntry {
       throw new PhenolRuntimeException("Null String passed as hpoId for disease " + (diseaseId != null ? diseaseId : "n/a"));
     }
 
-    TermId diseaseTermId = TermId.of(diseaseId);
-    TermId phenotypeId = TermId.of(hpoId);
     // replace the frequency TermId with its string equivalent
     // except if it is Excluded, which we treat as a negative annotation
     String frequencyString = frequency.equals(EXCLUDED.id()) ? EMPTY_STRING : frequency.getValue();
@@ -363,21 +361,53 @@ public class HpoAnnotationEntry {
 
     String DEFAULT_ORPHA_EVIDENCE = "TAS";
 
-    final HpoAnnotationEntry entry = new HpoAnnotationEntry(diseaseTermId,
-      diseaseName,
-      phenotypeId,
-      hpoLabel,
-      EMPTY_STRING,
-      EMPTY_STRING,
-      frequencyString,
-      EMPTY_STRING,
-      negationString,
-      EMPTY_STRING,
-      EMPTY_STRING,
-      diseaseTermId.getValue(),
-      DEFAULT_ORPHA_EVIDENCE,
-      biocuration);
-      return entry;
+    return new HpoAnnotationEntry(TermId.of(diseaseId),
+		diseaseName, TermId.of(hpoId),
+		hpoLabel,
+		EMPTY_STRING,
+		EMPTY_STRING,
+		frequencyString,
+		EMPTY_STRING,
+		negationString,
+		EMPTY_STRING,
+		EMPTY_STRING,
+		diseaseId,
+		DEFAULT_ORPHA_EVIDENCE,
+		biocuration);
+  }
+
+
+  /**
+   * If the frequency of an HPO term is listed in Orphanet as Excluded (0%), then we encode it as
+   * a NOT (negated) term.
+   *
+   * @param diseaseId        Orphanet ID, e.g., ORPHA:99776
+   * @param diseaseName      Orphanet disease name, e.g., Moasic trisomy 9
+   * @param hpoInheritanceId HPO id (e.g., HP:0001234) for an inheritance term
+   * @param hpoLabel         corresponding HPO term Label
+   * @param biocuration      A String to represent provenance from Orphanet, e.g., ORPHA:orphadata[2019-01-05]
+   * @return corresponding HpoAnnotationEntry object
+   */
+  public static HpoAnnotationEntry fromOrphaInheritanceData(String diseaseId,
+                                                            String diseaseName,
+                                                            TermId hpoInheritanceId,
+                                                            String hpoLabel,
+                                                            String biocuration) {
+
+	  return new HpoAnnotationEntry(TermId.of(diseaseId),
+            diseaseName,
+            hpoInheritanceId,
+            hpoLabel,
+            EMPTY_STRING,
+            EMPTY_STRING,
+			EMPTY_STRING,
+            EMPTY_STRING,
+			  EMPTY_STRING,
+            EMPTY_STRING,
+            EMPTY_STRING,
+            diseaseId,
+            "TAS",
+            biocuration);
   }
 
   /**

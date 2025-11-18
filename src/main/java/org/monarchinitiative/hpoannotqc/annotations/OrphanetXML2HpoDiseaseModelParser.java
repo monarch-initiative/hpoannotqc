@@ -1,6 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.hpoannotqc.exception.HpoaRuntimeException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -293,7 +294,13 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case HPO_DISORDER_ASSOCIATION:
                         try {
-                            HpoAnnotationEntry entry = null;
+                            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaData(
+                                    String.format("ORPHA:%s", currentOrphanumber),
+                                    currentDiseaseName,
+                                    currentHpoId,
+                                    currentHpoTermLabel,
+                                    currentFrequencyTermId,
+                                    orphanetBiocurationString);
                             currentHpoId = null;
                             currentHpoTermLabel = null;
                             currentFrequencyTermId = null;// reset

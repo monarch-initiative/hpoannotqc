@@ -1,5 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
+import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;
@@ -141,7 +142,11 @@ public class OrphanetInheritanceXMLParser {
               continue;
             }
             String hpoLabel = ontology.getTermLabel(hpoInheritanceId).orElseThrow();
-            HpoAnnotationEntry entry = null;
+            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaInheritanceData(disId.getValue(),
+					currentDiseaseName,
+					hpoInheritanceId,
+					hpoLabel,
+					orphanetBiocurationString);
             disease2inheritanceMultimap.computeIfAbsent(disId, key -> new HashSet<>())
               .add(entry);
           } else if (localPart.equals(AVERAGE_AGE_OF_ONSET_LIST)) {

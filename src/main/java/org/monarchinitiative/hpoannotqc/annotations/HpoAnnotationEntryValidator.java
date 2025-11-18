@@ -50,7 +50,7 @@ public class HpoAnnotationEntryValidator {
         BiocurationChecker.checkEntry(entry);
     }
 
-    private static void checkDB(HpoAnnotationEntry entry) throws HpoaEntryError, ObsoleteTermError, ObsoleteTermError {
+    private static void checkDB(HpoAnnotationEntry entry) throws HpoaEntryError, ObsoleteTermError {
 
         DiseaseDatabase db = DiseaseDatabase.fromString(entry.getDatabasePrefix());
         if (!DiseaseDatabase.validDiseaseDatabases().contains(db)) {

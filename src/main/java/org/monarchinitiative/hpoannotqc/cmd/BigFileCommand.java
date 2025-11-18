@@ -2,6 +2,9 @@ package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
+import org.monarchinitiative.hpoannotqc.exception.HpoaEntryError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteAspectError;
+import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermError;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.io.OntologyLoader;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
@@ -118,6 +121,43 @@ public class BigFileCommand implements Callable<Integer> {
             );
             Map<TermId, HpoAnnotationModel> orphanetDiseaseMap = orphanetParser.getOrphanetDiseaseMap();
             LOGGER.info("Parsed {} Orphanet disease entries", orphanetDiseaseMap.size());
+
+            // Auto-update orphanet inconsistencies with phenotype or onset
+            int updateCount = 0;
+            int obsoleteCount = 0;
+            for (HpoAnnotationModel model : orphanetDiseaseMap.values()){
+                List<HpoAnnotationEntry> entries = new ArrayList<>();
+                boolean updated = false;
+                for (HpoAnnotationEntry entry : model.getEntryList()) {
+                    try {
+                        HpoAnnotationEntryValidator.performQualityControl(entry, ontology);
+                        entries.add(entry);
+                    } catch (ObsoleteTermError e){
+                        entries.add(entry.withUpdatedPhenotype(e.getPrimaryId(), e.getTermLabel()));
+                        updated = true;
+                    } catch (ObsoleteAspectError e){
+                        entries.add(entry.withUpdatedOnset(e.getPrimaryId().toString(), e.getTermLabel()));
+                        updated = true;
+                    } catch (HpoaEntryError e) {
+                        LOGGER.warn("Obsolete term update failed for Orphanet entry: {}", e.getMessage());
+                        if (e.getMessage().contains("Could not find")){
+                            // likely an unresolvable obsolete term
+                            updated = true;
+                            obsoleteCount++;
+                        }
+                    } catch (PhenolRuntimeException e){
+                        LOGGER.error("Validation error for Orphanet entry: {}", e.getMessage());
+                        System.exit(1);
+                    }
+                }
+                if (updated){
+                    updateCount++;
+                    HpoAnnotationModel updatedModel = new HpoAnnotationModel(model.getBasename(), entries);
+                    orphanetDiseaseMap.put(model.getDiseaseId(), updatedModel);
+                }
+            }
+            LOGGER.info("Removed {} Orphanet entries with unresolvable obsolete terms", obsoleteCount);
+            LOGGER.info("Updated {} Orphanet disease models with obsolete term fixes", updateCount);
 
             // 5. Merge inheritance data with Orphanet models
             int mergedCount = 0;
