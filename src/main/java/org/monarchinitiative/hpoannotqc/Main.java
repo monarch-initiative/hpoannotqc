@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  */
 @CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
         mixinStandardHelpOptions = true,
-        version = "1.20.4",
+        version = "2.0.0",
         description = "Hpo Annotation Quality Control.")
 public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
