@@ -1,7 +1,7 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.annotations.error.HpoaRuntimeException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -139,7 +139,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
             .collect(Collectors.toCollection(HashSet::new));
 
 
-    private final List<HpoaError> errorList;
+    private final List<HpoaRuntimeException> errorList;
 
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto, boolean tolerant) {
@@ -293,15 +293,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         break;
                     case HPO_DISORDER_ASSOCIATION:
                         try {
-                            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaData(
-                                    String.format("ORPHA:%s", currentOrphanumber),
-                                    currentDiseaseName,
-                                    currentHpoId,
-                                    currentHpoTermLabel,
-                                    currentFrequencyTermId,
-                                    ontology,
-                                    orphanetBiocurationString,
-                                    replaceObsoleteTermId);
+                            HpoAnnotationEntry entry = null;
                             currentHpoId = null;
                             currentHpoTermLabel = null;
                             currentFrequencyTermId = null;// reset
@@ -330,11 +322,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         inDisorderType = false;
                         currentOrphanumber = null;
                         currentDiseaseName = null;
-                        if (currentAnnotationEntryList.stream().anyMatch(HpoAnnotationEntry::hasError)) {
-                            for (var entry: currentAnnotationEntryList) {
-                                errorList.addAll(entry.getErrorList());
-                            }
-                        }
                         currentAnnotationEntryList.clear();
                 }
             }

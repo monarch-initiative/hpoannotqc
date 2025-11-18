@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  */
 @CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
         mixinStandardHelpOptions = true,
-        version = "1.9.12",
+        version = "1.20.4",
         description = "Hpo Annotation Quality Control.")
 public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -26,12 +26,10 @@ public class Main implements Callable<Integer> {
         CommandLine cline = new CommandLine(new Main()).
                 addSubcommand("download", new DownloadCommand()).
                 addSubcommand("big-file", new BigFileCommand()).
-                addSubcommand("qc", new BigFileQcCommand()).
+                addSubcommand("small-file-qc", new SmallFileQcCommand()).
                 addSubcommand("supplemental-files", new SupplementalFilesCommand());
         cline.setToggleBooleanFlags(false);
         if (args.length == 0) {
-            // this will cause a help message to be shown if the user calls the
-            // program with no arguments whatsoever.
             args = new String[]{"-h"};
         }
         int exitCode = cline.execute(args);

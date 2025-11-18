@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="error">
+<Configuration status="info">
     <Appenders>
         <Console name="Console"
                  target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/
         </Console>
 
         <File name="MyLog"
@@ -11,6 +12,7 @@
               immediateFlush="true"
               fileName="HpoAnnotQc.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %t [%t] (%F:%L) - %m%n" />
+            <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/
         </File>
     </Appenders>
 
@@ -19,7 +21,7 @@
         <logger name="org.monarchinitiative.phenol.annotations.hpo.HpoAnnotationEntry" level="error" additivity="false"/>
         <logger name="org.monarchinitiative.phenol.annotations.hpo.OrphanetXML2HpoDiseaseModelParser" level="error" additivity="false"/>
         <logger name="org.apache.logging.log4j2" level="error"/>
-        <Root level="error">
+        <Root level="info">
             <AppenderRef ref="Console" />
             <AppenderRef ref="MyLog" />
         </Root>

@@ -80,9 +80,9 @@ public final class DownloadCommand implements Callable<Integer> {
         BioDownloader downloader = builder.build();
         List<File> files = downloader.download();
         if (!files.isEmpty()) {
-            System.out.println("[INFO] Downloaded:");
+            LOGGER.info("[INFO] Downloaded:");
             for (var f: files) {
-                System.out.printf("[INFO]    %s", f.getAbsolutePath());
+                LOGGER.info("[INFO]    {}", f.getAbsolutePath());
             }
         }
     }

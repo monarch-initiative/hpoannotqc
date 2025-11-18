@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public enum DiseaseDatabase {
+  MONDO("MONDO"),
   OMIM("OMIM"),
   ORPHANET("ORPHA"),
   DECIPHER("DECIPHER"),
@@ -22,6 +23,8 @@ public enum DiseaseDatabase {
 
   public static DiseaseDatabase fromString(String s) {
     switch (s.toUpperCase(Locale.ROOT)) {
+      case "MONDO":
+        return MONDO;
       case "OMIM":
         return OMIM;
       case "ORPHA":
@@ -34,8 +37,8 @@ public enum DiseaseDatabase {
     }
   }
 
-  public static Set<DiseaseDatabase> allKnownDiseaseDatabases() {
-    return EnumSet.of(OMIM, ORPHANET, DECIPHER);
+  public static Set<DiseaseDatabase> validDiseaseDatabases() {
+    return EnumSet.of(MONDO, OMIM, ORPHANET, DECIPHER);
   }
 
 }

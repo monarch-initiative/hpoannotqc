@@ -141,11 +141,7 @@ public class OrphanetInheritanceXMLParser {
               continue;
             }
             String hpoLabel = ontology.getTermLabel(hpoInheritanceId).orElseThrow();
-            HpoAnnotationEntry entry = HpoAnnotationEntry.fromOrphaInheritanceData(disId.getValue(),
-              currentDiseaseName,
-              hpoInheritanceId,
-              hpoLabel,
-              orphanetBiocurationString);
+            HpoAnnotationEntry entry = null;
             disease2inheritanceMultimap.computeIfAbsent(disId, key -> new HashSet<>())
               .add(entry);
           } else if (localPart.equals(AVERAGE_AGE_OF_ONSET_LIST)) {
