@@ -8,19 +8,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This class represents one disease-entity annotation consisting usually of
- * multiple annotations lines, and using
- * the new format introduced in 2018. Colloquially, these files have been called
- * "small files". This class
- * is meant to be used for parsing the files, and does not perform any kind of
- * analysis. THe main use case
- * is to hold the data from one HPO Annotation file, such as
- * {@code OMIM-100200.tab}, which in turn will be
- * use to create the aggregated file called {@code phenotype.hpoa} (the
- * "big-file").
+ * Represents a complete HPO annotation model for a single disease entity.
+ *
+ * <p>This class holds all annotation entries from one HPO annotation "small file"
+ * (e.g., {@code OMIM-100200.tab}) and provides functionality for merging duplicate
+ * entries and transforming the data for inclusion in the aggregated "big file"
+ * ({@code phenotype.hpoa}).</p>
+ *
+ * <p>The class supports merging entries that annotate the same HPO term for a disease,
+ * combining frequencies, publications, and other metadata according to specific rules.
+ * Entries can only be merged if they have compatible negation, sex, and onset qualifiers.</p>
+ *
+ * <p>Key operations include:</p>
+ * <ul>
+ *   <li>Parsing and storing annotation entries from small files</li>
+ *   <li>Merging duplicate phenotype annotations</li>
+ *   <li>Adding inheritance annotations from Orphanet</li>
+ *   <li>Identifying the source database (OMIM, DECIPHER, etc.)</li>
+ * </ul>
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- *         Created by peter on 1/20/2018.
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 public class HpoAnnotationModel {
   /**
@@ -64,13 +72,13 @@ public class HpoAnnotationModel {
   }
 
   /**
-   * The constructor creates an immutable copy of the original list of
-   * {@link HpoAnnotationEntry} objects
-   * provided by the parser
+   * Constructs a new HPO annotation model for a disease entity.
    *
-   * @param name    Name of the "small file"
-   * @param entries List of {@link HpoAnnotationEntry} objects -- one per line of
-   *                the small file.
+   * <p>Creates an immutable copy of the provided annotation entries and determines
+   * the source database based on the filename.</p>
+   *
+   * @param name    base name of the small file (e.g., "OMIM-100200.tab")
+   * @param entries list of annotation entries parsed from the small file
    */
   public HpoAnnotationModel(String name, List<HpoAnnotationEntry> entries) {
     basename = name;
@@ -83,6 +91,12 @@ public class HpoAnnotationModel {
       this.database = Database.UNKNOWN;
   }
 
+  /**
+   * Creates a new model that includes inheritance annotations in addition to the existing entries.
+   *
+   * @param inherit collection of inheritance annotation entries to add
+   * @return new HPO annotation model with inheritance annotations included
+   */
   public HpoAnnotationModel mergeWithInheritanceAnnotations(Collection<HpoAnnotationEntry> inherit) {
     List<HpoAnnotationEntry> builder = new ArrayList<>();
     builder.addAll(this.entryList);
@@ -90,22 +104,38 @@ public class HpoAnnotationModel {
     return new HpoAnnotationModel(this.basename, List.copyOf(builder));
   }
 
+  /**
+   * Checks if this model represents OMIM data.
+   *
+   * @return true if the source is OMIM, false otherwise
+   */
   public boolean isOMIM() {
     return this.database.equals(Database.OMIM);
   }
 
+  /**
+   * Checks if this model represents DECIPHER data.
+   *
+   * @return true if the source is DECIPHER, false otherwise
+   */
   public boolean isDECIPHER() {
     return this.database.equals(Database.DECIPHER);
   }
 
   /**
-   * @return the {@link HpoAnnotationEntry} objects -- one per line of the small
-   *         file.
+   * Gets the list of annotation entries in this model.
+   *
+   * @return immutable list of HPO annotation entries
    */
   public List<HpoAnnotationEntry> getEntryList() {
     return entryList;
   }
 
+  /**
+   * Gets the number of annotation entries in this model.
+   *
+   * @return count of annotation entries
+   */
   public int getNumberOfAnnotations() {
     return entryList.size();
   }
@@ -302,6 +332,23 @@ public class HpoAnnotationModel {
         mergedBiocuration);
   }
 
+  /**
+   * Creates a new model with duplicate phenotype annotations merged.
+   *
+   * <p>This method identifies entries that annotate the same HPO term for this disease
+   * and attempts to merge them if they have compatible qualifiers (same negation, sex,
+   * and onset). Frequencies are combined using n/m arithmetic, publications are concatenated,
+   * and the highest evidence code is selected.</p>
+   *
+   * <p>Entries cannot be merged if they have conflicting:</p>
+   * <ul>
+   *   <li>Negation qualifiers (NOT vs empty)</li>
+   *   <li>Sex qualifiers (MALE vs FEMALE)</li>
+   *   <li>Age of onset terms</li>
+   * </ul>
+   *
+   * @return new HPO annotation model with merged duplicate entries
+   */
   public HpoAnnotationModel getMergedModel() {
     Map<TermId, List<HpoAnnotationEntry>> termId2AnnotEntryListMap = new HashMap<>();
     for (HpoAnnotationEntry entry : this.entryList) {

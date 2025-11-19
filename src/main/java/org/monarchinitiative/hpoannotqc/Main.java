@@ -11,7 +11,8 @@ import java.util.concurrent.Callable;
  * This application will perform quality control on the HPO rare disease "small file" annotation files, will transform the
  * small files into an integrate "large" file (phenotype_annotation.tab), and print a report to file.
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- * @version 0.1.16 (2018-01-02)
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
+ * @version 2.0.0
  */
 @CommandLine.Command(name = "java -jar HpoAnnotQc.jar",
         mixinStandardHelpOptions = true,
@@ -21,6 +22,11 @@ public class Main implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 
+    /**
+     * Application entry point. Sets up command-line interface and executes the appropriate subcommand.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         logger.trace("Starting HPO Annotation Quality Control");
         CommandLine cline = new CommandLine(new Main()).
@@ -36,6 +42,11 @@ public class Main implements Callable<Integer> {
         System.exit(exitCode);
     }
 
+    /**
+     * Default implementation of the Callable interface. The actual work is performed by subcommands.
+     *
+     * @return exit code (always 0)
+     */
     @Override
     public Integer call() {
         // work done in subcommands

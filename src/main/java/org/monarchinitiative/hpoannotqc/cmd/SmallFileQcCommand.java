@@ -22,7 +22,23 @@ import java.util.concurrent.Callable;
 import static java.lang.System.exit;
 
 /**
- * Performs sanity-checking on the entire repo of small HPO Annotation files.
+ * Command for performing quality control on HPO annotation small files.
+ *
+ * <p>This command validates the entire repository of HPO annotation small files by:</p>
+ * <ul>
+ *   <li>Checking for obsolete HPO term IDs and suggesting current replacements</li>
+ *   <li>Validating annotation format and structure</li>
+ *   <li>Identifying updateable entries with obsolete terms</li>
+ *   <li>Optionally updating obsolete terms to their current primary IDs</li>
+ *   <li>Generating comprehensive quality control reports</li>
+ * </ul>
+ *
+ * <p>The command processes all annotation files in the specified directory and
+ * provides detailed feedback about data quality issues, helping maintainers
+ * keep the annotation files current and valid.</p>
+ *
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 
 @CommandLine.Command(name = "small-file-qc", aliases = {"Q"}, mixinStandardHelpOptions = true, description = "Quality Control the small HPO Annotation files")

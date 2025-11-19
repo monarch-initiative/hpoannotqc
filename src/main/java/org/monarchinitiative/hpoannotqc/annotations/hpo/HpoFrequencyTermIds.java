@@ -3,10 +3,15 @@ package org.monarchinitiative.hpoannotqc.annotations.hpo;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 
 /**
- * Utility class with TermIds into the "frequency" sub ontology.
+ * Constants for HPO frequency sub-ontology term identifiers.
+ *
+ * <p>This utility class provides {@link TermId} constants for all frequency terms
+ * used in HPO annotations. These terms describe how often a phenotype occurs
+ * in patients with a particular disease.</p>
  *
  * @author <a href="mailto:manuel.holtgrewe@bihealth.de">Manuel Holtgrewe</a>
  * @author <a href="mailto:sebastian.koehler@charite.de">Sebastian Koehler</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 public final class HpoFrequencyTermIds {
 
@@ -31,5 +36,8 @@ public final class HpoFrequencyTermIds {
   /** {@link TermId} for "excluded (0% of the cases)". */
   public static final TermId EXCLUDED = TermId.of("HP:0040285");
 
+  /**
+   * Private constructor to prevent instantiation of this utility class.
+   */
   private HpoFrequencyTermIds() {}
 }

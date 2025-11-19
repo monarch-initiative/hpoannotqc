@@ -23,6 +23,24 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Command for generating supplemental files for downstream consumers.
+ *
+ * <p>This command creates supplemental data files that provide different views
+ * of the HPO annotation data for various use cases:</p>
+ * <ul>
+ *   <li><b>genes_to_phenotype.txt</b>: Maps genes to their associated phenotypes</li>
+ *   <li><b>phenotype_to_genes.txt</b>: Maps phenotypes to their associated genes</li>
+ *   <li><b>genes_to_disease.txt</b>: Maps genes to their associated diseases</li>
+ * </ul>
+ *
+ * <p>These files are generated from the main phenotype.hpoa file and Orphanet
+ * gene-disease mappings, providing convenient access patterns for different
+ * analysis workflows.</p>
+ *
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
+ */
 @CommandLine.Command(name = "supplemental-files", mixinStandardHelpOptions = true, description = "Create g2p, p2g, g2d files")
 public class SupplementalFilesCommand implements Callable<Integer> {
     /**
@@ -42,6 +60,9 @@ public class SupplementalFilesCommand implements Callable<Integer> {
 
     Map<TermId, Map<TermId, Collection<TermId>>> annotationCache = new HashMap<>();
 
+    /**
+     * Default constructor for SupplementalFilesCommand.
+     */
     public SupplementalFilesCommand() {
     }
 

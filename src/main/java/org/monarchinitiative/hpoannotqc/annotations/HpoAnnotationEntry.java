@@ -8,10 +8,22 @@ import org.monarchinitiative.phenol.ontology.data.TermId;
 import static org.monarchinitiative.phenol.annotations.formats.hpo.HpoFrequency.EXCLUDED;
 
 /**
- * Created by peter on 1/20/2018.
- * This class represents the contents of a single annotation line.
+ * Represents a single HPO annotation entry from an HPO annotation file.
+ *
+ * <p>This immutable class encapsulates all fields from a single line of an HPO annotation file
+ * (small file format). Each entry contains information about a disease-phenotype association
+ * including the disease ID, phenotype ID, evidence codes, frequency information, and other
+ * qualifying metadata.</p>
+ *
+ * <p>The class provides factory methods for creating entries from different sources:</p>
+ * <ul>
+ *   <li>{@link #fromLine(String)} - Parse from a tab-delimited line</li>
+ *   <li>{@link #fromOrphaData} - Create from Orphanet data</li>
+ *   <li>{@link #fromOrphaInheritanceData} - Create from Orphanet inheritance data</li>
+ * </ul>
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 public class HpoAnnotationEntry {
   private static final String EMPTY_STRING = "";
@@ -190,6 +202,24 @@ public class HpoAnnotationEntry {
     return biocuration;
   }
 
+  /**
+   * Package-private constructor for creating an HPO annotation entry.
+   *
+   * @param diseaseId        the disease identifier (e.g., OMIM:600123)
+   * @param diseaseName      the human-readable disease name
+   * @param phenotypeId      the HPO term identifier for the phenotype
+   * @param phenotypeName    the human-readable HPO term label
+   * @param ageOfOnsetId     the HPO term identifier for age of onset (nullable)
+   * @param ageOfOnsetName   the human-readable age of onset label (nullable)
+   * @param frequencyString  the frequency modifier (n/m, percentage, or HPO term)
+   * @param sex              the sex specification (MALE, FEMALE, or empty)
+   * @param negation         the negation qualifier (NOT or empty)
+   * @param modifier         semicolon-separated list of modifier HPO terms (nullable)
+   * @param description      free text description (nullable)
+   * @param publication      publication reference (e.g., PMID:12345)
+   * @param evidenceCode     evidence code (IEA, PCS, or TAS)
+   * @param biocuration      biocuration provenance information
+   */
   HpoAnnotationEntry(TermId diseaseId,
                      String diseaseName,
                      TermId phenotypeId,
@@ -255,10 +285,13 @@ public class HpoAnnotationEntry {
   }
 
   /**
-   * Following quality control of an entry that has been ingested from a small file, and potentially merged,
-   * we export the corresponding line for the big file.
-   * @param ontology A reference to the HPO ontology
-   * @return A line for the phenotype.hpoa file
+   * Converts this annotation entry to the format used in the large phenotype.hpoa file.
+   *
+   * <p>This method transforms the small file format into the big file format by reordering
+   * fields and computing the HPO aspect (category) for the phenotype term using the provided ontology.</p>
+   *
+   * @param ontology reference to the HPO ontology for aspect computation
+   * @return tab-delimited line formatted for the phenotype.hpoa file
    */
   public String toBigFileLine(Ontology ontology) {
     String[] elems = {

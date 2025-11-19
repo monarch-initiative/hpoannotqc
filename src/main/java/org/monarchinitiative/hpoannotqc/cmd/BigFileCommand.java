@@ -18,17 +18,25 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
- * Orchestrates the generation of the {@code phenotype.hpoa} file by:
- * 1. Ingesting HPO annotation small files (OMIM, DECIPHER)
- * 2. Parsing Orphanet XML data
- * 3. Merging inheritance information
- * 4. Generating output lines
- * 5. Writing the final file
+ * Command for generating the integrated phenotype.hpoa "big file" from small annotation files.
  *
- * This command follows the Single Responsibility Principle by delegating
- * specific tasks to specialized classes.
+ * <p>This command orchestrates the complete workflow for creating the consolidated HPO
+ * annotation file by processing multiple data sources and performing quality control:</p>
+ *
+ * <ol>
+ *   <li>Discovering and parsing HPO annotation small files (OMIM, DECIPHER, etc.)</li>
+ *   <li>Processing Orphanet XML data for additional disease-phenotype associations</li>
+ *   <li>Merging inheritance information from Orphanet</li>
+ *   <li>Performing quality control validation and error handling</li>
+ *   <li>Merging duplicate annotations within each disease</li>
+ *   <li>Generating the final phenotype.hpoa file with proper formatting</li>
+ * </ol>
+ *
+ * <p>The command follows the Single Responsibility Principle by delegating specific
+ * tasks to specialized classes while orchestrating the overall workflow.</p>
  *
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 @CommandLine.Command(name = "big-file", aliases = {
         "B" }, mixinStandardHelpOptions = true, description = "Create phenotype.hpoa file")

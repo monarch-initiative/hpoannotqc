@@ -18,13 +18,23 @@ import picocli.CommandLine;
 
 
 /**
- * Implementation of download in HpoWorkbench. The command is intended to download
- * both the OBO file and the association file. For HPO, this is {@code hp.json} and
- * {@code phenotype.hpoa}.
- * Code modified from Download command in Jannovar.
+ * Command for downloading required data files for HPO annotation quality control.
+ *
+ * <p>This command downloads essential files needed for HPO annotation processing:</p>
+ * <ul>
+ *   <li>HPO ontology file (hp.json)</li>
+ *   <li>Human gene information</li>
+ *   <li>MedGen to MIM mappings</li>
+ *   <li>Orphanet XML data files including disease definitions, inheritance patterns, and gene associations</li>
+ * </ul>
+ *
+ * <p>The download process creates a data directory and retrieves the latest versions of these files
+ * from their respective sources. Files can be optionally overwritten if they already exist.</p>
+ *
  * @author <a href="mailto:manuel.holtgrewe@charite.de">Manuel Holtgrewe</a>
  * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
- * @version 0.0.2 (Jan 2, 2019)
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
+ * @version 2.0.0
  */
 @CommandLine.Command(name = "download", aliases = {"D"}, mixinStandardHelpOptions = true, description = "download files")
 public final class DownloadCommand implements Callable<Integer> {
@@ -50,11 +60,18 @@ public final class DownloadCommand implements Callable<Integer> {
     private final static String ORPHANET_GENES_XML_URL_PATH = "http://www.orphadata.org/data/xml/en_product6.xml";
 
 
+    /**
+     * Default constructor for DownloadCommand.
+     */
     public DownloadCommand() {
     }
 
     /**
-     * Perform the downloading.
+     * Executes the download command by retrieving all required data files.
+     *
+     * @return exit code (0 for success)
+     * @throws MalformedURLException if any download URL is malformed
+     * @throws FileDownloadException if file download fails
      */
     @Override
     public Integer call() throws MalformedURLException, org.monarchinitiative.biodownload.FileDownloadException {
@@ -63,6 +80,12 @@ public final class DownloadCommand implements Callable<Integer> {
     }
 
 
+    /**
+     * Performs the actual download of all required files using the BioDownloader library.
+     *
+     * @throws MalformedURLException if any download URL is malformed
+     * @throws FileDownloadException if file download fails
+     */
     private void biodownload() throws MalformedURLException, org.monarchinitiative.biodownload.FileDownloadException {
         createDownloadDir(downloadDirectory);
         Path destination = Paths.get(downloadDirectory);
@@ -88,7 +111,9 @@ public final class DownloadCommand implements Callable<Integer> {
     }
 
     /**
-     * @param dir Directory to which to download files.
+     * Creates the download directory, removing any existing directory with the same name.
+     *
+     * @param dir path to the directory to create for downloaded files
      */
     private void createDownloadDir(String dir) {
         LOGGER.trace("creating download dir (and deleting previous version) at "+ dir);
