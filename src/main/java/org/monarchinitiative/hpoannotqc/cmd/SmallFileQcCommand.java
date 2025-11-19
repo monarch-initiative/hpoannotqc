@@ -56,7 +56,7 @@ public class SmallFileQcCommand implements Callable<Integer> {
 	private String hpoJson;
 	@CommandLine.Option(names = {"--update-obsolete"},
 			description = "Update obsolete HPO term IDs to primary IDs where possible (default: ${DEFAULT-VALUE})", required = true)
-	private boolean updateObsolete = false;
+	private final boolean updateObsolete = false;
 
 	private int validLine = 0;
 	private int invalidLine = 0;
@@ -87,21 +87,18 @@ public class SmallFileQcCommand implements Callable<Integer> {
 						processedEntries.add(entry);
 						validLine++;
 					} catch (ObsoleteTermError obsoleteTermError) {
-						LOGGER.warn("Updatable obsolete term id or label found in file {}: {}", f.getName(), obsoleteTermError.getMessage());
 						updateableLine++;
 						fileHasUpdates = true;
 						if (updateObsolete) {
 							HpoAnnotationEntry updatedEntry = entry.withUpdatedPhenotype(
 								obsoleteTermError.getPrimaryId(),
-								obsoleteTermError.getTermLabel()
+								obsoleteTermError.getPrimaryLabel()
 							);
 							processedEntries.add(updatedEntry);
-							LOGGER.info("Updated entry in {}: {} -> {}", f.getName(), entry.getPhenotypeId().getValue(), obsoleteTermError.getPrimaryId().getValue());
 						} else {
 							processedEntries.add(entry);
 						}
 					} catch (ObsoleteAspectError obsoleteAspectError) {
-						LOGGER.warn("Updatable obsolete aspect id or label found in file {}: {}", f.getName(), obsoleteAspectError.getMessage());
 						updateableLine++;
 						fileHasUpdates = true;
 						if (updateObsolete) {
@@ -110,7 +107,6 @@ public class SmallFileQcCommand implements Callable<Integer> {
 								obsoleteAspectError.getTermLabel()
 							);
 							processedEntries.add(updatedEntry);
-							LOGGER.info("Updated entry in {}: {} -> {}", f.getName(), entry.getAgeOfOnsetId(), obsoleteAspectError.getPrimaryId().getValue());
 						} else {
 							processedEntries.add(entry);
 						}
@@ -123,17 +119,17 @@ public class SmallFileQcCommand implements Callable<Integer> {
 					}
 				}
 
-				// Write updated model back to file if updates were applied
-				if (updateObsolete && fileHasUpdates) {
+				// Write updated model back to file if updates were applied only if we are completely valid
+				if (updateObsolete && fileHasUpdates && invalidLine == 0){
 					HpoAnnotationModel updatedModel = new HpoAnnotationModel(model.getBasename(), processedEntries);
 					HpoAnnotationFileWriter.write(updatedModel, f);
-					LOGGER.info("Wrote updated file: {}", f.getName());
+				} else if (invalidLine > 0){
+					System.exit(1);
 				}
 			} catch (IOException e) {
 				LOGGER.error("Error reading file {}: {}", f.getName(), e.getMessage());
 				exit(1);
 			}
-
 		}
 
 		LOGGER.info("Valid lines: {}; updateable lines: {} invalid lines: {}", validLine, updateableLine, invalidLine);

@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.cmd;
 
 import org.monarchinitiative.hpoannotqc.annotations.*;
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.hpoannotqc.exception.HpoaEntryError;
 import org.monarchinitiative.hpoannotqc.exception.ObsoleteAspectError;
 import org.monarchinitiative.hpoannotqc.exception.ObsoleteTermError;
@@ -52,15 +51,15 @@ public class BigFileCommand implements Callable<Integer> {
     /** Directory with hp.json and en_product>HPO.xml files. */
     @CommandLine.Option(names = { "-d",
             "--data" }, description = "directory to download data (default: ${DEFAULT-VALUE})")
-    private String downloadDirectory = "data";
+    private final String downloadDirectory = "data";
     @CommandLine.Option(names = { "-a",
             "--annot" }, description = "Path to directory with the ca. 7900 HPO Annotation files", required = true)
     private String hpoAnnotationFileDirectory;
     /** Should usually be phenotype.hpoa, may also include path */
     @CommandLine.Option(names = { "-o", "--output" }, description = "name of output file (default: ${DEFAULT-VALUE})")
-    private String outputFilePath = "phenotype.hpoa";
+    private final String outputFilePath = "phenotype.hpoa";
     @CommandLine.Option(names = "--tolerant", description = "tolerant mode (update obsolete term ids if possible; default: ${DEFAULT-VALUE})")
-    private boolean tolerant = true;
+    private final boolean tolerant = true;
 
     /**
      * Command to create the{@code phenotype.hpoa} file from the various small HPO
@@ -141,7 +140,7 @@ public class BigFileCommand implements Callable<Integer> {
                         HpoAnnotationEntryValidator.performQualityControl(entry, ontology);
                         entries.add(entry);
                     } catch (ObsoleteTermError e){
-                        entries.add(entry.withUpdatedPhenotype(e.getPrimaryId(), e.getTermLabel()));
+                        entries.add(entry.withUpdatedPhenotype(e.getPrimaryId(), e.getPrimaryLabel()));
                         updated = true;
                     } catch (ObsoleteAspectError e){
                         entries.add(entry.withUpdatedOnset(e.getPrimaryId().toString(), e.getTermLabel()));

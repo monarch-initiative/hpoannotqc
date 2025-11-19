@@ -1,7 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.hpoannotqc.exception.HpoaRuntimeException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;

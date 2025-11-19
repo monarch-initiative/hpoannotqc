@@ -41,11 +41,11 @@ public final class DownloadCommand implements Callable<Integer> {
     private final Logger LOGGER = LoggerFactory.getLogger(DownloadCommand.class);
     /** Directory to which to download the files. */
     @CommandLine.Option(names = {"-d", "--data"}, description = "directory to download data (default: ${DEFAULT-VALUE})")
-    private String downloadDirectory = "data";
+    private final String downloadDirectory = "data";
     /** Overwrite previously downloaded files if true. */
     @CommandLine.Option(names={"-o","--overwrite"},
             description = "overwrite previously downloaded files, if any (default: ${DEFAULT-VALUE})")
-    private boolean overwrite = false;
+    private final boolean overwrite = false;
 
     private final static String ORPHANET_XML = "en_product4.xml";
 

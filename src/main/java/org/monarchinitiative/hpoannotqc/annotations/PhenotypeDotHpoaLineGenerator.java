@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
 import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
-import org.monarchinitiative.phenol.ontology.data.MinimalOntology;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

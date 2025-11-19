@@ -47,7 +47,7 @@ public class ObsoleteTermError extends HpoaRuntimeException {
    *
    * @return the primary term label
    */
-  public String getTermLabel() {
+  public String getPrimaryLabel() {
     return primaryLabel;
   }
 }

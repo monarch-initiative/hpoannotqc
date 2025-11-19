@@ -1,6 +1,5 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-import org.monarchinitiative.hpoannotqc.exception.HpoAnnotQcException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
 import org.slf4j.Logger;

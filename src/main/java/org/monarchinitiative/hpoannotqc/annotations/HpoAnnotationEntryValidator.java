@@ -22,14 +22,8 @@ import java.util.regex.Pattern;
     which runs on new data of hpo-annotation-data and updates to human-phenotype-ontology.
 */
 public class HpoAnnotationEntryValidator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HpoAnnotationEntryValidator.class);
     private static final Pattern RATIO_PATTERN = Pattern.compile("(?<numerator>\\d+)/(?<denominator>\\d+)");
     private static final Pattern PERCENTAGE_PATTERN = Pattern.compile("(?<value>\\d+\\.?(\\d+)?)%");
-    private static final String EMPTY_STRING = "";
-    private static final String[] expectedFields = { "#diseaseID", "diseaseName", "phenotypeID", "phenotypeName",
-            "onsetID", "onsetName", "frequency", "sex", "negation", "modifier", "description", "publication",
-            "evidence", "biocuration" };
-    private static final int NUMBER_OF_FIELDS = expectedFields.length;
     private static final EnumSet<EvidenceCode> EVIDENCE_CODES = EnumSet.of(EvidenceCode.IEA, EvidenceCode.TAS,
             EvidenceCode.PCS);
 
@@ -168,7 +162,7 @@ public class HpoAnnotationEntryValidator {
         Optional<Sex> sex = Sex.parse(entry.getSex());
         if (sex.isEmpty()) return;
         if (!sex.get().equals(Sex.MALE) && !sex.get().equals(Sex.FEMALE)){
-            throw new HpoaEntryError(entry, String.format("Malformed sex entry: \"%s\"", sex.get().toString()));
+            throw new HpoaEntryError(entry, String.format("Malformed sex entry: \"%s\"", sex.get()));
         }
     }
 

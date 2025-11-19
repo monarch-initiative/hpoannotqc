@@ -48,10 +48,10 @@ public class SupplementalFilesCommand implements Callable<Integer> {
      */
     @CommandLine.Option(names = {"-d", "--data"},
             description = "directory of hpo data (default: ${DEFAULT-VALUE})")
-    private String dataDirectory = ".";
+    private final String dataDirectory = ".";
     @CommandLine.Option(names = {"-o, --output"},
             description = "path to output dir (default: ${DEFAULT-VALUE})")
-    private String outputDirectory = ".";
+    private final String outputDirectory = ".";
 
     Map<TermId, Map<TermId, HpoAnnotationLine>> phenotypeToDisease;
     Map<TermId, List<HpoGeneAnnotation>> phenotypeToGene;
