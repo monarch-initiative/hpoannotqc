@@ -62,8 +62,6 @@ public class AspectHelper {
             return Aspect.M;
         } else if (hpoOntology.graph().existsPath(primaryHpoId, PAST_MEDICAL_HISTORY)) {
             return Aspect.H; // the Orphanet annotations include some entries to the phenotype root
-        } else if (hpoOntology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
-            return Aspect.I; // the Orphanet annotations include some entries to the root
         } else if (Aspect.fromTermId(primaryHpoId).isPresent()) {
             return Aspect.fromTermId(primaryHpoId).get();
         } else {
