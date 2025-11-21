@@ -10,18 +10,39 @@ import static org.monarchinitiative.phenol.annotations.constants.hpo.HpoSubOntol
 
 
 /**
+ * Helper class for determining the HPO aspect (category) of phenotype terms.
  *
+ * <p>This class provides functionality to determine which HPO aspect (Phenotypic abnormality,
+ * Clinical course, Mode of inheritance, etc.) a given HPO term belongs to. This information
+ * is used when generating the big file format.</p>
+ *
+ * @author <a href="mailto:peter.robinson@jax.org">Peter Robinson</a>
+ * @author <a href="mailto:michael.gargano@jax.org">Michael Gargano</a>
  */
 public class AspectHelper {
 
-
     private final Ontology hpoOntology;
 
+    /**
+     * Constructs an AspectHelper with the specified HPO ontology.
+     *
+     * @param ontology the HPO ontology to use for aspect determination
+     */
     public AspectHelper(Ontology ontology) {
         this.hpoOntology = ontology;
     }
 
 
+    /**
+     * Determines the HPO aspect for the given term ID.
+     *
+     * <p>This method analyzes the hierarchical position of the term in the HPO ontology
+     * to determine which aspect (category) it belongs to.</p>
+     *
+     * @param tid the HPO term ID to analyze
+     * @return the HPO aspect that this term belongs to
+     * @throws HpoAnnotQcException if the term ID is null or cannot be processed
+     */
     public Aspect parse(TermId tid) throws HpoAnnotQcException {
         TermId primaryHpoId = hpoOntology.getPrimaryTermId(tid);
         if (primaryHpoId == null) {
@@ -41,8 +62,6 @@ public class AspectHelper {
             return Aspect.M;
         } else if (hpoOntology.graph().existsPath(primaryHpoId, PAST_MEDICAL_HISTORY)) {
             return Aspect.H; // the Orphanet annotations include some entries to the phenotype root
-        } else if (hpoOntology.graph().existsPath(primaryHpoId, INHERITANCE_ROOT)) {
-            return Aspect.I; // the Orphanet annotations include some entries to the root
         } else if (Aspect.fromTermId(primaryHpoId).isPresent()) {
             return Aspect.fromTermId(primaryHpoId).get();
         } else {

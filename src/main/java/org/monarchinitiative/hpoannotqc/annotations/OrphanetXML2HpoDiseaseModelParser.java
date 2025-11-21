@@ -1,7 +1,6 @@
 package org.monarchinitiative.hpoannotqc.annotations;
 
-
-import org.monarchinitiative.hpoannotqc.annotations.hpoaerror.HpoaError;
+import org.monarchinitiative.hpoannotqc.exception.HpoaRuntimeException;
 import org.monarchinitiative.phenol.base.PhenolRuntimeException;
 import org.monarchinitiative.phenol.ontology.data.Ontology;
 import org.monarchinitiative.phenol.ontology.data.TermId;
@@ -139,7 +138,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
             .collect(Collectors.toCollection(HashSet::new));
 
 
-    private final List<HpoaError> errorList;
+    private final List<HpoaRuntimeException> errorList;
 
 
     public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto, boolean tolerant) {
@@ -299,9 +298,7 @@ public class OrphanetXML2HpoDiseaseModelParser {
                                     currentHpoId,
                                     currentHpoTermLabel,
                                     currentFrequencyTermId,
-                                    ontology,
-                                    orphanetBiocurationString,
-                                    replaceObsoleteTermId);
+                                    orphanetBiocurationString);
                             currentHpoId = null;
                             currentHpoTermLabel = null;
                             currentFrequencyTermId = null;// reset
@@ -330,11 +327,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
                         inDisorderType = false;
                         currentOrphanumber = null;
                         currentDiseaseName = null;
-                        if (currentAnnotationEntryList.stream().anyMatch(HpoAnnotationEntry::hasError)) {
-                            for (var entry: currentAnnotationEntryList) {
-                                errorList.addAll(entry.getErrorList());
-                            }
-                        }
                         currentAnnotationEntryList.clear();
                 }
             }
