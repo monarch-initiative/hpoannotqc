@@ -51,15 +51,13 @@ public class BigFileCommand implements Callable<Integer> {
     /** Directory with hp.json and en_product>HPO.xml files. */
     @CommandLine.Option(names = { "-d",
             "--data" }, description = "directory to download data (default: ${DEFAULT-VALUE})")
-    private final String downloadDirectory = "data";
+    private String downloadDirectory = "data";
     @CommandLine.Option(names = { "-a",
             "--annot" }, description = "Path to directory with the ca. 7900 HPO Annotation files", required = true)
     private String hpoAnnotationFileDirectory;
     /** Should usually be phenotype.hpoa, may also include path */
     @CommandLine.Option(names = { "-o", "--output" }, description = "name of output file (default: ${DEFAULT-VALUE})")
-    private final String outputFilePath = "phenotype.hpoa";
-    @CommandLine.Option(names = "--tolerant", description = "tolerant mode (update obsolete term ids if possible; default: ${DEFAULT-VALUE})")
-    private final boolean tolerant = true;
+    private String outputFilePath = "phenotype.hpoa";
 
     /**
      * Command to create the{@code phenotype.hpoa} file from the various small HPO
@@ -123,8 +121,7 @@ public class BigFileCommand implements Callable<Integer> {
             LOGGER.info("Parsing Orphanet phenotype data from: {}", orphanetPhenotypeXmlPath);
             OrphanetXML2HpoDiseaseModelParser orphanetParser = new OrphanetXML2HpoDiseaseModelParser(
                     orphanetPhenotypeXmlPath,
-                    ontology,
-                    tolerant
+                    ontology
             );
             Map<TermId, HpoAnnotationModel> orphanetDiseaseMap = orphanetParser.getOrphanetDiseaseMap();
             LOGGER.info("Parsed {} Orphanet disease entries", orphanetDiseaseMap.size());
