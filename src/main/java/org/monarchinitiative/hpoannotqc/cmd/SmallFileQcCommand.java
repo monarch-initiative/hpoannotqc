@@ -56,7 +56,7 @@ public class SmallFileQcCommand implements Callable<Integer> {
 	private String hpoJson;
 	@CommandLine.Option(names = {"--update-obsolete"},
 			description = "Update obsolete HPO term IDs to primary IDs where possible (default: ${DEFAULT-VALUE})", required = true)
-	private final boolean updateObsolete = false;
+	private boolean updateObsolete = false;
 
 	private int validLine = 0;
 	private int invalidLine = 0;

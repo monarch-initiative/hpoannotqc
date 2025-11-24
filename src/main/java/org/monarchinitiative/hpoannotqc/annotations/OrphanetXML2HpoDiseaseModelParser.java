@@ -72,10 +72,6 @@ public class OrphanetXML2HpoDiseaseModelParser {
      * A map of diseases parsed from Orphanet.
      */
     private final Map<TermId, HpoAnnotationModel> orphanetDiseaseMap = new HashMap<>();
-    /**
-     * If true, replace obsolete term ids without throwing Exception.
-     */
-    private final boolean replaceObsoleteTermId;
 
     private static final String DISORDER = "Disorder";
     private static final String ORPHA_NUMBER = "OrphaNumber";
@@ -141,12 +137,11 @@ public class OrphanetXML2HpoDiseaseModelParser {
     private final List<HpoaRuntimeException> errorList;
 
 
-    public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto, boolean tolerant) {
+    public OrphanetXML2HpoDiseaseModelParser(String xmlpath, Ontology onto) {
         super();
         errorList = new ArrayList<>();
         orphanetXmlPath = xmlpath;
         this.ontology = onto;
-        this.replaceObsoleteTermId = tolerant;
         String todaysDate = getTodaysDate();
         orphanetBiocurationString = String.format("ORPHA:orphadata[%s]", todaysDate);
         try {
