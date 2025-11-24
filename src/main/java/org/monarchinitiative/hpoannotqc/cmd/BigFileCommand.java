@@ -58,26 +58,13 @@ public class BigFileCommand implements Callable<Integer> {
     /** Should usually be phenotype.hpoa, may also include path */
     @CommandLine.Option(names = { "-o", "--output" }, description = "name of output file (default: ${DEFAULT-VALUE})")
     private String outputFilePath = "phenotype.hpoa";
-
-    /**
-     * Command to create the{@code phenotype.hpoa} file from the various small HPO
-     * Annotation files.
-     */
-    public BigFileCommand() {
-        if (hpJsonPath == null) {
-            hpJsonPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.json");
-        }
-        File f = new File(hpJsonPath);
-        if (!f.isFile()) {
-            String err = String.format("Could not find hp.jon file at \"%s\".", hpJsonPath);
-            LOGGER.error(err);
-            throw new PhenolRuntimeException(err);
-        }
-    }
-
+    
     @Override
     public Integer call() {
         try {
+            if (hpJsonPath == null) {
+                hpJsonPath = String.format("%s%s%s", downloadDirectory, File.separator, "hp.json");
+            }
             LOGGER.info("Starting phenotype.hpoa file generation");
             LOGGER.info("Annotation directory: {}", hpoAnnotationFileDirectory);
 
